@@ -17,7 +17,11 @@ import 'services/guardian_service.dart';
 import 'services/voice_service.dart';
 import 'services/notification_service.dart';
 import 'services/detection/blocklist_service.dart';
+import 'services/sms_service.dart';
 import 'state/theme_provider.dart';
+import 'screens/otp_alert_screen.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +47,13 @@ void main() async {
   // ── Bundled blocklist ──────────────────────────────────────────────────────
   await BlocklistService.init();
 
+  // ── Auto-Popup for Fake OTPs ───────────────────────────────────────────────
+  SmsService.setDangerCallback((msg) {
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => OtpAlertScreen(message: msg)),
+    );
+  });
+
   runApp(
     // Wrap with ProviderScope for Riverpod — no visual change to MaterialApp
     const ProviderScope(
@@ -60,6 +71,7 @@ class SafeSeniorApp extends ConsumerWidget {
     final languageCode = LocalPreferences.getLanguage();
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Safe Senior',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
