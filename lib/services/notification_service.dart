@@ -41,7 +41,7 @@ class NotificationService {
       channelDescription: 'Alerts for detected scam messages and calls',
       importance: Importance.max,
       priority: Priority.high,
-      color: const Color.fromARGB(255, 201, 39, 39),
+      color: Color.fromARGB(255, 201, 39, 39),
     );
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,

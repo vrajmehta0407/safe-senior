@@ -44,7 +44,7 @@ class SafeSeniorLogo extends StatelessWidget {
           Icon(
             Icons.shield,
             size: size,
-            color: AppTheme.primaryLightBlue.withOpacity(0.9), // Base shield color
+            color: AppTheme.primaryLightBlue.withValues(alpha: 0.9), // Base shield color
           ),
           Icon(
             Icons.favorite,

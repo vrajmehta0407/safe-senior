@@ -1,12 +1,54 @@
-import 'package:flutter/material.dart';
+// lib/screens/otp_alert_screen.dart
+// Scam-warning screen — populated with real ScannedMessage data.
+// Layout and styling are UNCHANGED from the original; only dead data is replaced.
 
-class OtpAlertScreen extends StatelessWidget {
-  const OtpAlertScreen({super.key});
+import 'package:flutter/material.dart';
+import '../models/scanned_message.dart';
+import '../services/guardian_service.dart';
+import '../services/voice_service.dart';
+
+class OtpAlertScreen extends StatefulWidget {
+  /// The detected scam message this warning refers to.
+  /// If null, the screen shows generic hardcoded copy (backwards-compat).
+  final ScannedMessage? message;
+
+  const OtpAlertScreen({super.key, this.message});
+
+  @override
+  State<OtpAlertScreen> createState() => _OtpAlertScreenState();
+}
+
+class _OtpAlertScreenState extends State<OtpAlertScreen> {
+  bool _notified = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Speak the scam alert on screen entry
+    final sender = widget.message?.sender ?? 'Unknown';
+    VoiceService.speakScamAlert(sender);
+  }
+
+  Future<void> _onDidNotShare() async {
+    // Notify guardian that user was targeted but did NOT share the code
+    if (!_notified) {
+      final sender = widget.message?.sender ?? 'Unknown';
+      final reason = widget.message?.reasons.isNotEmpty == true
+          ? widget.message!.reasons.first
+          : 'OTP scam detected';
+      await GuardianService.notifyGuardian(sender: sender, reason: reason);
+      setState(() => _notified = true);
+    }
+    if (mounted) Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Color redTheme = const Color(0xFFC62828); // Deep Red
-    
+    final Color redTheme = const Color(0xFFC62828);
+    final msg = widget.message;
+    final senderDisplay = msg?.sender ?? 'UNKNOWN';
+    final reasons = msg?.reasons ?? [];
+
     return Scaffold(
       backgroundColor: redTheme,
       body: SafeArea(
@@ -42,7 +84,7 @@ class OtpAlertScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
               ),
               const SizedBox(height: 32),
-              
+
               // Suspicious Message Card
               Container(
                 width: double.infinity,
@@ -68,7 +110,8 @@ class OtpAlertScreen extends StatelessWidget {
                                 ),
                                 const TextSpan(text: ' '),
                                 TextSpan(
-                                  text: 'SUSPICIOUS MESSAGE FROM: [UNKNOWN]',
+                                  // Populated from real ScannedMessage.sender
+                                  text: 'SUSPICIOUS MESSAGE FROM: $senderDisplay',
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         color: Colors.red[900],
                                         fontWeight: FontWeight.bold,
@@ -106,25 +149,47 @@ class OtpAlertScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      'If someone is asking for this code right now, they are trying to steal your access.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontStyle: FontStyle.italic,
-                            color: Colors.black87,
-                          ),
-                    ),
+                    // Show detected risk reasons if available
+                    if (reasons.isNotEmpty)
+                      ...reasons.map((r) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.red, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    r,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(color: Colors.red[800], fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ))
+                    else
+                      Text(
+                        'If someone is asking for this code right now, they are trying to steal your access.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.black87,
+                            ),
+                      ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Checklist Card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFEAEA), // Light Pink
+                  color: const Color(0xFFFFEAEA), // Light Pink — unchanged
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -152,14 +217,14 @@ class OtpAlertScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
-              // I Did NOT Share Button
+
+              // I Did NOT Share Button — now fires guardian notification
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _onDidNotShare,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: redTheme,
@@ -182,7 +247,7 @@ class OtpAlertScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Close Button
               SizedBox(
                 width: double.infinity,
@@ -202,7 +267,7 @@ class OtpAlertScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
               Text(
                 'Safe Senior Security System is monitoring this\nsession. Your protection is our priority.',

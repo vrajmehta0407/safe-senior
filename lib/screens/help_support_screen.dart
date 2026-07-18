@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 import 'settings_screen.dart';
 import 'guardian_assistant_screen.dart';
 import 'security_tips_list_screen.dart';
@@ -12,6 +13,17 @@ class HelpSupportScreen extends StatefulWidget {
 }
 
 class _HelpSupportScreenState extends State<HelpSupportScreen> {
+  // FAQ expand state
+  static const _faqAnswers = {
+    'How do I block a caller?':
+        'Go to Security Status → Call Blocking and toggle it on. The app will automatically block numbers flagged as spam. You can also manually add numbers in the Blocked History screen.',
+    'Is my data safe?':
+        'Yes. All scam detection runs on-device using Hive local storage. Your messages and call logs are never uploaded to our servers unless you opt in to cloud backup.',
+    'How do I invite a family\nmember?':
+        'Open the Guardian screen and tap "Add Guardian". Enter their phone number and they will receive an SMS invite link.',
+  };
+
+  final Map<String, bool> _faqExpanded = {};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,9 +92,21 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final sent = await GuardianService.sendEmergencyAlert();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(sent
+                              ? 'Emergency alert sent to your guardian.'
+                              : 'No guardian set. Go to Emergency tab to add one.'),
+                          backgroundColor: sent ? Colors.green[700] : Colors.red[700],
+                        ),
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC62828), // Dark red
+                    backgroundColor: const Color(0xFFC62828),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -123,11 +147,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => GuardianService.callGuardian(),
                   icon: const Icon(Icons.call_outlined),
                   label: const Text('Call Support', style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D2546), // Dark Blue
+                    backgroundColor: const Color(0xFF0D2546),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -297,19 +321,37 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   }
 
   Widget _buildFAQItem(String question) {
+    final isOpen = _faqExpanded[question] ?? false;
+    final answer = _faqAnswers[question] ?? 'Please contact support for help with this question.';
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
       ),
-      child: ListTile(
-        title: Text(
-          question,
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 14),
-        ),
-        trailing: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
-        onTap: () {},
+      child: Column(
+        children: [
+          ListTile(
+            title: Text(
+              question,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 14),
+            ),
+            trailing: AnimatedRotation(
+              turns: isOpen ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+            ),
+            onTap: () => setState(() => _faqExpanded[question] = !isOpen),
+          ),
+          if (isOpen)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Text(
+                answer,
+                style: const TextStyle(color: Colors.black54, fontSize: 13, height: 1.5),
+              ),
+            ),
+        ],
       ),
     );
   }

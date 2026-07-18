@@ -15,15 +15,6 @@ class LanguageScreen extends ConsumerStatefulWidget {
 class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   int _selectedIndex = 3;
 
-  // Map display names back to codes
-  static const _nameToCode = {
-    'English': 'en',
-    'Hindi': 'hi',
-    'Gujarati': 'gu',
-    'Tamil': 'ta',
-    'Telugu': 'te',
-    'Bengali': 'bn',
-  };
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -38,11 +29,6 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   @override
   Widget build(BuildContext context) {
     final currentCode = ref.watch(languageProvider);
-
-    // Current display name from code
-    final currentName = AppConstants.supportedLanguages
-        .firstWhere((l) => l['code'] == currentCode,
-            orElse: () => AppConstants.supportedLanguages.first)['name']!;
 
     return Scaffold(
       appBar: AppBar(

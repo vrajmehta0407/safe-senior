@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
+import '../services/voice_service.dart';
 import 'home_screen.dart';
 
 class DailySafetyTipsScreen extends StatefulWidget {
@@ -160,7 +162,15 @@ class _DailySafetyTipsScreenState extends State<DailySafetyTipsScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final called = await GuardianService.callGuardian();
+                          if (!called) {
+                            messenger.showSnackBar(
+                              const SnackBar(content: Text('No guardian contact set. Please add a guardian first.')),
+                            );
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryDarkBlue,
                           foregroundColor: Colors.white,
@@ -232,7 +242,13 @@ class _DailySafetyTipsScreenState extends State<DailySafetyTipsScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // Speak the tip title aloud on acknowledge
+                VoiceService.speakTip(title);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Tip saved: $title')),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1964B0), // Blueish button from design
                 foregroundColor: Colors.white,

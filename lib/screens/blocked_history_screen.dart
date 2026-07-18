@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme.dart';
+import '../state/protection_stats_provider.dart';
 import 'home_screen.dart';
 
-class BlockedHistoryScreen extends StatefulWidget {
+class BlockedHistoryScreen extends ConsumerStatefulWidget {
   const BlockedHistoryScreen({super.key});
 
   @override
-  State<BlockedHistoryScreen> createState() => _BlockedHistoryScreenState();
+  ConsumerState<BlockedHistoryScreen> createState() => _BlockedHistoryScreenState();
 }
 
-class _BlockedHistoryScreenState extends State<BlockedHistoryScreen> {
+class _BlockedHistoryScreenState extends ConsumerState<BlockedHistoryScreen> {
   int _selectedIndex = 1; // Security selected
 
   void _onItemTapped(int index) {
@@ -83,7 +85,7 @@ class _BlockedHistoryScreenState extends State<BlockedHistoryScreen> {
                                 ),
                           ),
                           Text(
-                            '12',
+                            '${ref.watch(protectionStatsProvider).phishingSmsBlocked}',
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.textDark,

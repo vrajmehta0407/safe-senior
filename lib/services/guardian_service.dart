@@ -1,7 +1,10 @@
 // lib/services/guardian_service.dart
 // Manages guardian contacts: store, retrieve, and send emergency alerts.
+// Real calls/SMS are fired via url_launcher (no new UI).
 
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/guardian_contact.dart';
 
 class GuardianService {
@@ -19,7 +22,6 @@ class GuardianService {
 
   /// Sets the primary guardian contact (single guardian on free tier).
   static Future<void> setGuardianContact(GuardianContact contact) async {
-    // Clear any existing guardians first (single-guardian free tier)
     await _instance.clear();
     await _instance.add(contact);
   }
@@ -35,25 +37,71 @@ class GuardianService {
     await _instance.clear();
   }
 
-  /// Simulates sending an emergency alert to the guardian.
-  /// In a real app this would call/SMS via platform channel.
+  // ─── Real Communication ───────────────────────────────────────────────────
+
+  /// Opens the phone dialer for the guardian's number.
+  static Future<bool> callGuardian() async {
+    final guardian = getPrimaryGuardian();
+    if (guardian == null) return false;
+    final uri = Uri(scheme: 'tel', path: guardian.phone);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+        return true;
+      }
+    } catch (e) {
+      if (kDebugMode) print('[GuardianService] callGuardian error: $e');
+    }
+    return false;
+  }
+
+  /// Opens the SMS composer pre-filled with the emergency message.
+  static Future<bool> messageGuardian(String message) async {
+    final guardian = getPrimaryGuardian();
+    if (guardian == null) return false;
+    final uri = Uri(
+      scheme: 'sms',
+      path: guardian.phone,
+      queryParameters: {'body': message},
+    );
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+        return true;
+      }
+    } catch (e) {
+      if (kDebugMode) print('[GuardianService] messageGuardian error: $e');
+    }
+    return false;
+  }
+
+  /// Sends the emergency alert: opens dialer AND queues SMS.
   /// Returns true if guardian exists, false otherwise.
   static Future<bool> sendEmergencyAlert({String? message}) async {
     final guardian = getPrimaryGuardian();
     if (guardian == null) return false;
 
-    // TODO(backend): On Android, launch phone dialer or send SMS via sms_service.
-    // For now, log the alert attempt — the UI already has the warning screen.
-    print('[GuardianService] EMERGENCY ALERT sent to ${guardian.name} (${guardian.phone}): ${message ?? "Help needed!"}');
+    final alertMsg = message ??
+        '🚨 EMERGENCY: ${guardian.name} needs help right now. Please call immediately.';
+
+    // Primary: call the guardian
+    final called = await callGuardian();
+
+    // If call launcher fails, fall back to SMS
+    if (!called) {
+      await messageGuardian(alertMsg);
+    }
     return true;
   }
 
-  /// Simulates notifying the guardian about a detected scam.
+  /// Notifies the guardian about a detected scam via SMS.
   static Future<bool> notifyGuardian({required String sender, required String reason}) async {
     final guardian = getPrimaryGuardian();
     if (guardian == null) return false;
 
-    print('[GuardianService] Notifying ${guardian.name}: Scam from $sender — $reason');
-    return true;
+    final msg =
+        '⚠️ Safe Senior Alert: A suspicious message was detected from "$sender". Reason: $reason. '
+        'Please check on your family member.';
+    return await messageGuardian(msg);
   }
 }

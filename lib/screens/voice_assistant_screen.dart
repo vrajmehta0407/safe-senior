@@ -140,7 +140,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                     Switch(
                       value: voice.enabled,
                       onChanged: (val) => notifier.setEnabled(val),
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: const Color(0xFF1964B0),
                     ),
                   ],
@@ -154,9 +154,9 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              _buildVoiceTypeOption(context, 'Calm Female', 'Soothing and clear', voice.voiceType, notifier),
+              _buildVoiceTypeOption(context, 'Calm Female', 'Soothing and clear', voice.voiceType, notifier, 'female'),
               const SizedBox(height: 12),
-              _buildVoiceTypeOption(context, 'Friendly Male', 'Warm and helpful', voice.voiceType, notifier),
+              _buildVoiceTypeOption(context, 'Friendly Male', 'Warm and helpful', voice.voiceType, notifier, 'male'),
               
               const SizedBox(height: 24),
 
@@ -244,10 +244,13 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     );
   }
 
-  Widget _buildVoiceTypeOption(BuildContext context, String title, String subtitle, String currentVoiceType, VoiceSettingsNotifier notifier) {
+  Widget _buildVoiceTypeOption(BuildContext context, String title, String subtitle, String currentVoiceType, VoiceSettingsNotifier notifier, String gender) {
     final bool isSelected = currentVoiceType == title;
     return GestureDetector(
-      onTap: () => notifier.setVoiceType(title),
+      onTap: () {
+        notifier.setVoiceType(title);
+        notifier.setVoiceGender(gender); // apply to TTS engine
+      },
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(

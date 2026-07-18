@@ -387,6 +387,36 @@ class _GuardianScreenState extends ConsumerState<GuardianScreen> {
             ),
           ),
         ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => GuardianService.callGuardian(),
+                icon: const Icon(Icons.call_outlined),
+                label: const Text('Call'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.green[700],
+                  side: BorderSide(color: Colors.green.withValues(alpha: 0.6)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => GuardianService.messageGuardian('Hi, just checking in from Safe Senior.'),
+                icon: const Icon(Icons.message_outlined),
+                label: const Text('Message'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryDarkBlue,
+                  side: BorderSide(color: AppTheme.primaryDarkBlue.withValues(alpha: 0.4)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

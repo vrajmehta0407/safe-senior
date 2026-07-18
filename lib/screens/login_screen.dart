@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_auth/local_auth.dart';
 import '../theme.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/logo.dart';
@@ -19,12 +20,43 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _localAuth = LocalAuthentication();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    try {
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final isDeviceSupported = await _localAuth.isDeviceSupported();
+      if (!canCheck || !isDeviceSupported) {
+        _showError('Biometric authentication is not available on this device.');
+        return;
+      }
+      final authenticated = await _localAuth.authenticate(
+        localizedReason: 'Verify your identity to log in to Safe Senior',
+        options: const AuthenticationOptions(
+          biometricOnly: false,
+          stickyAuth: true,
+        ),
+      );
+      if (!authenticated) return;
+      // Biometric passed — check if a local session exists
+      final authState = ref.read(authProvider);
+      if (authState.user != null) {
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
+      } else {
+        _showError('No saved account found. Please log in with your credentials first.');
+      }
+    } catch (e) {
+      _showError('Biometric login failed. Please use your password.');
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -42,9 +74,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (success && mounted) {
       // Request permissions after login (no new UI)
+      final navigator = Navigator.of(context);
       await PermissionService.requestPostLoginPermissions();
-      Navigator.pushReplacement(
-        context,
+      navigator.pushReplacement(
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     }
@@ -178,11 +210,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Fingerprint Button
-              // TODO(backend): Biometric login requires local_auth package — not in current scope.
-              // Keeping button visible with no-op as per Section 0 rules.
+              // Fingerprint Button — wired to local_auth
               OutlinedButton(
-                onPressed: () {},
+                onPressed: _handleBiometricLogin,
                 style: OutlinedButton.styleFrom(
                   backgroundColor: AppTheme.primaryLightBlue.withOpacity(0.1),
                   side: const BorderSide(color: AppTheme.primaryDarkBlue),

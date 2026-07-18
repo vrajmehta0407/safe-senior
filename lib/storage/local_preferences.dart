@@ -27,11 +27,25 @@ class LocalPreferences {
 
   static bool isLoggedIn() => getCurrentUserEmail() != null;
 
+  static String? getJwtToken() => _instance.getString(AppConstants.keyJwtToken);
+
+  static Future<void> setJwtToken(String token) =>
+      _instance.setString(AppConstants.keyJwtToken, token);
+
+  static Future<void> clearJwtToken() =>
+      _instance.remove(AppConstants.keyJwtToken);
+
   // ─── Language ──────────────────────────────────────────────────────────────
   static String getLanguage() => _instance.getString(AppConstants.keyLanguage) ?? 'en';
 
   static Future<void> setLanguage(String code) =>
       _instance.setString(AppConstants.keyLanguage, code);
+
+  // ─── Theme ─────────────────────────────────────────────────────────────────
+  static String getThemeMode() => _instance.getString(AppConstants.keyThemeMode) ?? 'system';
+
+  static Future<void> setThemeMode(String mode) =>
+      _instance.setString(AppConstants.keyThemeMode, mode);
 
   // ─── Voice Settings ────────────────────────────────────────────────────────
   static bool getVoiceEnabled() => _instance.getBool(AppConstants.keyVoiceEnabled) ?? true;
@@ -49,6 +63,11 @@ class LocalPreferences {
 
   static Future<void> setVoiceType(String val) =>
       _instance.setString(AppConstants.keyVoiceType, val);
+
+  static String getVoiceGender() => _instance.getString(AppConstants.keyVoiceGender) ?? 'neutral';
+
+  static Future<void> setVoiceGender(String gender) =>
+      _instance.setString(AppConstants.keyVoiceGender, gender);
 
   // ─── Premium ───────────────────────────────────────────────────────────────
   static bool getPremiumStatus() => _instance.getBool(AppConstants.keyPremiumStatus) ?? false;

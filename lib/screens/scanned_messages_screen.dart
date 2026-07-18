@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme.dart';
+import '../models/scanned_message.dart';
+import '../state/scanned_messages_provider.dart';
+import 'otp_alert_screen.dart';
 import 'home_screen.dart';
 
-class ScannedMessagesScreen extends StatefulWidget {
+class ScannedMessagesScreen extends ConsumerStatefulWidget {
   const ScannedMessagesScreen({super.key});
 
   @override
-  State<ScannedMessagesScreen> createState() => _ScannedMessagesScreenState();
+  ConsumerState<ScannedMessagesScreen> createState() => _ScannedMessagesScreenState();
 }
 
-class _ScannedMessagesScreenState extends State<ScannedMessagesScreen> {
-  int _selectedIndex = 1; // Security selected
+class _ScannedMessagesScreenState extends ConsumerState<ScannedMessagesScreen> {
+  int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -67,122 +71,10 @@ class _ScannedMessagesScreenState extends State<ScannedMessagesScreen> {
                     ),
               ),
               const SizedBox(height: 24),
-              
-              // BLOCKED Card
-              _buildMessageCard(
-                context,
-                title: 'Unknown Number',
-                time: '10:42 AM',
-                tag: 'BLOCKED',
-                tagColor: Colors.red[700]!,
-                icon: Icons.warning_amber_rounded,
-                iconColor: Colors.red[700]!,
-                iconBgColor: Colors.red[50]!,
-                borderColor: Colors.grey.withValues(alpha: 0.3),
-                content: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red[200]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '"Your bank account has been suspended. Click here to verify your identity immediately: bit.ly/bank-alert-32..."',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic),
-                  ),
-                ),
-                actions: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[800],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.report_problem_outlined, size: 20),
-                        SizedBox(width: 8),
-                        Text('Report Scam', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // SUSPECT Card
-              _buildMessageCard(
-                context,
-                title: 'Amazon Support?',
-                time: 'Yesterday',
-                tag: 'SUSPECT',
-                tagColor: Colors.orange[800]!,
-                icon: Icons.help_outline,
-                iconColor: Colors.orange[800]!,
-                iconBgColor: Colors.orange[50]!,
-                borderColor: Colors.grey.withValues(alpha: 0.3),
-                leftBorderColor: Colors.brown[900], // Thick left border from design
-                content: Text(
-                  '"A large purchase of \$1,200 was made on your account. If this wasn\'t you, call..."',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                actions: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primaryDarkBlue,
-                      side: const BorderSide(color: AppTheme.primaryDarkBlue, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Verify Sender', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // SAFE Card 1
-              _buildMessageCard(
-                context,
-                title: 'Sarah (Granddaughter)',
-                time: 'Monday',
-                tag: 'SAFE',
-                tagColor: AppTheme.primaryDarkBlue,
-                icon: Icons.verified_user_outlined,
-                iconColor: AppTheme.primaryDarkBlue,
-                iconBgColor: AppTheme.primaryLightBlue.withValues(alpha: 0.3),
-                borderColor: Colors.grey.withValues(alpha: 0.3),
-                content: Text(
-                  '"Hi Grandpa! Just checking in to see if you\'re free for dinner this Sunday? Love you!"',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // SAFE Card 2
-              _buildMessageCard(
-                context,
-                title: 'Pharmacy Plus',
-                time: 'Oct 12',
-                tag: 'SAFE',
-                tagColor: AppTheme.primaryDarkBlue,
-                icon: Icons.verified_user_outlined,
-                iconColor: AppTheme.primaryDarkBlue,
-                iconBgColor: AppTheme.primaryLightBlue.withValues(alpha: 0.3),
-                borderColor: Colors.grey.withValues(alpha: 0.3),
-                content: Text(
-                  '"Your prescription is ready for pickup. Please visit the store before 9 PM tonight."',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-              const SizedBox(height: 24),
+              ...ref.watch(scannedMessagesProvider).map((msg) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildMessageCardForMsg(context, msg),
+              )),
             ],
           ),
         ),
@@ -190,6 +82,105 @@ class _ScannedMessagesScreenState extends State<ScannedMessagesScreen> {
       bottomNavigationBar: _buildBottomNav(),
     );
   }
+
+  Widget _buildMessageCardForMsg(BuildContext context, ScannedMessage msg) {
+    final isDanger = msg.riskLevelIndex == 2;
+    final isCaution = msg.riskLevelIndex == 1;
+    final String tag = isDanger ? 'BLOCKED' : isCaution ? 'SUSPECT' : 'SAFE';
+    final Color tagColor = isDanger
+        ? Colors.red[700]!
+        : isCaution
+            ? Colors.orange[800]!
+            : AppTheme.primaryDarkBlue;
+    final IconData icon = isDanger
+        ? Icons.warning_amber_rounded
+        : isCaution
+            ? Icons.help_outline
+            : Icons.verified_user_outlined;
+    final Color iconColor = isDanger
+        ? Colors.red[700]!
+        : isCaution
+            ? Colors.orange[800]!
+            : AppTheme.primaryDarkBlue;
+    final Color iconBgColor = isDanger
+        ? Colors.red[50]!
+        : isCaution
+            ? Colors.orange[50]!
+            : AppTheme.primaryLightBlue.withValues(alpha: 0.3);
+    final Color? leftBorder = isCaution ? Colors.brown[900] : null;
+
+    Widget? actionBtn;
+    if (isDanger) {
+      actionBtn = SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            ref.read(scannedMessagesProvider.notifier).markReported(msg);
+            Navigator.push(context, MaterialPageRoute(
+              builder: (_) => OtpAlertScreen(message: msg),
+            ));
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red[800],
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.report_problem_outlined, size: 20),
+              SizedBox(width: 8),
+              Text('Report Scam', style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      );
+    } else if (isCaution) {
+      actionBtn = SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (_) => OtpAlertScreen(message: msg),
+            ));
+          },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppTheme.primaryDarkBlue,
+            side: const BorderSide(color: AppTheme.primaryDarkBlue, width: 1.5),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          child: const Text('Verify Sender', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      );
+    }
+
+    return _buildMessageCard(
+      context,
+      title: msg.sender,
+      time: _formatTime(msg.receivedAt),
+      tag: tag,
+      tagColor: tagColor,
+      icon: icon,
+      iconColor: iconColor,
+      iconBgColor: iconBgColor,
+      borderColor: Colors.grey.withValues(alpha: 0.3),
+      leftBorderColor: leftBorder,
+      content: Text(msg.body, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontStyle: isDanger ? FontStyle.italic : null)),
+      actions: actionBtn,
+    );
+  }
+
+  String _formatTime(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inHours < 24) return '${dt.hour}:${dt.minute.toString().padLeft(2, '0')} AM';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dt.weekday - 1];
+    return '${dt.month}/${dt.day}';
+  }
+
 
   Widget _buildMessageCard(
     BuildContext context, {

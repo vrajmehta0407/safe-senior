@@ -296,7 +296,7 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.primaryDarkBlue,
+            activeThumbColor: AppTheme.primaryDarkBlue,
             activeTrackColor: AppTheme.primaryLightBlue.withValues(alpha: 0.5),
           ),
         ],

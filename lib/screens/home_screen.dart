@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme.dart';
-import 'warning_alert_screen.dart';
+import '../state/protection_stats_provider.dart';
 import 'guardian_screen.dart';
 import 'security_status_screen.dart';
 import 'daily_safety_tips_screen.dart';
@@ -8,14 +9,14 @@ import 'settings_screen.dart';
 import 'help_support_screen.dart';
 import 'emergency_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -222,36 +223,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 24),
               
-              // Recent Activity
-              Text(
-                'Recent Activity',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppTheme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                ),
-                child: Column(
+              // Recent Activity — wired to live protectionStatsProvider
+              Builder(builder: (context) {
+                final stats = ref.watch(protectionStatsProvider);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildActivityItem(
-                      context,
-                      title: '12 Scams Blocked',
-                      subtitle: 'This week',
-                      icon: Icons.gpp_bad_outlined,
-                    ),
-                    Divider(color: Colors.grey.withValues(alpha: 0.2), height: 1),
-                    _buildActivityItem(
-                      context,
-                      title: '5 Calls Protected',
-                      subtitle: 'This week',
-                      icon: Icons.phone_disabled_outlined,
+                    Text('Recent Activity', style: Theme.of(context).textTheme.headlineMedium),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildActivityItem(
+                            context,
+                            title: '${stats.phishingSmsBlocked} Scams Blocked',
+                            subtitle: 'This week',
+                            icon: Icons.gpp_bad_outlined,
+                          ),
+                          Divider(color: Colors.grey.withValues(alpha: 0.2), height: 1),
+                          _buildActivityItem(
+                            context,
+                            title: '${stats.spamCallsBlocked} Calls Protected',
+                            subtitle: 'This week',
+                            icon: Icons.phone_disabled_outlined,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              ),
+                );
+              }),
               const SizedBox(height: 24),
               
               // Today's Safety Tip

@@ -179,9 +179,12 @@ class AppConstants {
   static const String keyVoiceEnabled = 'voice_enabled';
   static const String keyVoiceSpeed = 'voice_speed';
   static const String keyVoiceType = 'voice_type';
+  static const String keyVoiceGender = 'voice_gender';
+  static const String keyThemeMode = 'theme_mode';
   static const String keyPremiumStatus = 'premium_status';
   static const String keyTrialStartDate = 'trial_start_date';
   static const String keySelectedPlanId = 'selected_plan_id';
+  static const String keyJwtToken = 'jwt_token';
 
   // ─── Supported Languages ───────────────────────────────────────────────────
   static const List<Map<String, String>> supportedLanguages = [

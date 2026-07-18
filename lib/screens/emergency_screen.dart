@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 import 'warning_alert_screen.dart';
 import 'guardian_screen.dart';
 import 'home_screen.dart';
@@ -166,8 +167,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               
               // Help Button
               GestureDetector(
-                onLongPress: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const WarningAlertScreen()));
+                onLongPress: () async {
+                  // Fire real call/SMS to guardian immediately
+                  await GuardianService.sendEmergencyAlert(
+                    message: '🚨 EMERGENCY: I need help right now! Please call me immediately.',
+                  );
+                  if (context.mounted) {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const WarningAlertScreen()));
+                  }
                 },
                 child: Center(
                   child: Container(

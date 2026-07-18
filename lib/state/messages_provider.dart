@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/scanned_message.dart';
 import '../storage/message_store.dart';
 import '../services/sms_service.dart';
-import 'protection_stats_provider.dart';
 
 class MessagesNotifier extends StateNotifier<List<ScannedMessage>> {
   MessagesNotifier() : super([]) {

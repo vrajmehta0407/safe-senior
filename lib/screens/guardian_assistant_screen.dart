@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
+import '../services/voice_service.dart';
 import 'settings_screen.dart';
 
 class GuardianAssistantScreen extends StatefulWidget {
@@ -11,6 +13,34 @@ class GuardianAssistantScreen extends StatefulWidget {
 
 class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final List<Map<String, dynamic>> _messages = [
+    {'text': "Hello! I'm your Guardian Assistant. How can I help keep you safe today?", 'isBot': true, 'time': 'Just now'},
+  ];
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _messages.add({'text': text, 'isBot': false, 'time': 'Sent'});
+      _messages.add({'text': 'I received your message. If this is an emergency, please press SOS below.', 'isBot': true, 'time': 'Just now'});
+    });
+    _messageController.clear();
+    VoiceService.speak('I received your message.');
+  }
+
+  Future<void> _onSosTapped() async {
+    final sent = await GuardianService.sendEmergencyAlert(
+      message: '🚨 SOS from Guardian Assistant: I need help immediately!',
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(sent ? 'Emergency alert sent to your guardian.' : 'No guardian contact set. Please add one first.'),
+          backgroundColor: sent ? Colors.green[700] : Colors.red[700],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,35 +81,19 @@ class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
             Column(
               children: [
                 Expanded(
-                  child: ListView(
+                  child: ListView.separated(
                     padding: const EdgeInsets.all(20.0),
-                    children: [
-                      // Bot Message 1
-                      _buildChatBubble(
-                        text: "Hello! I'm your Guardian Assistant. How can I help keep you safe today?",
-                        isBot: true,
-                        time: "Just now",
-                      ),
-                      const SizedBox(height: 24),
-
-                      // User Message
-                      _buildChatBubble(
-                        text: "I just got a strange text message about my bank account.",
-                        isBot: false,
-                        time: "Sent",
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Bot Message 2
-                      _buildChatBubble(
-                        text: "I can check that for you. Would you like to paste the message here or take a",
-                        isBot: true,
-                        time: "",
-                      ),
-                      
-                      // Extra padding at bottom so content doesn't hide behind SOS and input
-                      const SizedBox(height: 140), 
-                    ],
+                    itemCount: _messages.length + 1,
+                    separatorBuilder: (_, _) => const SizedBox(height: 24),
+                    itemBuilder: (context, index) {
+                      if (index == _messages.length) return const SizedBox(height: 140);
+                      final m = _messages[index];
+                      return _buildChatBubble(
+                        text: m['text'] as String,
+                        isBot: m['isBot'] as bool,
+                        time: m['time'] as String,
+                      );
+                    },
                   ),
                 ),
                 
@@ -123,7 +137,7 @@ class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.send_outlined, color: AppTheme.primaryDarkBlue),
-                                    onPressed: () {},
+                                    onPressed: _sendMessage,
                                   ),
                                 ],
                               ),
@@ -139,7 +153,7 @@ class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
                             ),
                             child: IconButton(
                               icon: const Icon(Icons.mic, color: Colors.white, size: 28),
-                              onPressed: () {},
+                              onPressed: () => VoiceService.startListening(),
                             ),
                           ),
                         ],
@@ -193,7 +207,7 @@ class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _onSosTapped,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC62828), // Dark red
                     foregroundColor: Colors.white,

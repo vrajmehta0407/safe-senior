@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../state/auth_provider.dart';
 import '../state/premium_provider.dart';
+import '../state/theme_provider.dart';
 import '../services/premium_service.dart';
 import 'home_screen.dart';
 import 'language_screen.dart';
@@ -191,14 +193,79 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 context,
                 title: 'Account Details',
                 icon: Icons.person_outline,
-                onTap: () {},
+                onTap: () {
+                  final user = ref.read(authProvider).user;
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Account Details'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Name: ${user?.name ?? "—"}'),
+                          const SizedBox(height: 8),
+                          Text('Email: ${user?.email ?? "—"}'),
+                          const SizedBox(height: 8),
+                          Text('Phone: ${user?.phone ?? "—"}'),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              // Dark Mode toggle — wired to ThemeModeNotifier
+              Consumer(
+                builder: (context, ref, _) {
+                  final themeMode = ref.watch(themeModeProvider);
+                  final isDark = themeMode == ThemeMode.dark;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                            color: AppTheme.primaryDarkBlue),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Dark Mode',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Switch(
+                          value: isDark,
+                          onChanged: (_) => ref.read(themeModeProvider.notifier).toggle(),
+                          activeThumbColor: Colors.white,
+                          activeTrackColor: AppTheme.primaryLightBlue,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 16),
               _buildSettingsOption(
                 context,
                 title: 'Privacy Policy',
                 icon: Icons.privacy_tip_outlined,
-                onTap: () {},
+                onTap: () async {
+                  final uri = Uri.parse('https://safesenior.app/privacy');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
               ),
               const SizedBox(height: 32),
               Center(
