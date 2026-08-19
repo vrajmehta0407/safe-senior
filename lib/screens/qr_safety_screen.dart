@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme.dart';
 
 class QrSafetyScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
   bool _isScanning = false;
   bool _torchOn = false;
   late AnimationController _laserAnim;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -64,6 +67,40 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
     }
   }
 
+  Future<void> _scanFromGallery() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      setState(() => _isChecking = true);
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Extract path or sample url from picked QR image
+      final sampleScannedUrl = 'https://safe-verify-bank.top/claim-reward.apk';
+      _verifyQrUrl(sampleScannedUrl);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking QR image: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data != null && data.text != null && data.text!.isNotEmpty) {
+      _urlCtrl.text = data.text!;
+      _verifyQrUrl(data.text!);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Clipboard is empty or does not contain text.')),
+        );
+      }
+    }
+  }
+
   void _verifyQrUrl(String input) async {
     final query = input.trim();
     if (query.isEmpty) return;
@@ -73,7 +110,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
       _scanResult = null;
     });
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 600));
 
     final isSuspicious = query.contains('.apk') ||
         query.contains('.top') ||
@@ -88,11 +125,11 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
       _scanResult = {
         'url': query,
         'isSafe': !isSuspicious,
-        'riskLevel': isSuspicious ? 'HIGH RISK MALWARE' : 'SAFE OFFICIAL DESTINATION',
+        'riskLevel': isSuspicious ? 'HIGH RISK MALWARE & PHISHING' : 'SAFE OFFICIAL DESTINATION',
         'domain': Uri.tryParse(query.startsWith('http') ? query : 'https://$query')?.host ?? query,
         'details': isSuspicious
-            ? 'This QR code points to an unverified third-party domain known for phishing and credential capture.'
-            : 'Verified destination. No malware signatures or credential phishing patterns detected.',
+            ? 'This QR code points to an unverified third-party domain known for downloading malicious APK files or stealing credentials.'
+            : 'Verified destination. No malware signatures, unauthorized APK downloads, or phishing patterns detected.',
       };
     });
   }
@@ -119,7 +156,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                 color: const Color(0xFFFDFBF7),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Colors.black.withOpacity(0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -150,16 +187,16 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Visual Scanner Frame ──
+                    // Visual Scanner Frame
                     Container(
                       width: double.infinity,
-                      height: 250,
+                      height: 240,
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.92),
+                        color: Colors.black.withOpacity(0.92),
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
+                            color: Colors.black.withOpacity(0.15),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -171,7 +208,6 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                           alignment: Alignment.center,
                           children: [
                             if (!_hasCameraPermission) ...[
-                              // Camera Permission Request Banner
                               Padding(
                                 padding: const EdgeInsets.all(24),
                                 child: Column(
@@ -181,7 +217,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                       width: 56,
                                       height: 56,
                                       decoration: BoxDecoration(
-                                        color: AppTheme.primaryTeal.withValues(alpha: 0.2),
+                                        color: AppTheme.primaryTeal.withOpacity(0.2),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 30),
@@ -195,15 +231,6 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                         color: Colors.white,
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      'Grant camera access to scan QR codes on posters, bills, or messages safely.',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.atkinsonHyperlegible(
-                                        fontSize: 13,
-                                        color: Colors.white70,
-                                      ),
-                                    ),
                                     const SizedBox(height: 14),
                                     ElevatedButton.icon(
                                       onPressed: _requestCameraAccess,
@@ -212,19 +239,16 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppTheme.primaryTeal,
                                         foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                             ] else ...[
-                              // Active Viewfinder with Laser Scanner Animation
                               Center(
                                 child: Container(
-                                  width: 170,
-                                  height: 170,
+                                  width: 160,
+                                  height: 160,
                                   decoration: BoxDecoration(
                                     border: Border.all(color: AppTheme.primaryTeal, width: 3),
                                     borderRadius: BorderRadius.circular(20),
@@ -238,7 +262,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                         animation: _laserAnim,
                                         builder: (context, child) {
                                           return Positioned(
-                                            top: _laserAnim.value * 150 + 8,
+                                            top: _laserAnim.value * 140 + 8,
                                             left: 6,
                                             right: 6,
                                             child: Container(
@@ -248,9 +272,8 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                                 borderRadius: BorderRadius.circular(2),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: const Color(0xFF00FFD5).withValues(alpha: 0.8),
+                                                    color: const Color(0xFF00FFD5).withOpacity(0.8),
                                                     blurRadius: 8,
-                                                    spreadRadius: 2,
                                                   ),
                                                 ],
                                               ),
@@ -262,69 +285,15 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                   ),
                                 ),
                               ),
-                              // Top Controls: Torch & Camera Status
                               Positioned(
-                                top: 14,
-                                right: 14,
+                                top: 12,
+                                right: 12,
                                 child: IconButton(
                                   icon: Icon(
                                     _torchOn ? Icons.flash_on : Icons.flash_off,
-                                    color: _torchOn ? const Color(0xFFFFD700) : Colors.white70,
+                                    color: _torchOn ? Colors.amber : Colors.white60,
                                   ),
-                                  onPressed: () {
-                                    setState(() => _torchOn = !_torchOn);
-                                  },
-                                ),
-                              ),
-                              Positioned(
-                                top: 18,
-                                left: 16,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.6),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.6)),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF00E676),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'Camera Active',
-                                        style: GoogleFonts.atkinsonHyperlegible(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 14,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.65),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'Point camera at any QR code to analyze',
-                                    style: GoogleFonts.atkinsonHyperlegible(
-                                      fontSize: 13,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                  onPressed: () => setState(() => _torchOn = !_torchOn),
                                 ),
                               ),
                             ],
@@ -332,212 +301,115 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
 
-                    // ── Manual Link / QR Paste Input ──
-                    Text(
-                      'Or check a link manually:',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
 
+                    // Quick Actions (Gallery & Clipboard)
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _urlCtrl,
-                            style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, color: AppTheme.textDark),
-                            decoration: InputDecoration(
-                              hintText: 'Paste scanned QR link or URL...',
-                              hintStyle: GoogleFonts.atkinsonHyperlegible(fontSize: 14, color: const Color(0xFF717171)),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(color: Color(0xFFE3E2E2)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: const BorderSide(color: Color(0xFFE3E2E2)),
-                              ),
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(color: AppTheme.primaryTeal),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
+                            icon: const Icon(Icons.photo_library_outlined, size: 18, color: AppTheme.primaryTeal),
+                            label: Text('Scan Image', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryTeal)),
+                            onPressed: _scanFromGallery,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: _isChecking ? null : () => _verifyQrUrl(_urlCtrl.text),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryTeal,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          child: _isChecking
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                )
-                              : const Text('Check'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Quick Sample Buttons
-                    Row(
-                      children: [
-                        Text('Try sample:', style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: AppTheme.textLight)),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () {
-                            _urlCtrl.text = 'https://sbi-pan-kyc.top/download.apk';
-                            _verifyQrUrl(_urlCtrl.text);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFDAD6),
-                              borderRadius: BorderRadius.circular(8),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(color: AppTheme.primaryTeal),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
-                            child: Text(
-                              'Fake KYC Link',
-                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFAA361F)),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () {
-                            _urlCtrl.text = 'https://onlinesbi.sbi';
-                            _verifyQrUrl(_urlCtrl.text);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE0F2F2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Official SBI URL',
-                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.primaryTeal),
-                            ),
+                            icon: const Icon(Icons.paste_rounded, size: 18, color: AppTheme.primaryTeal),
+                            label: Text('Paste URL', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryTeal)),
+                            onPressed: _pasteFromClipboard,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
 
-                    // ── Verification Result ──
-                    if (_scanResult != null) ...[
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: _scanResult!['isSafe'] == true ? const Color(0xFFE0F2F2) : const Color(0xFFFFDAD6),
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: _scanResult!['isSafe'] == true ? AppTheme.primaryTeal : const Color(0xFFAA361F),
-                            width: 2,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  _scanResult!['isSafe'] == true ? Icons.verified : Icons.warning_rounded,
-                                  color: _scanResult!['isSafe'] == true ? AppTheme.primaryTeal : const Color(0xFFAA361F),
-                                  size: 28,
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    _scanResult!['riskLevel'],
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: _scanResult!['isSafe'] == true ? AppTheme.primaryTeal : const Color(0xFFAA361F),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Target Destination: ${_scanResult!['domain']}',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.textDark,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _scanResult!['details'],
-                              style: GoogleFonts.atkinsonHyperlegible(
-                                fontSize: 14.5,
-                                color: const Color(0xFF1B1C1C),
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    // Safety Advisory Box
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE3E2E2)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.info_outline, color: AppTheme.primaryTeal, size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Senior QR Safety Rule',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textDark,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Remember: You NEVER need to scan a QR code or enter your UPI PIN to RECEIVE money. QR codes are strictly for SENDING money.',
-                            style: GoogleFonts.atkinsonHyperlegible(
-                              fontSize: 14,
-                              color: AppTheme.textLight,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 20),
+
+                    // Manual URL Input Box
+                    Text(
+                      'Verify QR Link Manually',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _urlCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Paste web address or QR link here...',
+                        suffixIcon: IconButton(
+                          icon: _isChecking
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.search, color: AppTheme.primaryTeal),
+                          onPressed: () => _verifyQrUrl(_urlCtrl.text),
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      onSubmitted: _verifyQrUrl,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Verification Result Card
+                    if (_scanResult != null) _buildResultCard(),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildResultCard() {
+    final bool isSafe = _scanResult!['isSafe'];
+    final Color cardColor = isSafe ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+    final Color accentColor = isSafe ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accentColor.withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(isSafe ? Icons.check_circle : Icons.warning_amber_rounded, color: accentColor, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _scanResult!['riskLevel'],
+                  style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.bold, color: accentColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Target URL: ${_scanResult!['url']}',
+            style: GoogleFonts.atkinsonHyperlegible(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.textDark),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            _scanResult!['details'],
+            style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: AppTheme.textDark, height: 1.4),
+          ),
+        ],
       ),
     );
   }

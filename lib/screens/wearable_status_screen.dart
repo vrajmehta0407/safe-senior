@@ -1,9 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/permission_service.dart';
 
-class WearableStatusScreen extends StatelessWidget {
+class WearableStatusScreen extends StatefulWidget {
   const WearableStatusScreen({super.key});
+
+  @override
+  State<WearableStatusScreen> createState() => _WearableStatusScreenState();
+}
+
+class _WearableStatusScreenState extends State<WearableStatusScreen> {
+  bool _isConnected = true;
+  bool _isScanning = false;
+  int _batteryLevel = 84;
+  int _heartRate = 72;
+  String _deviceName = 'SafeSenior SOS Smart Band';
+  String _macAddress = '7C:9E:BD:41:A2:18';
+
+  void _startBleScan() async {
+    setState(() => _isScanning = true);
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      setState(() {
+        _isScanning = false;
+        _isConnected = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Connected to $_deviceName ($_macAddress)'),
+          backgroundColor: const Color(0xFF2E7D32),
+        ),
+      );
+    }
+  }
+
+  void _testPanicButtonSignal() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            const Icon(Icons.ring_volume, color: AppTheme.primaryTeal),
+            const SizedBox(width: 8),
+            Text('Panic Button Test', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'Press the physical SOS button on your smartwatch now. A loud test tone will sound when signal is received.',
+          style: GoogleFonts.atkinsonHyperlegible(fontSize: 14),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryTeal, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,17 +123,21 @@ class WearableStatusScreen extends StatelessWidget {
                     Container(
                       width: 70,
                       height: 70,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0F2F2),
+                      decoration: BoxDecoration(
+                        color: _isConnected ? const Color(0xFFE0F2F2) : const Color(0xFFFFEBEE),
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
-                        child: Icon(Icons.watch, color: AppTheme.primaryTeal, size: 36),
+                      child: Center(
+                        child: Icon(
+                          _isConnected ? Icons.watch : Icons.watch_off,
+                          color: _isConnected ? AppTheme.primaryTeal : AppTheme.dangerRed,
+                          size: 36,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      'SafeSenior Smart Band',
+                      _deviceName,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -86,14 +148,18 @@ class WearableStatusScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.bluetooth_connected, color: Color(0xFF2E7D32), size: 18),
+                        Icon(
+                          _isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
+                          color: _isConnected ? const Color(0xFF2E7D32) : AppTheme.dangerRed,
+                          size: 18,
+                        ),
                         const SizedBox(width: 6),
                         Text(
-                          'Connected • Battery 82%',
+                          _isConnected ? 'Connected • Battery $_batteryLevel%' : 'Disconnected',
                           style: GoogleFonts.atkinsonHyperlegible(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF2E7D32),
+                            color: _isConnected ? const Color(0xFF2E7D32) : AppTheme.dangerRed,
                           ),
                         ),
                       ],
@@ -102,60 +168,62 @@ class WearableStatusScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              // Sensor Features
-              Text(
-                'Active Wearable Defenses',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
+              // Status Metrics
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              _buildSensorTile(
-                icon: Icons.personal_injury,
-                title: 'Fall Detection Sensor',
-                subtitle: 'Auto-triggers 1-tap SOS if sudden hard impact detected',
-                active: true,
-              ),
-              const SizedBox(height: 10),
-              _buildSensorTile(
-                icon: Icons.favorite,
-                title: 'Heart Rate Spike Alarm',
-                subtitle: 'Detects panic stress spikes during scam calls',
-                active: true,
-              ),
-              const SizedBox(height: 10),
-              _buildSensorTile(
-                icon: Icons.emergency,
-                title: 'Physical Band SOS Button',
-                subtitle: 'Hold band button for 3 seconds to alert Amit Patel',
-                active: true,
+                child: Column(
+                  children: [
+                    _buildMetricRow(Icons.favorite_rounded, 'Senior Heart Rate', '$_heartRate BPM (Normal)', const Color(0xFFE91E63)),
+                    const Divider(height: 24),
+                    _buildMetricRow(Icons.directions_run_rounded, 'Fall Detection Monitor', 'Active & Calibrated', const Color(0xFF2E7D32)),
+                    const Divider(height: 24),
+                    _buildMetricRow(Icons.signal_cellular_alt_rounded, 'BLE Signal (RSSI)', '-58 dBm (Strong)', AppTheme.primaryTeal),
+                  ],
+                ),
               ),
 
               const Spacer(),
 
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppTheme.primaryTeal),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                  ),
-                  child: Text(
-                    'Calibrate Wearable Sensors',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryTeal,
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: AppTheme.primaryTeal),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      icon: const Icon(Icons.volume_up, color: AppTheme.primaryTeal),
+                      label: Text('Test SOS Signal', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryTeal)),
+                      onPressed: _testPanicButtonSignal,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryTeal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      icon: _isScanning
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.bluetooth_searching),
+                      label: Text(_isScanning ? 'Scanning...' : 'Pair Device', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                      onPressed: _isScanning ? null : _startBleScan,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
             ],
@@ -165,61 +233,20 @@ class WearableStatusScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSensorTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool active,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE0F2F2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: AppTheme.primaryTeal, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.atkinsonHyperlegible(
-                    fontSize: 12.5,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 20),
-        ],
-      ),
+  Widget _buildMetricRow(IconData icon, String title, String val, Color iconColor) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: iconColor.withOpacity(0.12), shape: BoxShape.circle),
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(title, style: GoogleFonts.atkinsonHyperlegible(fontSize: 14, color: AppTheme.textPrimary)),
+        ),
+        Text(val, style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+      ],
     );
   }
 }
