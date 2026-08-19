@@ -12,6 +12,7 @@
  */
 
 require('dotenv').config();
+const request = require('supertest');
 
 const dbAvailable = !!process.env.DATABASE_URL;
 const describeIfDb = dbAvailable ? describe : describe.skip;
