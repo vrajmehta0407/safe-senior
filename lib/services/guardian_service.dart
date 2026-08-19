@@ -174,11 +174,11 @@ class GuardianService {
 
   // ─── Communication ────────────────────────────────────────────────────────
 
-  /// Opens the phone dialer for the primary guardian's number.
-  static Future<bool> callGuardian() async {
-    final guardian = getPrimaryGuardian();
-    if (guardian == null) return false;
-    final uri = Uri(scheme: 'tel', path: guardian.phone);
+  /// Opens the phone dialer for a specific contact or primary guardian.
+  static Future<bool> callGuardian([String? phoneNumber]) async {
+    final phone = phoneNumber ?? getPrimaryGuardian()?.phone;
+    if (phone == null || phone.isEmpty) return false;
+    final uri = Uri(scheme: 'tel', path: phone);
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri);
@@ -190,13 +190,13 @@ class GuardianService {
     return false;
   }
 
-  /// Opens the SMS composer pre-filled with [message] to the primary guardian.
-  static Future<bool> messageGuardian(String message) async {
-    final guardian = getPrimaryGuardian();
-    if (guardian == null) return false;
+  /// Opens the SMS composer pre-filled with [message] to a specific contact or primary guardian.
+  static Future<bool> messageGuardian(String message, [String? phoneNumber]) async {
+    final phone = phoneNumber ?? getPrimaryGuardian()?.phone;
+    if (phone == null || phone.isEmpty) return false;
     final uri = Uri(
       scheme: 'sms',
-      path: guardian.phone,
+      path: phone,
       queryParameters: {'body': message},
     );
     try {
@@ -210,24 +210,63 @@ class GuardianService {
     return false;
   }
 
-  /// Sends an emergency alert: opens the dialer, falls back to SMS.
-  static Future<bool> sendEmergencyAlert({String? message}) async {
-    final guardian = getPrimaryGuardian();
-    if (guardian == null) return false;
-    final alertMsg = message ??
-        '🚨 EMERGENCY: ${guardian.name} needs help right now. Please call immediately.';
-    final called = await callGuardian();
-    if (!called) await messageGuardian(alertMsg);
-    return true;
+  /// Directly launches WhatsApp to send a prefilled alert message to a specific phone number.
+  static Future<bool> messageWhatsApp({required String phone, required String message}) async {
+    final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    final encodedMsg = Uri.encodeComponent(message);
+    
+    // Try native whatsapp:// scheme first, fallback to wa.me URL
+    final nativeUri = Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encodedMsg');
+    final webUri    = Uri.parse('https://wa.me/$cleanPhone?text=$encodedMsg');
+
+    try {
+      if (await canLaunchUrl(nativeUri)) {
+        await launchUrl(nativeUri, mode: LaunchMode.externalApplication);
+        return true;
+      } else if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        return true;
+      }
+    } catch (e) {
+      if (kDebugMode) print('[GuardianService] messageWhatsApp error: $e');
+    }
+    return false;
   }
 
-  /// Notifies the guardian about a detected scam via SMS.
-  static Future<bool> notifyGuardian({required String sender, required String reason}) async {
-    final guardian = getPrimaryGuardian();
-    if (guardian == null) return false;
+  /// Broadcasts emergency SOS alert to ALL input guardians simultaneously.
+  static Future<int> sendEmergencyAlertToAllGuardians({String? message}) async {
+    final guardians = getAllGuardians();
+    if (guardians.isEmpty) return 0;
+
+    final defaultMsg = message ??
+        '🚨 EMERGENCY SOS ALERT: Your family member needs urgent help right now! Please check on them or call immediately.';
+
+    int successCount = 0;
+    for (final guardian in guardians) {
+      final sent = await messageGuardian(defaultMsg, guardian.phone);
+      if (sent) successCount++;
+    }
+
+    // Call primary guardian
+    final primary = getPrimaryGuardian();
+    if (primary != null) {
+      await callGuardian(primary.phone);
+    }
+
+    return successCount;
+  }
+
+  /// Sends a scam detection alert to ALL registered guardians via SMS & WhatsApp.
+  static Future<void> notifyAllGuardiansAboutScam({required String sender, required String reason}) async {
+    final guardians = getAllGuardians();
+    if (guardians.isEmpty) return;
+
     final msg =
-        '⚠️ Safe Senior Alert: A suspicious message was detected from "$sender". Reason: $reason. '
+        '⚠️ Safe Senior Alert: A suspicious scam message was detected from "$sender". Reason: $reason. '
         'Please check on your family member.';
-    return await messageGuardian(msg);
+
+    for (final guardian in guardians) {
+      await messageGuardian(msg, guardian.phone);
+    }
   }
 }

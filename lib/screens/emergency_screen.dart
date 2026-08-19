@@ -19,7 +19,7 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
 
   Future<void> _triggerSOS() async {
     setState(() => _isActivating = true);
-    await GuardianService.sendEmergencyAlert();
+    await GuardianService.sendEmergencyAlertToAllGuardians();
     if (!mounted) return;
     setState(() => _isActivating = false);
 

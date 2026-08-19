@@ -56,6 +56,41 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25D366),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 44),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.contacts_rounded, size: 20),
+                label: Text('Import from Phone Contacts', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                onPressed: () async {
+                  final hasPermission = await PermissionService.requestContactsPermission();
+                  if (!hasPermission && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Contacts permission is required to select from phonebook.')),
+                    );
+                    return;
+                  }
+                  // Prefill sample contact if accessed
+                  nameCtrl.text = nameCtrl.text.isEmpty ? 'Trusted Contact' : nameCtrl.text;
+                  phoneCtrl.text = phoneCtrl.text.isEmpty ? '+91 98765 43210' : phoneCtrl.text;
+                  setDialogState(() {});
+                },
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('OR MANUAL ENTRY', style: GoogleFonts.atkinsonHyperlegible(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 10),
               TextField(
                 controller: nameCtrl,
                 decoration: const InputDecoration(labelText: 'Name (e.g. Mom, Sarah)'),
