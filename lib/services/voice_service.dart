@@ -81,10 +81,20 @@ class VoiceService {
 
   static Future<void> _applyGender(String gender) async {
     try {
+      final lowerGender = gender.toLowerCase();
+      
+      // Pitch tuning guarantees distinct male (0.8) vs female (1.15) voice frequency
+      if (lowerGender == 'male') {
+        await _tts.setPitch(0.8);
+      } else if (lowerGender == 'female') {
+        await _tts.setPitch(1.15);
+      } else {
+        await _tts.setPitch(1.0);
+      }
+
       final voices = _availableVoices;
       if (voices.isEmpty) return;
 
-      final lowerGender = gender.toLowerCase();
       Map<String, String>? matchedVoice;
 
       for (final v in voices) {
