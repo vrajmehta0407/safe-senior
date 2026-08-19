@@ -89,6 +89,8 @@ flutter:
 
   assets:
     - assets/scam_patterns.json
+    - assets/images/app_logo.jpg
+    - assets/images/safe_senior_logo.jpg
     - assets/images/premium_hero.png
     - assets/images/checkout_hero.png
     - assets/images/security_tips_hero.png

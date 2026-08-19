@@ -269,4 +269,16 @@ class GuardianService {
       await messageGuardian(msg, guardian.phone);
     }
   }
+
+  /// Alias for backward compatibility with emergency screens
+  static Future<bool> sendEmergencyAlert({String? message}) async {
+    final count = await sendEmergencyAlertToAllGuardians(message: message);
+    return count > 0;
+  }
+
+  /// Alias for backward compatibility with scam screens
+  static Future<bool> notifyGuardian({required String sender, required String reason}) async {
+    await notifyAllGuardiansAboutScam(sender: sender, reason: reason);
+    return true;
+  }
 }

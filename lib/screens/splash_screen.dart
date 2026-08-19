@@ -145,14 +145,23 @@ class _PulsingShieldState extends State<_PulsingShield>
           ),
           child: Center(
             child: Container(
-              width: 96,
-              height: 96,
+              width: 104,
+              height: 104,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
               ),
-              child: const Center(
-                child: Icon(Icons.security, color: AppTheme.primaryTeal, size: 52),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(52),
+                child: Image.asset(
+                  'assets/images/app_logo.jpg',
+                  width: 104,
+                  height: 104,
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => const Center(
+                    child: Icon(Icons.shield_rounded, color: AppTheme.primaryTeal, size: 56),
+                  ),
+                ),
               ),
             ),
           ),

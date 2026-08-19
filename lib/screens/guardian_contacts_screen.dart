@@ -7,6 +7,7 @@ import '../models/guardian_contact.dart';
 import '../state/auth_provider.dart';
 import '../state/guardian_provider.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../services/permission_service.dart';
 import 'settings_screen.dart';
 import 'guardian_profile_screen.dart';
 import 'family_circle_board_screen.dart';

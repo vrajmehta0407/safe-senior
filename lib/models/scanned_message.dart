@@ -56,6 +56,10 @@ class ScannedMessage extends HiveObject {
 
   RiskLevel get riskLevel => RiskLevel.values[riskLevelIndex];
 
+  DateTime get timestamp => receivedAt;
+  bool get isScam => riskLevelIndex > 0 || isUserConfirmedScam || isBlocked;
+  String? get scamCategory => reasons.isNotEmpty ? reasons.first : null;
+
   String get riskLevelLabel {
     switch (riskLevel) {
       case RiskLevel.safe:
