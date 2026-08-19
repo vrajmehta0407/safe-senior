@@ -4,6 +4,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
 import '../models/user_profile.dart';
+import '../storage/user_store.dart';
 
 class AuthState {
   final UserProfile? user;
@@ -78,12 +79,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> resetPassword(String email, String newPassword, {String? otpCode}) async {
+  /// BUG 2 FIX: phone-based reset with mandatory OTP verification.
+  Future<bool> resetPassword(String phoneNumber, String otpCode, String newPassword) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     final result = await AuthService.resetPassword(
-      email: email,
-      newPassword: newPassword,
+      phoneNumber: phoneNumber,
       otpCode: otpCode,
+      newPassword: newPassword,
     );
     if (result.success) {
       state = const AuthState();
@@ -99,7 +101,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Requests OTP for phone — sets otpRequired=true if request succeeds.
   Future<bool> requestOtp({required String phoneNumber, required String purpose}) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
-    final result = await AuthService.requestOtp(phoneNumber: phoneNumber, purpose: purpose);
+    final result = await AuthService.requestOtp(identifier: phoneNumber, purpose: purpose);
     if (result.otpRequired) {
       state = AuthState(
         user: state.user,
@@ -124,7 +126,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(isLoading: true);
     final verified = await AuthService.verifyOtp(
-      phoneNumber: phoneNumber,
+      identifier: phoneNumber,
       code: code,
       purpose: purpose,
     );
@@ -146,8 +148,53 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
+  /// Restores auth state from a user map (returned by GET /auth/me).
+  /// Called after successful biometric authentication to rebuild the session
+  /// without requiring the user to re-enter credentials.
+  Future<void> restoreSession(Map<String, dynamic> userMap) async {
+    try {
+      // Build a UserProfile from the /auth/me response
+      final email = (userMap['email'] as String? ?? '').toLowerCase();
+
+      // Try to get existing local record first (preserves isPremium, avatar, etc.)
+      UserProfile? existing = UserStore.getUserByEmail(email);
+
+      if (existing == null) {
+        // Create a minimal profile from the server response
+        existing = UserProfile(
+          name:         userMap['name']         as String? ?? '',
+          email:        email,
+          phone:        userMap['phone_number']  as String? ?? '',
+          passwordHash: '',
+          createdAt:    DateTime.tryParse(userMap['created_at'] as String? ?? '') ?? DateTime.now(),
+        );
+        await UserStore.saveUser(existing);
+      }
+      state = AuthState(user: existing);
+    } catch (e) {
+      state = const AuthState(errorMessage: 'Failed to restore session.');
+    }
+  }
+
   void clearError() {
     state = state.copyWith(errorMessage: null);
+  }
+
+  void setLocalUser(UserProfile user) {
+    state = AuthState(user: user);
+  }
+
+  /// Updates the locally-stored avatar path and refreshes state so
+  /// all widgets watching [authProvider] rebuild with the new photo.
+  Future<void> updateAvatarPath(String avatarPath) async {
+    final user = state.user;
+    if (user == null) return;
+    await UserStore.updateAvatarPath(user.email, avatarPath);
+    // Reload from store to get updated object
+    final updated = UserStore.getUserByEmail(user.email);
+    if (updated != null) {
+      state = state.copyWith(user: updated);
+    }
   }
 }
 

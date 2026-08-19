@@ -3,6 +3,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'api_client.dart';
 import 'platform_capabilities.dart';
 import '../services/detection/scam_rule_engine.dart';
 import '../services/detection/blocklist_service.dart';
@@ -74,11 +75,23 @@ class CallService {
   }
 
   /// Called when an incoming call is detected from an unknown/suspicious number.
+  /// BUG 5 FIX: now also reports to backend community scam pattern database.
   static Future<void> onSuspiciousCallDetected(String phoneNumber) async {
     if (kDebugMode) print('[CallService] Suspicious call from $phoneNumber');
     ScamRuleEngine.recordSuspiciousCall();
     await StatsStore.incrementCallsProtected();
     await StatsStore.incrementBlocked(isCall: true);
+
+    // Report to backend (fire-and-forget)
+    try {
+      await ApiClient.reportScam(
+        type: 'call',
+        sender: phoneNumber,
+        classification: 'suspicious',
+      );
+    } catch (e) {
+      if (kDebugMode) print('[CallService] reportScam failed (offline ok): $e');
+    }
   }
 
   /// Called from native CallScreeningService to check the blocklist.

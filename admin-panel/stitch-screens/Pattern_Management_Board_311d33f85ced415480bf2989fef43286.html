@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pattern Management - SafeSenior Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 24px;
+        }
+        @media (min-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 24px;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#303031",
+                    "surface-container-low": "#f5f3f3",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "secondary-container": "#fe7356",
+                    "surface": "#fbf9f9",
+                    "tertiary": "#735c00",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#ffb4a4",
+                    "primary": "#006565",
+                    "on-primary-container": "#e3fffe",
+                    "primary-fixed-dim": "#76d6d5",
+                    "on-tertiary-container": "#4f3e00",
+                    "outline": "#6e7979",
+                    "surface-bright": "#fbf9f9",
+                    "primary-container": "#008080",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#002020",
+                    "surface-container-high": "#e9e8e7",
+                    "surface-container": "#efeded",
+                    "primary-fixed": "#93f2f2",
+                    "secondary-fixed": "#ffdad3",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#bdc9c8",
+                    "on-secondary-container": "#6d0f00",
+                    "on-secondary-fixed": "#3e0500",
+                    "on-surface-variant": "#3e4949",
+                    "secondary": "#aa361f",
+                    "surface-tint": "#006a6a",
+                    "surface-variant": "#e3e2e2",
+                    "tertiary-fixed": "#ffe088",
+                    "on-tertiary-fixed": "#241a00",
+                    "surface-container-highest": "#e3e2e2",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#f2f0f0",
+                    "inverse-primary": "#76d6d5",
+                    "on-secondary-fixed-variant": "#891e08",
+                    "background": "#fbf9f9",
+                    "on-background": "#1b1c1c",
+                    "tertiary-container": "#cca830",
+                    "on-primary-fixed-variant": "#004f4f",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-dim": "#dbdad9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "gutter-mobile": "16px",
+                    "margin-desktop": "64px",
+                    "gutter-desktop": "24px",
+                    "target-size": "48px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "label-lg": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "body-lg": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "headline-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "label-md": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "label-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col bg-surface dark:bg-inverse-surface shadow-sm fixed left-0 top-0 h-screen w-64 z-40 bg-surface-container-low dark:bg-inverse-surface shadow-sm">
+<div class="p-6">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">SafeSenior Admin</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">Operations Console</p>
+</div>
+<div class="px-4 py-2">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-xl font-label-lg text-label-lg shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:bg-primary-container transition-colors active:scale-[0.99] duration-150 border border-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New System Rule
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto mt-4 py-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-lg text-label-lg">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary-container/10 active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined filled" data-icon="rule" data-weight="fill">rule</span>
+<span class="font-label-lg text-label-lg">Pattern Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-lg text-label-lg">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+<span class="font-label-lg text-label-lg">Alerts Center</span>
+</a>
+</div>
+<div class="p-4 mt-auto space-y-1 border-t border-surface-variant dark:border-outline-variant/20">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+<div class="mt-4 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="A close up professional headshot of an administrative user, friendly and alert, with soft natural lighting and a warm modern office background. The colors are muted and calm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOmPff0tRS3BJHBdcaUncqhBx0i03orhUDFdgjTlGZ8yjDpglcFca-PUGHqV6dIIKeQBMuw8nLcBi-KRB5IBRVyissfr7KQTvZovBfIvYtkUlsMFLenCCbuElUyyE4UT4xWCcsUmEyzRNFvvkP7aL9ccsuYJB3wlMJ0RiF2oq1rPcRv1V-XR_Tuayxj1TVOoPir6Bapm_mEvEqTtkmt95IpO8s1FkWR6zYIIiMaZ-5UTpzHydrZ7Tj"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Active</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="hidden md:flex fixed top-0 right-0 left-64 h-16 z-30 items-center justify-between px-gutter-desktop bg-surface dark:bg-inverse-surface shadow-sm transition-colors focus-within:ring-2 focus-within:ring-primary">
+<div class="flex-1 flex items-center max-w-2xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full h-[48px] pl-12 pr-4 font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:bg-surface" placeholder="Search patterns, rules, or alerts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2 ml-4">
+<button class="w-[48px] h-[48px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-[48px] h-[48px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+<button class="w-[48px] h-[48px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 pt-6 md:pt-24 px-gutter-mobile md:px-gutter-desktop pb-24 md:pb-12 bg-background min-h-screen">
+<!-- Header -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Pattern Management Library</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Monitor, refine, and deploy detection rules to protect users against emerging scam vectors.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-label-lg text-label-lg hover:bg-primary-container transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-primary-fixed-dim min-h-[48px] flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="tune">tune</span> Filters
+                </button>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="flex overflow-x-auto gap-3 mb-8 pb-2 scrollbar-hide">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap min-h-[48px]">All Patterns</button>
+<button class="px-6 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md whitespace-nowrap hover:bg-primary/20 transition-colors min-h-[48px]">Phishing Vectors</button>
+<button class="px-6 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md whitespace-nowrap hover:bg-primary/20 transition-colors min-h-[48px]">Social Engineering</button>
+<button class="px-6 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md whitespace-nowrap hover:bg-primary/20 transition-colors min-h-[48px]">Deepfake Audio</button>
+<button class="px-6 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md whitespace-nowrap hover:bg-primary/20 transition-colors min-h-[48px]">Financial Coercion</button>
+</div>
+<!-- Masonry Grid -->
+<div class="masonry-grid">
+<!-- Card 1: Social Engineering -->
+<div class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant">
+<div class="relative h-48 w-full bg-surface-container">
+<div class="w-full h-full bg-cover bg-center" data-alt="A warm, slightly abstracted editorial photograph showing a person looking concerned at their phone, bathed in soft, inviting window light. The scene feels supportive rather than alarming, with soft teal accents in the environment." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUulwmJ0PUj1-0NbfhkNr29QANPpxl0IxA4wBlurCqD-VYrOCztI6bE5DolwI2emla2WZhHej4ylBARgeU0_z1RCiKxt4lJudN94es3s17FyIy3o6bWvAXWLuAwTxvNLx1rm9qPC5hoMUL1yeckReHihJmp8sG3HMQ04hcDTPtajKNKpw_fyYQDHcf2y4lAnyIpP5nBbCMb5hMhp_QJPJMcwdVxBWaJpF9scI3KfNf47vDD22F9HPs')"></div>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm rounded-full p-2 text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1 bg-surface/90 backdrop-blur-sm rounded-full font-label-md text-label-md text-primary">Active</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Grandparent Scam: Voice Cloning</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Detects urgent requests for money using distressed vocal patterns matching known family contacts.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Accuracy</p>
+<p class="font-headline-md text-headline-md text-primary">94.2%</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Blocked</p>
+<p class="font-headline-md text-headline-md text-on-surface">1,248</p>
+</div>
+</div>
+<button class="w-full bg-surface-container text-on-surface font-label-lg text-label-lg py-3 rounded-lg hover:bg-surface-container-high transition-colors min-h-[48px] flex items-center justify-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+                        Modify Rule
+                    </button>
+</div>
+</div>
+<!-- Card 2: Phishing -->
+<div class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant">
+<div class="relative h-64 w-full bg-surface-container">
+<div class="w-full h-full bg-cover bg-center" data-alt="A clean, modern flat-lay photograph of a pair of reading glasses resting on a printed document with a suspicious-looking link highlighted in soft yellow. The lighting is bright and cheerful, reducing anxiety. Soft white background." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDzJYjQOzmcaFtXx79sfIWYaIgI0Ut9p9oiRPd_bXaijVpgVrHcnRiadnVCWepHDkQh8oQiwy2IBjS5ysmHlxJAEhcpkN2BiSN6Pp8tlUGN9Q8oCv8-LKSMl6F85J_zKfCDdgP9jf7Dq8RlDhZAKVJgziI4u5ev3WWp8SwUK6FtOX7CfBl_nz2lxQMiS4kEr1cOaZQhymovM0U-tDWBjbBvQfSLTfaBgn0yrJjNCnaZft2-i5GTARlX')"></div>
+<div class="absolute top-4 right-4 bg-error-container text-on-error-container rounded-full p-2 shadow-sm">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1 bg-surface/90 backdrop-blur-sm rounded-full font-label-md text-label-md text-secondary">Review Needed</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Medicare Update Phishing (SMS)</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Identifies SMS messages claiming urgent Medicare account updates with suspicious bit.ly or disguised links.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Accuracy</p>
+<p class="font-headline-md text-headline-md text-tertiary">88.5%</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Blocked</p>
+<p class="font-headline-md text-headline-md text-on-surface">5,902</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg py-3 rounded-lg hover:bg-primary-container transition-colors min-h-[48px] flex items-center justify-center gap-2 border border-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+                        Refine Detection
+                    </button>
+</div>
+</div>
+<!-- Card 3: Financial -->
+<div class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant">
+<div class="relative h-40 w-full bg-surface-container">
+<div class="w-full h-full bg-cover bg-center" data-alt="A comforting, minimalist image showing an older adult's hands securely holding a modern tablet device displaying a green checkmark. The mood is empowering and safe. Soft, warm daylight." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyj8ipaos5mPQNl1A-U53R90n466b7aP7abI5qaAJRBP6DA3HMzvjZRKJsrh1mMxz9Pn25xZ1NLT2x6iETqPk6qSOW6fOIJrb8uw8ggS5BDdoJsfMcgEHYH9PY-fmzzSWyEXVjxTV5zX6iPqVautG1PPk7nnk-ZrKHM-jBUS2l3bmS133taafEewI1ZhBni4PJG9qZuFn8KfvXJo5OTLCP13-6-BbLjZSAVp3DeEsH-5Sm1dCyxGAT')"></div>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm rounded-full p-2 text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1 bg-surface/90 backdrop-blur-sm rounded-full font-label-md text-label-md text-primary">Active</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Gift Card Payment Coercion</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Flags conversations demanding payment via retail gift cards (Target, Google Play) for fabricated debts.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Accuracy</p>
+<p class="font-headline-md text-headline-md text-primary">98.1%</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Blocked</p>
+<p class="font-headline-md text-headline-md text-on-surface">341</p>
+</div>
+</div>
+<button class="w-full bg-surface-container text-on-surface font-label-lg text-label-lg py-3 rounded-lg hover:bg-surface-container-high transition-colors min-h-[48px] flex items-center justify-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+                        Modify Rule
+                    </button>
+</div>
+</div>
+<!-- Card 4: Social Engineering (Romance) -->
+<div class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant">
+<div class="p-5">
+<div class="flex items-center justify-between mb-4">
+<span class="px-3 py-1 bg-surface-variant rounded-full font-label-md text-label-md text-on-surface-variant">Learning Mode</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="sync">sync</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Romance Scam: Isolation Tactics</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Experimental model detecting language designed to isolate the user from family members over extended messaging periods.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Est. Accuracy</p>
+<p class="font-headline-md text-headline-md text-tertiary">72.4%</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<p class="font-label-md text-label-md text-on-surface-variant">Flagged</p>
+<p class="font-headline-md text-headline-md text-on-surface">89</p>
+</div>
+</div>
+<button class="w-full bg-surface-container text-on-surface font-label-lg text-label-lg py-3 rounded-lg hover:bg-surface-container-high transition-colors min-h-[48px] flex items-center justify-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+                        Review Cases
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

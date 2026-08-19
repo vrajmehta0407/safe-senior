@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeSenior Admin - New System Rule</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400;1,700&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom scrollbar for form area */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #dbdad9; /* surface-dim */
+            border-radius: 20px;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#efeded",
+                    "on-surface-variant": "#3e4949",
+                    "surface-tint": "#006a6a",
+                    "secondary": "#aa361f",
+                    "on-tertiary-container": "#4f3e00",
+                    "surface-variant": "#e3e2e2",
+                    "on-secondary-fixed": "#3e0500",
+                    "on-background": "#1b1c1c",
+                    "primary": "#006565",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#93f2f2",
+                    "outline": "#6e7979",
+                    "surface": "#fbf9f9",
+                    "on-surface": "#1b1c1c",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#002020",
+                    "surface-container-low": "#f5f3f3",
+                    "secondary-fixed": "#ffdad3",
+                    "surface-dim": "#dbdad9",
+                    "inverse-surface": "#303031",
+                    "secondary-fixed-dim": "#ffb4a4",
+                    "background": "#fbf9f9",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#004f4f",
+                    "inverse-primary": "#76d6d5",
+                    "surface-container-highest": "#e3e2e2",
+                    "on-secondary-container": "#6d0f00",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#cca830",
+                    "outline-variant": "#bdc9c8",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#e3fffe",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "primary-fixed-dim": "#76d6d5",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#fbf9f9",
+                    "on-secondary-fixed-variant": "#891e08",
+                    "tertiary": "#735c00",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#ffe088",
+                    "on-tertiary-fixed": "#241a00",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "surface-container-high": "#e9e8e7",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#008080",
+                    "inverse-on-surface": "#f2f0f0",
+                    "secondary-container": "#fe7356"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "gutter-desktop": "24px",
+                    "margin-desktop": "64px",
+                    "target-size": "48px",
+                    "margin-mobile": "20px",
+                    "gutter-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-surface-container text-on-surface h-screen w-screen overflow-hidden flex items-center justify-center p-gutter-desktop font-body-md">
+<!-- Modal Container: Suppressed Navigation per Semantic Shell Mandate (Task-Focused flow) -->
+<main class="w-full max-w-6xl h-full max-h-[900px] bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex flex-col relative overflow-hidden">
+<!-- Header -->
+<header class="h-[88px] px-8 flex items-center justify-between border-b border-surface-container shrink-0 bg-surface-container-lowest z-10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">policy</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary">Create Detection Rule</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Define new pattern matching logic for user safety.</p>
+</div>
+</div>
+<button aria-label="Close Wizard" class="w-12 h-12 rounded-full flex items-center justify-center text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<div class="flex flex-1 overflow-hidden bg-surface-container-low">
+<!-- Left Sidebar: Stepper Progress -->
+<aside class="w-[280px] bg-surface-container-lowest border-r border-surface-container p-8 hidden md:flex flex-col gap-8 shrink-0">
+<nav class="flex flex-col gap-6 relative">
+<!-- Progress Line background -->
+<div class="absolute left-[15px] top-[24px] bottom-[24px] w-[2px] bg-surface-container z-0"></div>
+<!-- Step 1: Active -->
+<div class="flex items-start gap-4 relative z-10 group cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm shrink-0">1</div>
+<div class="pt-1">
+<span class="block font-label-lg text-label-lg text-primary">Rule Identity</span>
+<span class="block font-body-md text-body-md text-on-surface-variant mt-1">Name and description</span>
+</div>
+</div>
+<!-- Step 2: Incomplete -->
+<div class="flex items-start gap-4 relative z-10 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant border-2 border-surface-container flex items-center justify-center font-label-md text-label-md shrink-0">2</div>
+<div class="pt-1">
+<span class="block font-label-lg text-label-lg text-on-surface">Trigger Conditions</span>
+<span class="block font-body-md text-body-md text-on-surface-variant mt-1">Keywords &amp; patterns</span>
+</div>
+</div>
+<!-- Step 3: Incomplete -->
+<div class="flex items-start gap-4 relative z-10 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant border-2 border-surface-container flex items-center justify-center font-label-md text-label-md shrink-0">3</div>
+<div class="pt-1">
+<span class="block font-label-lg text-label-lg text-on-surface">Actions &amp; Severity</span>
+<span class="block font-body-md text-body-md text-on-surface-variant mt-1">Automated responses</span>
+</div>
+</div>
+</nav>
+</aside>
+<!-- Main Form Area (Masonry/Card feel within form) -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+<div class="max-w-3xl mx-auto flex flex-col gap-6">
+<!-- Section 1: Identity Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">badge</span>
+                            Rule Identity
+                        </h2>
+<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-2">
+<label class="font-label-lg text-label-lg text-on-surface" for="rule-name">Rule Name</label>
+<!-- High utility input: 56px height, 3px focus border -->
+<input class="h-[56px] w-full px-4 rounded-lg border border-outline-variant bg-surface-bright font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-[3px] focus:border-primary placeholder:text-outline transition-all" id="rule-name" placeholder="e.g., Grandparent Scam Keywords" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-lg text-label-lg text-on-surface" for="rule-desc">Internal Description</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface-bright font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-[3px] focus:border-primary placeholder:text-outline transition-all resize-none" id="rule-desc" placeholder="Explain the purpose of this rule for other admins..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<!-- Section 2: Triggers Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">radar</span>
+                            Detection Triggers
+                        </h2>
+<div class="flex flex-col gap-6">
+<!-- Trigger Type Selection (Tactile Chips) -->
+<div class="flex flex-col gap-3">
+<span class="font-label-lg text-label-lg text-on-surface">Source</span>
+<div class="flex flex-wrap gap-3">
+<button class="h-[48px] px-6 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center gap-2 shadow-sm border border-transparent transition-all">
+<span class="material-symbols-outlined text-[20px]">sms</span>
+                                        SMS/Text Messages
+                                    </button>
+<button class="h-[48px] px-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-lg text-label-lg flex items-center gap-2 border border-transparent hover:bg-surface-dim transition-all">
+<span class="material-symbols-outlined text-[20px]">link</span>
+                                        Suspicious URLs
+                                    </button>
+<button class="h-[48px] px-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-lg text-label-lg flex items-center gap-2 border border-transparent hover:bg-surface-dim transition-all">
+<span class="material-symbols-outlined text-[20px]">call</span>
+                                        Call Patterns
+                                    </button>
+</div>
+</div>
+<!-- Pattern Input -->
+<div class="flex flex-col gap-2">
+<label class="font-label-lg text-label-lg text-on-surface flex justify-between" for="rule-pattern">
+                                    Match Keywords
+                                    <span class="font-body-md text-outline">Comma separated</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="h-[56px] w-full pl-12 pr-4 rounded-lg border border-outline-variant bg-surface-bright font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-[3px] focus:border-primary placeholder:text-outline transition-all" id="rule-pattern" placeholder="e.g., western union, gift card, jail" type="text"/>
+</div>
+<!-- Visual feedback chips -->
+<div class="flex gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-surface-container text-on-surface-variant font-body-md text-[14px]">
+                                        western union
+                                        <span class="material-symbols-outlined text-[16px] cursor-pointer hover:text-error">close</span>
+</span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-surface-container text-on-surface-variant font-body-md text-[14px]">
+                                        gift card
+                                        <span class="material-symbols-outlined text-[16px] cursor-pointer hover:text-error">close</span>
+</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Severity & Actions Card -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">security</span>
+                            Severity &amp; Action
+                        </h2>
+<div class="flex flex-col gap-8">
+<!-- Severity Cards (Visual Hierarchy) -->
+<div class="flex flex-col gap-3">
+<span class="font-label-lg text-label-lg text-on-surface">Threat Level</span>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Low -->
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="severity" type="radio"/>
+<div class="p-4 rounded-xl border-2 border-surface-container bg-surface-bright peer-checked:border-primary peer-checked:bg-primary-container/5 transition-all flex flex-col items-center text-center gap-2 h-full">
+<span class="material-symbols-outlined text-outline peer-checked:text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+<span class="font-label-lg text-on-surface">Low</span>
+<span class="font-body-md text-on-surface-variant text-[14px]">Monitor silently</span>
+</div>
+</label>
+<!-- Medium (Selected) -->
+<label class="cursor-pointer relative">
+<input checked="" class="peer sr-only" name="severity" type="radio"/>
+<div class="p-4 rounded-xl border-2 border-primary bg-primary-container/5 transition-all flex flex-col items-center text-center gap-2 h-full">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-label-lg text-on-surface">Medium</span>
+<span class="font-body-md text-on-surface-variant text-[14px]">Alert user gently</span>
+</div>
+</label>
+<!-- High -->
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="severity" type="radio"/>
+<div class="p-4 rounded-xl border-2 border-surface-container bg-surface-bright peer-checked:border-error peer-checked:bg-error-container/20 transition-all flex flex-col items-center text-center gap-2 h-full">
+<span class="material-symbols-outlined text-outline peer-checked:text-error" style="font-variation-settings: 'FILL' 1;">gpp_bad</span>
+<span class="font-label-lg text-on-surface">Critical</span>
+<span class="font-body-md text-on-surface-variant text-[14px]">Immediate intervention</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Action Dropdown/Select -->
+<div class="flex flex-col gap-2">
+<label class="font-label-lg text-label-lg text-on-surface" for="automated-action">Automated Response</label>
+<div class="relative">
+<select class="h-[56px] w-full px-4 rounded-lg border border-outline-variant bg-surface-bright font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-[3px] focus:border-primary appearance-none cursor-pointer" id="automated-action">
+<option value="review">Flag for Manual Review</option>
+<option selected="" value="notify">Notify Trusted Guardian</option>
+<option value="block">Auto-Block Content</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<footer class="h-[88px] px-8 flex items-center justify-end gap-4 border-t border-surface-container shrink-0 bg-surface-container-lowest z-10">
+<button class="h-[48px] px-8 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+                Cancel
+            </button>
+<button class="h-[48px] px-8 rounded-full font-label-lg text-label-lg bg-primary text-on-primary border border-on-primary-fixed hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+                Save Rule
+                <span class="material-symbols-outlined text-[20px]">check</span>
+</button>
+</footer>
+</main>
+</body></html>

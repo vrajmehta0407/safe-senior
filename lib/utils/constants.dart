@@ -144,29 +144,6 @@ class AppConstants {
     },
   ];
 
-  // ─── Premium Plans ─────────────────────────────────────────────────────────
-  // Mirrors the values visually shown in plan_selection_screen.dart
-  static const Map<String, dynamic> monthlyPlan = {
-    'id': 'monthly',
-    'name': 'Basic Protection',
-    'label': 'Monthly Plan',
-    'price': 9.99,
-    'period': 'month',
-    'yearlyEquivalent': null,
-  };
-
-  static const Map<String, dynamic> annualPlan = {
-    'id': 'annual',
-    'name': 'Premium Protection',
-    'label': 'Annual Plan',
-    'price': 89.99,
-    'period': 'year',
-    'yearlyEquivalent': 7.50, // per month
-  };
-
-  // ─── Trial ─────────────────────────────────────────────────────────────────
-  static const int trialDurationDays = 7;
-
   // ─── Hive Box Names ────────────────────────────────────────────────────────
   static const String userBoxName = 'users';
   static const String messageBoxName = 'messages';
@@ -181,9 +158,6 @@ class AppConstants {
   static const String keyVoiceType = 'voice_type';
   static const String keyVoiceGender = 'voice_gender';
   static const String keyThemeMode = 'theme_mode';
-  static const String keyPremiumStatus = 'premium_status';
-  static const String keyTrialStartDate = 'trial_start_date';
-  static const String keySelectedPlanId = 'selected_plan_id';
   static const String keyJwtToken = 'jwt_token';
 
   // ─── Supported Languages ───────────────────────────────────────────────────

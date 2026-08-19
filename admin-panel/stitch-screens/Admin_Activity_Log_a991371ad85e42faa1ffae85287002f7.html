@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Activity Feed - SafeSenior</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#76d6d5",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeded",
+                        "surface-container-low": "#f5f3f3",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-container-highest": "#e3e2e2",
+                        "surface": "#fbf9f9",
+                        "error-container": "#ffdad6",
+                        "primary": "#006565",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "background": "#fbf9f9",
+                        "on-primary-container": "#e3fffe",
+                        "inverse-surface": "#303031",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdad3",
+                        "primary-container": "#008080",
+                        "surface-dim": "#dbdad9",
+                        "on-background": "#1b1c1c",
+                        "secondary-container": "#fe7356",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f2f0f0",
+                        "surface-tint": "#006a6a",
+                        "surface-bright": "#fbf9f9",
+                        "tertiary-fixed": "#ffe088",
+                        "on-secondary-fixed": "#3e0500",
+                        "outline-variant": "#bdc9c8",
+                        "on-primary-fixed": "#002020",
+                        "on-tertiary-container": "#4f3e00",
+                        "on-surface-variant": "#3e4949",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#aa361f",
+                        "on-secondary-container": "#6d0f00",
+                        "tertiary-container": "#cca830",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "outline": "#6e7979",
+                        "primary-fixed": "#93f2f2",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary": "#735c00",
+                        "on-surface": "#1b1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "gutter-desktop": "24px",
+                        "gutter-mobile": "16px",
+                        "target-size": "48px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    },
+                    "boxShadow": {
+                        "soft": "0px 4px 12px rgba(0, 0, 0, 0.08)",
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 24px;
+        }
+        @media (min-width: 768px) {
+            .masonry-grid { column-count: 2; }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid { column-count: 3; }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 24px;
+        }
+        .bg-pattern {
+            background-image: radial-gradient(#bdc9c8 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-full flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm border-r border-surface-variant hidden md:flex">
+<div class="p-6">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">SafeSenior Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Operations Console</p>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-full font-label-lg text-label-lg hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-soft">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New System Rule
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto py-2">
+<ul class="space-y-1 px-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                        System Health
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">rule</span>
+                        Pattern Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+                        User Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">emergency</span>
+                        Alerts Center
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold bg-primary-container/10 border-l-4 border-primary rounded-r-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+                        Activity Feed
+                    </a>
+</li>
+</ul>
+</div>
+<div class="p-4 border-t border-surface-variant">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        Settings
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+                        Support
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm sticky top-0">
+<div class="flex-1 max-w-xl">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-full font-body-md text-on-surface placeholder:text-outline focus:ring-0 focus:outline-none h-[48px]" placeholder="Search activity logs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high w-[48px] h-[48px] flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high w-[48px] h-[48px] flex items-center justify-center md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden border-2 border-surface hidden md:block">
+<img alt="Admin Avatar" class="w-full h-full object-cover" data-alt="A small, circular avatar portrait of an administrative user, professional yet warm, set against a light background with teal accents, modern and clean style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5KTK_VPIWSnIdTsBzRUOO8EvgIB7idVIpOFFb0dYqrEnmjYWF1XPEd545bxGSP4jCySY55rWQFem3uqiCbdwbJ39R20N94roWszjlCYAKLPdTzR-xUoFXaJIIpnd9dLd8h2CAHIzPQXoIvJTbXwcpVZkJlC2nzKQ-RItdOiycoJdqGuaCBBLFmAI6aEq25Wj5ZMcUPXMpTVFey8pxsyrai4ifGb1knenRDiJ-mCFr5edvudIGRqjm"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-gutter-desktop bg-background bg-pattern">
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Activity Feed</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Comprehensive log of administrative actions.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md min-h-[48px]">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filters
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md min-h-[48px] border border-primary/20">
+                        Date: Last 7 Days
+                        <span class="material-symbols-outlined text-sm">close</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#E0F2F2] text-primary font-label-md text-label-md min-h-[48px] border border-primary/20">
+                        Type: Overrides
+                        <span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Activity Log Masonry -->
+<div class="masonry-grid">
+<!-- Card 1 -->
+<div class="masonry-item bg-white rounded-xl shadow-soft p-5 border border-surface-container-low hover:-translate-y-1 transition-transform duration-200">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">warning_off</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-lg text-label-lg text-on-surface">Alert Overridden</h3>
+<span class="text-xs font-label-md text-on-surface-variant">10m ago</span>
+</div>
+<p class="font-body-md text-on-surface-variant mb-3">Admin <span class="font-semibold">Sarah Jenkins</span> manually dismissed a 'Wandering Pattern' alert for user John Doe.</p>
+<div class="bg-surface-container-low p-3 rounded-lg text-sm border-l-2 border-secondary font-body-md text-on-surface">
+                                "Verified with family; John is on a planned walk with caregiver."
+                            </div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="masonry-item bg-white rounded-xl shadow-soft p-5 border border-surface-container-low hover:-translate-y-1 transition-transform duration-200">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">rule_settings</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-lg text-label-lg text-on-surface">Rule Threshold Updated</h3>
+<span class="text-xs font-label-md text-on-surface-variant">1h ago</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Admin <span class="font-semibold">David Chen</span> modified global parameter <code class="bg-surface-container px-1 py-0.5 rounded text-sm">nighttime_activity_sensitivity</code> from High to Medium.</p>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="masonry-item bg-white rounded-xl shadow-soft p-5 border border-surface-container-low hover:-translate-y-1 transition-transform duration-200">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary">person_add</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-lg text-label-lg text-on-surface">New Caregiver Onboarded</h3>
+<span class="text-xs font-label-md text-on-surface-variant">3h ago</span>
+</div>
+<p class="font-body-md text-on-surface-variant mb-3">Admin <span class="font-semibold">System Auto</span> completed verification for new caregiver profile.</p>
+<div class="flex items-center gap-3 bg-surface-container p-2 rounded-lg">
+<div class="w-8 h-8 rounded-full bg-surface-dim overflow-hidden">
+<img alt="Caregiver" class="w-full h-full object-cover" data-alt="A small circular headshot of a smiling female caregiver, brightly lit, professional and approachable, warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGuawxbHV8gOEhtbdaprRPLFA4eXDYRmHdoXrmXvaA59lXRN95QU-pkUIS8aMcvFTi9Oc2W02fed1NRcu6ubh4X1MK4Sxrg27u7vlxIzMBdWduFQwIbV1JmTM5SWxRV7BjgG-xB7L8pl4gwUPA-dUNOfMbO56rMrp8es_zrsxOTm5sFgEOZ25ghwreH0e1-Rjz3uxSE-YA0mw9kQvfVhUp7l67SHPy91iuGOh4VPA0bPoPGSO5EjKv"/>
+</div>
+<div>
+<p class="font-label-md text-on-surface">Maria Rodriguez</p>
+<p class="text-xs text-on-surface-variant">Assigned to: Sector 4</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="masonry-item bg-white rounded-xl shadow-soft p-5 border border-surface-container-low hover:-translate-y-1 transition-transform duration-200">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">login</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-lg text-label-lg text-on-surface">System Access Granted</h3>
+<span class="text-xs font-label-md text-on-surface-variant">Yesterday</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Admin <span class="font-semibold">Sarah Jenkins</span> granted emergency temporary access to MedTech Support.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

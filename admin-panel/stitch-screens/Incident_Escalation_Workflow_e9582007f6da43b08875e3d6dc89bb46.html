@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Incident Escalation Workflow - SafeSenior Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#008080",
+                      "surface-container-low": "#f5f3f3",
+                      "on-tertiary-fixed-variant": "#574500",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#fe7356",
+                      "surface-container-high": "#e9e8e7",
+                      "on-primary-fixed-variant": "#004f4f",
+                      "surface-container-highest": "#e3e2e2",
+                      "secondary": "#aa361f",
+                      "surface-dim": "#dbdad9",
+                      "on-secondary-fixed": "#3e0500",
+                      "tertiary-fixed": "#ffe088",
+                      "tertiary": "#735c00",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#4f3e00",
+                      "inverse-surface": "#303031",
+                      "on-secondary-fixed-variant": "#891e08",
+                      "surface-container": "#efeded",
+                      "secondary-fixed-dim": "#ffb4a4",
+                      "on-primary-fixed": "#002020",
+                      "on-secondary": "#ffffff",
+                      "surface": "#fbf9f9",
+                      "on-surface-variant": "#3e4949",
+                      "outline-variant": "#bdc9c8",
+                      "inverse-primary": "#76d6d5",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#241a00",
+                      "surface-bright": "#fbf9f9",
+                      "tertiary-fixed-dim": "#e9c349",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#e3fffe",
+                      "primary-fixed-dim": "#76d6d5",
+                      "surface-tint": "#006a6a",
+                      "surface-variant": "#e3e2e2",
+                      "tertiary-container": "#cca830",
+                      "outline": "#6e7979",
+                      "on-surface": "#1b1c1c",
+                      "background": "#fbf9f9",
+                      "on-secondary-container": "#6d0f00",
+                      "primary-fixed": "#93f2f2",
+                      "secondary-fixed": "#ffdad3",
+                      "error-container": "#ffdad6",
+                      "on-background": "#1b1c1c",
+                      "inverse-on-surface": "#f2f0f0",
+                      "error": "#ba1a1a",
+                      "primary": "#006565"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "target-size": "48px",
+                      "margin-desktop": "64px",
+                      "gutter-desktop": "24px",
+                      "unit": "8px",
+                      "gutter-mobile": "16px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Atkinson Hyperlegible Next"
+                      ],
+                      "headline-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "Atkinson Hyperlegible Next"
+                      ],
+                      "body-lg": [
+                              "Atkinson Hyperlegible Next"
+                      ],
+                      "label-lg": [
+                              "Atkinson Hyperlegible Next"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background h-full font-body-md antialiased overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">SafeSenior Admin</span>
+</div>
+<div class="flex-1 max-w-xl mx-8">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-full transition-shadow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-10 pl-10 pr-4 rounded-full bg-surface-container-high border-none text-body-md placeholder:text-outline focus:ring-0" placeholder="Search incidents, users, or rules..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hover:bg-surface-container-high">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface dark:bg-inverse-surface shadow-sm bg-surface-container-low dark:bg-inverse-surface border-r border-outline-variant/20">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-sm font-bold">
+                    SA
+                </div>
+<div>
+<h2 class="font-label-lg text-label-lg text-on-surface">SafeSenior Admin</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Operations Console</p>
+</div>
+</div>
+<button class="mt-6 w-full h-[48px] bg-primary text-on-primary rounded-full font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors active:scale-[0.99] duration-150 shadow-sm border border-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New System Rule
+            </button>
+</div>
+<div class="flex-1 py-4 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md font-bold">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-body-md text-body-md font-bold">Pattern Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md font-bold">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary-container/10 active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+<span class="font-body-md text-body-md font-bold">Alerts Center</span>
+</a>
+</div>
+<div class="p-4 border-t border-outline-variant/20">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md font-bold">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md font-bold">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pl-64 pt-16 h-full overflow-y-auto bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto p-margin-desktop">
+<!-- Header Section -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="px-3 py-1 bg-error-container text-on-error-container rounded-full font-label-md text-label-md text-xs uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                            Critical Risk
+                        </span>
+<span class="text-on-surface-variant font-body-md text-body-md text-sm">Incident #INC-8492-AX</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Suspicious Account Activity Escalation</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Multiple failed authentication attempts followed by immediate large transfer.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-[48px] px-6 rounded-full border border-outline text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors shadow-sm flex items-center gap-2 bg-surface">
+<span class="material-symbols-outlined">check_circle</span>
+                        Mark as Safe
+                    </button>
+<button class="h-[48px] px-6 rounded-full border border-secondary text-secondary font-label-md text-label-md hover:bg-error-container transition-colors shadow-sm flex items-center gap-2 bg-surface">
+<span class="material-symbols-outlined">block</span>
+                        Block Account
+                    </button>
+<button class="h-[48px] px-6 rounded-full bg-error text-on-error font-label-md text-label-md hover:bg-error/90 transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                        Escalate to Law Enforcement
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column: User Context & Risk Score -->
+<div class="lg:col-span-1 flex flex-col gap-6">
+<!-- Risk Score Card -->
+<div class="bg-surface rounded-xl p-6 shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<div class="w-32 h-32 rounded-full border-8 border-error flex items-center justify-center mb-4 relative">
+<span class="font-headline-lg text-headline-lg text-error">92</span>
+<span class="absolute -bottom-2 bg-error text-on-error px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">High</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Pattern Deviation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">This activity deviates significantly from the user's historical 90-day baseline.</p>
+</div>
+<!-- User Profile Card -->
+<div class="bg-surface rounded-xl p-6 shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-outline-variant/30">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary-container">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an elderly woman with silver hair, wearing a warm blue cardigan, set against a neutral, softly lit light-mode studio background. The mood is dignified and calm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfokLU9SzjO86yIAoOacfDnDYJg_VYAJUIB426mrsf4buhGypELdc9e2r7OiY6rw72YdpBGtmtnuBSOXLsszE5C7QqNVVcy9DT4Tk9cD6tgwTW40BjTBhniK3sfZvrvRtFhbf0Hv1vaf5CRMB5X0z-MiKc5IQQ9AKQuS9V-vdidL02SSCX9yE6e-NJ_ly7kVzg-zT9k0sEuK2vLXY0uoVu_zExdVx9ukC-fF0xsmCeJvCoM28-gd3e"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Eleanor Vance</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">ID: USR-773-A</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="font-body-md text-body-md text-on-surface-variant">Account Age</span>
+<span class="font-label-md text-label-md text-on-surface">4 Years, 2 Months</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="font-body-md text-body-md text-on-surface-variant">Avg. Transaction</span>
+<span class="font-label-md text-label-md text-on-surface">$145.50</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="font-body-md text-body-md text-on-surface-variant">Primary Device</span>
+<span class="font-label-md text-label-md text-on-surface">iPad Pro (Known)</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Active Caregivers</span>
+<span class="font-label-md text-label-md text-on-surface">2 Registered</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Timeline & Notes -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Event Timeline Card -->
+<div class="bg-surface rounded-xl p-6 shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-outline-variant/30 flex-1">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">timeline</span>
+                                Incident Timeline
+                            </h3>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Last 24 Hours</span>
+</div>
+<div class="relative border-l-2 border-outline-variant/30 ml-4 space-y-8 pb-4">
+<!-- Timeline Item 1 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-surface border-2 border-outline-variant"></div>
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-lg text-label-lg text-on-surface">Standard App Login</h4>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Oct 24, 08:30 AM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Known device (iPad Pro) from usual IP address.</p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-secondary-container border-2 border-secondary"></div>
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-lg text-label-lg text-secondary">Failed Authentication (x5)</h4>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Oct 24, 02:15 PM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-2">Unrecognized device (Windows PC) from new IP location (Miami, FL).</p>
+<div class="bg-error-container/30 rounded p-3 border border-error/20 inline-block">
+<span class="font-label-md text-label-md text-secondary text-xs uppercase">Trigger: Geolocation Mismatch</span>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-error text-on-error flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[12px]">priority_high</span>
+</div>
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-lg text-label-lg text-error">Anomalous Large Transfer Initiated</h4>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Oct 24, 02:18 PM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-3">Transfer of $4,500 requested to unregistered external account.</p>
+<div class="bg-surface-container-low rounded-lg p-4 border border-outline-variant/40 flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-dim rounded flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Target: Unknown Offshore Account</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Routing: ***9284 | Status: <span class="text-secondary font-bold">FROZEN PENDING REVIEW</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Operator Notes Card -->
+<div class="bg-surface rounded-xl p-6 shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-outline-variant/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">edit_note</span>
+                            Operator Notes &amp; Justification
+                        </h3>
+<div class="relative">
+<textarea class="w-full h-32 p-4 rounded-lg bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md resize-none placeholder:text-outline-variant" placeholder="Enter investigation notes, contacted parties, or justification for action taken..."></textarea>
+<div class="absolute bottom-3 right-3 flex items-center gap-2">
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">attach_file</span>
+</button>
+<button class="px-4 h-8 rounded bg-primary-container text-on-primary-container font-label-md text-label-md text-sm hover:bg-primary-container/90 transition-colors">
+                                    Save Note
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

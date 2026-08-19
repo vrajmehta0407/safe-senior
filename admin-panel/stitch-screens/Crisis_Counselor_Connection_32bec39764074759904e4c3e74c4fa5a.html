@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crisis Counselor Connection - SafeSenior Admin</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400;1,700&amp;family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1b1c1c",
+                        "on-tertiary-fixed": "#241a00",
+                        "inverse-surface": "#303031",
+                        "tertiary": "#735c00",
+                        "surface-container": "#efeded",
+                        "surface-container-low": "#f5f3f3",
+                        "primary-fixed": "#93f2f2",
+                        "primary-container": "#008080",
+                        "on-tertiary-container": "#4f3e00",
+                        "surface-container-high": "#e9e8e7",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "secondary-container": "#fe7356",
+                        "outline-variant": "#bdc9c8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "on-primary-fixed": "#002020",
+                        "surface-dim": "#dbdad9",
+                        "surface": "#fbf9f9",
+                        "surface-container-highest": "#e3e2e2",
+                        "tertiary-fixed": "#ffe088",
+                        "surface-variant": "#e3e2e2",
+                        "on-primary-container": "#e3fffe",
+                        "on-secondary-fixed": "#3e0500",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "error-container": "#ffdad6",
+                        "secondary": "#aa361f",
+                        "inverse-primary": "#76d6d5",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#ffdad3",
+                        "primary": "#006565",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#76d6d5",
+                        "on-surface-variant": "#3e4949",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "on-secondary-container": "#6d0f00",
+                        "outline": "#6e7979",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "surface-bright": "#fbf9f9",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#cca830",
+                        "surface-tint": "#006a6a",
+                        "background": "#fbf9f9",
+                        "on-tertiary-fixed-variant": "#574500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "target-size": "48px",
+                        "margin-mobile": "20px",
+                        "gutter-desktop": "24px",
+                        "margin-desktop": "64px",
+                        "gutter-mobile": "16px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for masonry/lists */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: theme('colors.surface-variant');
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">SafeSenior Admin</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-target-size h-target-size rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-target-size h-target-size rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="w-target-size h-target-size rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface dark:bg-inverse-surface border-r border-surface-container-highest shadow-sm">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-label-lg text-label-lg">
+                    SA
+                </div>
+<div>
+<h2 class="font-label-md text-label-md text-on-surface">SafeSenior Admin</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Operations Console</p>
+</div>
+</div>
+</div>
+<div class="px-3 mb-6">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label-lg text-label-lg h-target-size rounded-xl shadow-sm border border-primary-fixed-dim hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New System Rule
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-lg text-label-lg">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-label-lg text-label-lg">Pattern Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-lg text-label-lg">User Management</span>
+</a>
+<!-- Active State: Alerts Center due to SOS Escalation context -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-l-4 border-primary bg-primary-container/10 active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+<span class="font-label-lg text-label-lg">Alerts Center</span>
+</a>
+</div>
+<div class="p-3 mt-auto border-t border-surface-container-highest flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 h-screen overflow-y-auto bg-surface-container-low">
+<!-- Context Banner -->
+<div class="bg-error-container text-on-error-container px-margin-desktop py-4 flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 border-b border-error/20 shadow-sm">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error text-3xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold">Active SOS Escalation: Requires Counselor</h1>
+<p class="font-body-md text-body-md opacity-90">User: Eleanor Rigby (ID: 8472) • Trigger: Manual SOS Button • Elapsed: 02:45</p>
+</div>
+</div>
+<div class="px-4 py-2 bg-error text-on-error rounded-full font-label-md text-label-md flex items-center gap-2 animate-pulse">
+<div class="w-2 h-2 rounded-full bg-white"></div>
+                Live Connection Maintained
+            </div>
+</div>
+<div class="p-margin-desktop grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-7xl mx-auto">
+<!-- Left Column: Operator Briefing Area -->
+<section class="xl:col-span-4 flex flex-col gap-6">
+<!-- Situation Brief Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-[20px] flex flex-col gap-4 border border-surface-container-highest">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">assignment</span>
+<h2 class="font-headline-sm text-headline-sm">Situation Brief</h2>
+</div>
+<div class="text-on-surface-variant space-y-2">
+<p class="font-body-md text-body-md"><strong class="text-on-surface">Preliminary Assessment:</strong> User activated SOS from bedroom. Audio feed indicates severe distress and confusion, possibly anxiety attack. No physical injury reported.</p>
+<p class="font-body-md text-body-md"><strong class="text-on-surface">Relevant History:</strong> Recent loss of spouse (2 months ago). History of generalized anxiety.</p>
+</div>
+</div>
+<!-- Shared Notes Textarea -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-[20px] flex flex-col gap-4 border border-surface-container-highest flex-grow">
+<div class="flex items-center justify-between">
+<label class="font-label-lg text-label-lg text-on-surface flex items-center gap-2" for="briefing-notes">
+<span class="material-symbols-outlined">edit_note</span>
+                            Operator Briefing Notes
+                        </label>
+<span class="font-body-md text-body-md text-outline">Shared with Counselor</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Draft context here before initiating the three-way call. This will appear on the counselor's screen instantly.</p>
+<textarea class="w-full bg-surface resize-none border-[3px] border-outline-variant focus:border-primary focus:ring-0 rounded-lg p-4 font-body-lg text-body-lg text-on-surface placeholder:text-outline shadow-inner transition-colors" id="briefing-notes" placeholder="e.g., 'Eleanor is currently on the line, crying heavily. She keeps mentioning feeling overwhelmed and alone. I have verified she is safe in her home, doors locked.'" rows="8"></textarea>
+</div>
+</section>
+<!-- Right Column: Counselor Directory -->
+<section class="xl:col-span-8 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Available Counselors</h2>
+<!-- Filters -->
+<div class="flex gap-2">
+<button class="bg-primary text-on-primary rounded-full px-4 py-2 font-label-md text-label-md shadow-sm border border-primary-fixed-dim transition-colors">All Available</button>
+<button class="bg-surface-variant text-on-surface-variant rounded-full px-4 py-2 font-label-md text-label-md hover:bg-surface-container-highest transition-colors">Grief Specialists</button>
+<button class="bg-surface-variant text-on-surface-variant rounded-full px-4 py-2 font-label-md text-label-md hover:bg-surface-container-highest transition-colors">Anxiety Specialists</button>
+</div>
+</div>
+<!-- Directory Grid (Masonry feel, tacticle cards) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Counselor Card 1 - Available -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-[20px] border border-surface-container-highest flex flex-col gap-4 hover:shadow-md transition-shadow">
+<div class="flex items-start gap-4">
+<img class="w-16 h-16 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a middle-aged female counselor with warm, empathetic eyes, wearing a soft teal blouse, against a bright, airy office background. The lighting is soft and inviting, conveying a sense of calm and trust suitable for a mental health professional in a modern healthcare setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfFMRcBHnBTrckZgKleQOO7F5Ed-4Pn0BhUK40Yja_GhIGEHjAuaAf0E_4qFB2VDUrt3n-eRAL1zIT4R2043sDCD8EDL7-x3rzMQQwWm5GPMuLEJl019POqnoBYdwK5buso4f-UVCLDGcS02tM-z4OjagGnX2SNn-BKE4muhlRky3o19ASUcNpEGe1UNlL4oyGDZpUlB8RkyhDjKrTDP2qmGJlRjgbkv2tpim8rBwa18AqJbIkEz1T"/>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg text-on-surface">Dr. Sarah Jenkins</h3>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-primary-container/20 rounded-md">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-label-md text-label-md text-primary text-xs">Available</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Clinical Psychologist</p>
+<div class="flex flex-wrap gap-1 mt-2">
+<span class="px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-xs font-label-md">Grief</span>
+<span class="px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-xs font-label-md">Depression</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg h-target-size rounded-lg shadow-sm border border-primary-fixed-dim hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 mt-auto">
+<span class="material-symbols-outlined">call_merge</span>
+                            Initiate Three-Way Call
+                        </button>
+</div>
+<!-- Counselor Card 2 - Available -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-[20px] border border-surface-container-highest flex flex-col gap-4 hover:shadow-md transition-shadow">
+<div class="flex items-start gap-4">
+<img class="w-16 h-16 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a younger male counselor with a reassuring smile, wearing a casual but neat button-down shirt, sitting in a sunlit room with indoor plants. The atmosphere is relaxed and approachable, fitting for a modern digital health platform interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWNQfR4s_DvznzmNx0bPOS-k1D62RNMOZsM8hA5wieU1MbAs_lFdOs7TJS2YOhxj671n1soGC3P4oErJQ-rNDwn2mzgG7sxSyhmBELvljnrx8yDpVOUcS03S_hoJjZ29_1xs-y2HAsc2_j-NpJVl3bFgCBJlkwWeynfbMf2L8R4_xQ2A2ZQcjTpdkSeyJRFIMWQgTm0zPQCCZwrVBtncj6Ja9F472jAj1pdFSoV2lJ8es8XvxIoUNE"/>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg text-on-surface">Mark Davies, LCSW</h3>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-primary-container/20 rounded-md">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-label-md text-label-md text-primary text-xs">Available</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Licensed Clinical Social Worker</p>
+<div class="flex flex-wrap gap-1 mt-2">
+<span class="px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-xs font-label-md">Anxiety</span>
+<span class="px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-xs font-label-md">Elder Care</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg h-target-size rounded-lg shadow-sm border border-primary-fixed-dim hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 mt-auto">
+<span class="material-symbols-outlined">call_merge</span>
+                            Initiate Three-Way Call
+                        </button>
+</div>
+<!-- Counselor Card 3 - In Session (Disabled State) -->
+<div class="bg-surface-container rounded-xl p-[20px] border border-surface-container-highest flex flex-col gap-4 opacity-75">
+<div class="flex items-start gap-4 grayscale-[50%]">
+<img class="w-16 h-16 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of an older female counselor looking attentively off-camera, wearing glasses and a dark blazer. The image has a slightly muted tone to indicate an unavailable state in the UI, but still retains a professional and caring demeanor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWOA1htnQ0mbSLulhThgXOBgBIgs3te-TGLTYBgB8ziNQwsXSB3UF1om9Dc1lwBWVG0_67nQpaNB0XuysgEI5oQzpsRxTObQ-VVJQ6QaeBvzQSjXf5a4iZ-fF6LJjg9_9RARKxUpfS13FOSmfJ3xznDHEQskp0KfHVGD2M-9otzeSpcHlA9fD4PQta8s94BeBD1LljLQKepx5RiP3WZXOcweSbTqFr0y1Gq0U3vAU-CFZKTlT4lLEE"/>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-label-lg text-label-lg text-on-surface">Dr. Emily Chen</h3>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-tertiary-container/20 rounded-md">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-label-md text-label-md text-tertiary text-xs">In Session</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Geriatric Psychiatrist</p>
+</div>
+</div>
+<button class="w-full bg-surface-variant text-outline font-label-lg text-label-lg h-target-size rounded-lg flex items-center justify-center gap-2 mt-auto cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined">call_end</span>
+                            Unavailable
+                        </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

@@ -1,5 +1,5 @@
 // lib/state/scanned_messages_provider.dart
-// Riverpod provider for scanned messages — seeded with plausible local data.
+// Riverpod provider for scanned messages — seeded with plausible local Indian data.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/scanned_message.dart';
@@ -8,37 +8,37 @@ class ScannedMessagesNotifier extends StateNotifier<List<ScannedMessage>> {
   ScannedMessagesNotifier()
       : super([
           ScannedMessage(
-            sender: 'Unknown Number',
-            body: '"Your bank account has been suspended. Click here to verify your identity immediately: bit.ly/bank-alert-32..."',
-            maskedBody: '"Your bank account has been suspended. Click here to verify your identity immediately: bit.ly/bank-alert-32..."',
+            sender: 'VM-SBIINB (Spoofed)',
+            body: '"Your SBI YONO account has been suspended due to pending PAN KYC. Click here immediately to verify: http://sbi-kyc-verify-882.in"',
+            maskedBody: '"Your SBI YONO account has been suspended due to pending PAN KYC. Click here immediately to verify: http://sbi-kyc-verify-882.in"',
             riskLevelIndex: 2, // danger
-            reasons: ['Suspicious URL', 'Urgency language', 'Impersonates bank'],
-            matchedKeywords: ['suspended', 'verify', 'immediately'],
+            reasons: ['Suspicious Phishing URL', 'Urgency Coercion', 'Impersonates SBI Bank'],
+            matchedKeywords: ['suspended', 'kyc', 'immediately', 'verify'],
             receivedAt: DateTime.now().subtract(const Duration(hours: 2)),
             isBlocked: true,
           ),
           ScannedMessage(
-            sender: 'Amazon Support?',
-            body: '"A large purchase of \$1,200 was made on your account. If this wasn\'t you, call..."',
-            maskedBody: '"A large purchase of \$1,200 was made on your account. If this wasn\'t you, call..."',
+            sender: 'Amazon India Support?',
+            body: '"A large debit order of ₹45,999 on iPhone 16 was placed from your account. If this was not you, call +91 98765 43210 immediately."',
+            maskedBody: '"A large debit order of ₹45,999 on iPhone 16 was placed from your account. If this was not you, call +91 98765 43210 immediately."',
             riskLevelIndex: 1, // caution
-            reasons: ['Impersonates brand', 'Urgency language'],
-            matchedKeywords: ['purchase', 'wasn\'t you'],
+            reasons: ['Impersonates Brand', 'Urgency Call-back Bait'],
+            matchedKeywords: ['order', 'was not you', 'immediately'],
             receivedAt: DateTime.now().subtract(const Duration(days: 1)),
           ),
           ScannedMessage(
-            sender: 'Sarah (Granddaughter)',
-            body: '"Hi Grandpa! Just checking in to see if you\'re free for dinner this Sunday? Love you!"',
-            maskedBody: '"Hi Grandpa! Just checking in to see if you\'re free for dinner this Sunday? Love you!"',
+            sender: 'Priya (Granddaughter)',
+            body: '"Namaste Dadaji! Just checking in to see if you took your evening medicines? Amit Bhaiyya is visiting tomorrow. Love you!"',
+            maskedBody: '"Namaste Dadaji! Just checking in to see if you took your evening medicines? Amit Bhaiyya is visiting tomorrow. Love you!"',
             riskLevelIndex: 0, // safe
             reasons: [],
             matchedKeywords: [],
             receivedAt: DateTime.now().subtract(const Duration(days: 2)),
           ),
           ScannedMessage(
-            sender: 'Pharmacy Plus',
-            body: '"Your prescription refill is ready for pickup."',
-            maskedBody: '"Your prescription refill is ready for pickup."',
+            sender: 'Apollo Pharmacy Bengaluru',
+            body: '"Your monthly prescription refill is ready for free home delivery. Order #AP-99201."',
+            maskedBody: '"Your monthly prescription refill is ready for free home delivery. Order #AP-99201."',
             riskLevelIndex: 0, // safe
             reasons: [],
             matchedKeywords: [],

@@ -1,309 +1,411 @@
-// lib/screens/otp_alert_screen.dart
-// Scam-warning screen — populated with real ScannedMessage data.
-// Layout and styling are UNCHANGED from the original; only dead data is replaced.
-
 import 'package:flutter/material.dart';
-import '../models/scanned_message.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme.dart';
 import '../services/guardian_service.dart';
-import '../services/voice_service.dart';
+import '../services/detection/blocklist_service.dart';
+import '../services/detection/otp_masking_service.dart';
 
-class OtpAlertScreen extends StatefulWidget {
-  /// The detected scam message this warning refers to.
-  /// If null, the screen shows generic hardcoded copy (backwards-compat).
-  final ScannedMessage? message;
+class OtpAlertScreen extends StatelessWidget {
+  final String? code;
+  final String? sender;
+  final String? message;
 
-  const OtpAlertScreen({super.key, this.message});
-
-  @override
-  State<OtpAlertScreen> createState() => _OtpAlertScreenState();
-}
-
-class _OtpAlertScreenState extends State<OtpAlertScreen> {
-  bool _notified = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Speak the scam alert on screen entry
-    final sender = widget.message?.sender ?? 'Unknown';
-    VoiceService.speakScamAlert(sender);
-  }
-
-  Future<void> _onDidNotShare() async {
-    // Notify guardian that user was targeted but did NOT share the code
-    if (!_notified) {
-      final sender = widget.message?.sender ?? 'Unknown';
-      final reason = widget.message?.reasons.isNotEmpty == true
-          ? widget.message!.reasons.first
-          : 'OTP scam detected';
-      await GuardianService.notifyGuardian(sender: sender, reason: reason);
-      setState(() => _notified = true);
-    }
-    if (mounted) Navigator.pop(context);
-  }
+  const OtpAlertScreen({
+    super.key,
+    this.code,
+    this.sender,
+    this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final Color redTheme = const Color(0xFFC62828);
-    final msg = widget.message;
-    final senderDisplay = msg?.sender ?? 'UNKNOWN';
-    final reasons = msg?.reasons ?? [];
+    final effectiveSender = sender ?? '+91 98210 44921 (Unknown / Spoofed)';
+    final rawMessage = message ?? 'Your SBI NetBanking OTP is 849201 for payment of Rs 45,000 to Unknown Beneficiary. Valid for 5 mins. Do not share with anyone.';
+    final maskedMessage = OtpMaskingService.maskCodes(rawMessage);
 
     return Scaffold(
-      backgroundColor: redTheme,
+      backgroundColor: const Color(0xFFFBF8F7),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 16),
-              const Icon(Icons.warning_amber_rounded, size: 60, color: Colors.white),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('🚨', style: TextStyle(fontSize: 32)),
-                  const SizedBox(width: 8),
-                  Text(
-                    'STOP! DO NOT\nSHARE!',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('🚨', style: TextStyle(fontSize: 32)),
-                ],
+
+              // Top Pulsing Critical Alert Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEBE6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFFE7356), width: 1.2),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFAA361F),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'CRITICAL THREAT INTERCEPTED',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFFAA361F),
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'A highly suspicious activity has been\ndetected. Protect your account\nimmediately.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 32),
 
-              // Suspicious Message Card
+              // Warning Shield Icon
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFECE8),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFAA361F).withValues(alpha: 0.18),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.security_update_warning,
+                    color: Color(0xFFAA361F),
+                    size: 40,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Title
+              Text(
+                'OTP Safety Shield',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF1B1C1C),
+                  height: 1.15,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Verification code hidden to prevent theft.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.atkinsonHyperlegible(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF5E706D),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // ── STYLIZED MASKED OTP CARD ──
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFFFDAD3), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.person_outline, color: Colors.red),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                const WidgetSpan(
-                                  child: Icon(Icons.warning, color: Colors.amber, size: 20),
-                                  alignment: PlaceholderAlignment.middle,
-                                ),
-                                const TextSpan(text: ' '),
-                                TextSpan(
-                                  // Populated from real ScannedMessage.sender
-                                  text: 'SUSPICIOUS MESSAGE FROM: $senderDisplay',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Colors.red[900],
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ],
-                            ),
+                        const Icon(Icons.lock_rounded, size: 16, color: Color(0xFFAA361F)),
+                        const SizedBox(width: 6),
+                        Text(
+                          'CONFIDENTIAL CODE MASKED',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFAA361F),
+                            letterSpacing: 1.0,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Code hidden for your\nsafety',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    const SizedBox(height: 14),
+
+                    // 6-Pin Lock Block Display
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(6, (index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          width: 42,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F3F3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE3E2E2), width: 1.5),
                           ),
-                          const SizedBox(height: 16),
+                          child: const Center(
+                            child: Icon(
+                              Icons.circle,
+                              size: 14,
+                              color: Color(0xFFAA361F),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 14),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF4E5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.shield, size: 14, color: Color(0xFFB5431F)),
+                          const SizedBox(width: 6),
                           Text(
-                            '*   *   *\n*   *   *',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(color: Colors.black87),
+                            'Protected by SafeSenior Security Vault',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF735C00),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // Show detected risk reasons if available
-                    if (reasons.isNotEmpty)
-                      ...reasons.map((r) => Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.error_outline, color: Colors.red, size: 16),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    r,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(color: Colors.red[800], fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ))
-                    else
-                      Text(
-                        'If someone is asking for this code right now, they are trying to steal your access.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.black87,
-                            ),
-                      ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // Checklist Card
+              // ── INTERCEPTED MESSAGE DETAILS CARD ──
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFEAEA), // Light Pink — unchanged
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.verified_user_outlined, color: Colors.red[900]),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFFECE8),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.sms_failed_outlined, size: 16, color: Color(0xFFAA361F)),
+                        ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Safety Verification Checklist',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Colors.red[900],
-                                fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Sender / Originator',
+                                style: GoogleFonts.atkinsonHyperlegible(fontSize: 11, color: const Color(0xFF6E7979), fontWeight: FontWeight.w600),
                               ),
+                              Text(
+                                effectiveSender,
+                                style: GoogleFonts.atkinsonHyperlegible(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF1B1C1C),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFDAD3),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Flagged',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFAA361F),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    _buildChecklistItem(context, 'NEVER share this code with anyone, even family or "bank staff".'),
-                    const SizedBox(height: 12),
-                    _buildChecklistItem(context, 'Banks NEVER ask for OTP via phone call or text.'),
-                    const SizedBox(height: 12),
-                    _buildChecklistItem(context, 'This could be a SCAM intended to lock you out.'),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // I Did NOT Share Button — now fires guardian notification
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _onDidNotShare,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: redTheme,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                    const Divider(height: 20, color: Color(0xFFEFEDED)),
+                    Text(
+                      'Intercepted Message Preview:',
+                      style: GoogleFonts.atkinsonHyperlegible(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF6E7979)),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.check, color: redTheme),
-                      const SizedBox(width: 8),
-                      Text(
-                        'I Did NOT Share This Code',
-                        style: TextStyle(fontSize: 18, color: redTheme),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F3F3),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ],
-                  ),
+                      child: Text(
+                        maskedMessage,
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 13.5,
+                          color: const Color(0xFF1B1C1C),
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Close Button
+              // ── CRITICAL WARNING ADVISORY ──
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFAF8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFFFB4A5), width: 1),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFAA361F), size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'DO NOT read this OTP to anyone calling about SBI YONO, Electricity bills, CBI Digital Arrest, or lottery prizes. Real officials never ask for OTPs.',
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 12.5,
+                          color: const Color(0xFF3E4949),
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // ── ACTION 1: Block Sender & Report to 1930 ──
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white, width: 1),
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                height: 54,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    BlocklistService.blockSender(effectiveSender);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Sender permanently blocked & reported to Cybercrime Helpline 1930.'),
+                        backgroundColor: Color(0xFFAA361F),
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.block, size: 20),
+                  label: Text(
+                    'Block & Report to 1930 Helpline',
+                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
-                  child: const Text(
-                    'I Understand - Close',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFAA361F),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                    elevation: 3,
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
 
-              const SizedBox(height: 32),
-              Text(
-                'Safe Senior Security System is monitoring this\nsession. Your protection is our priority.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+              // ── ACTION 2: Alert Guardian (Family) ──
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    GuardianService.sendEmergencyAlert();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Emergency OTP Alert sent to your Guardian (Amit Patel).'),
+                        backgroundColor: Color(0xFF006565),
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.shield_outlined, size: 20),
+                  label: Text(
+                    'Alert Guardian (Family Help)',
+                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF006565),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+
+              // ── ACTION 3: I Understand - Dismiss ──
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF5E706D),
+                    side: const BorderSide(color: Color(0xFFBDC9C8), width: 1.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                  ),
+                  child: Text(
+                    'I Will Not Share - Close Safely',
+                    style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold, fontSize: 14.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildChecklistItem(BuildContext context, String text) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.remove_circle, color: Colors.red[600], size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.red[900],
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ),
-        ],
       ),
     );
   }

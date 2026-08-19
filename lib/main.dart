@@ -4,9 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'theme.dart';
 import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 import 'models/user_profile.dart';
 import 'models/guardian_contact.dart';
 import 'models/scanned_message.dart';
@@ -18,10 +20,21 @@ import 'services/voice_service.dart';
 import 'services/notification_service.dart';
 import 'services/detection/blocklist_service.dart';
 import 'services/sms_service.dart';
+import 'services/call_service.dart';             // BUG 10
+import 'services/platform_capabilities.dart';   // BUG 7
+import 'services/pattern_cache_service.dart';    // Offline-first pattern cache
+import 'services/trusted_sender_cache.dart';      // User's personal allowlist
+import 'services/permission_service.dart';
 import 'state/theme_provider.dart';
+import 'state/language_provider.dart';
+import 'state/protection_stats_provider.dart';
 import 'screens/otp_alert_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+/// Global ProviderContainer so SmsService callbacks can refresh Riverpod state
+/// even when called from outside the widget tree.
+ProviderContainer? _container;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,25 +52,66 @@ void main() async {
 
   // ── SharedPreferences ──────────────────────────────────────────────────────
   await LocalPreferences.init();
+  PatternCacheService.refreshFromBackend().ignore();
 
   // ── Services ───────────────────────────────────────────────────────────────
   await VoiceService.init();
   await NotificationService.init();
 
-  // ── Bundled blocklist ──────────────────────────────────────────────────────
+  // BUG 7 FIX: probe real biometric capability at startup
+  await PlatformCapabilities.checkBiometricAvailability();
+
   await BlocklistService.init();
 
-  // ── Auto-Popup for Fake OTPs ───────────────────────────────────────────────
+  // ── Offline-first scam pattern cache ───────────────────────────────────────
+  await PatternCacheService.init();
+  // Sync in background — don't block startup if offline
+  PatternCacheService.syncPatterns();
+  // Sync trusted senders in background (user's personal allowlist)
+  TrustedSenderCache.sync();
+
+  // BUG 10 FIX: register native MethodChannel handler so Kotlin CallBlockerPlugin
+  // can call back into Dart for blocklist checks (must happen before runApp).
+  CallService.registerMethodCallHandler();
+
+  // ── Auto-Start SMS Monitoring & Permissions ──────────────────────────────
+  PermissionService.requestPostLoginPermissions().then((_) {
+    SmsService.startMonitoring();
+  }).catchError((_) {});
+
+  // ── Auto-Popup for Fake OTPs / Scam Messages ────────────────────────────────
   SmsService.setDangerCallback((msg) {
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => OtpAlertScreen(message: msg)),
+    final nav = navigatorKey.currentState;
+    if (nav == null) return;
+
+    // Always push a new alert screen even if one is already showing.
+    // Using push (not pushAndRemoveUntil) so the user can see each alert.
+    nav.push(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => OtpAlertScreen(
+          message: msg.maskedBody,
+          code: msg.extractedCode,
+          sender: msg.sender,
+        ),
+        // Fast fade-in so alert feels urgent
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
     );
   });
 
+  // ── Wire stats refresh to Riverpod ──────────────────────────────────────────
+  SmsService.setStatsChangedCallback(() {
+    _container?.read(protectionStatsProvider.notifier).refresh();
+  });
+
+  _container = ProviderContainer();
+
   runApp(
-    // Wrap with ProviderScope for Riverpod — no visual change to MaterialApp
-    const ProviderScope(
-      child: SafeSeniorApp(),
+    UncontrolledProviderScope(
+      container: _container!,
+      child: const SafeSeniorApp(),
     ),
   );
 }
@@ -67,8 +121,8 @@ class SafeSeniorApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final languageCode = LocalPreferences.getLanguage();
+    final themeMode    = ref.watch(themeModeProvider);
+    final languageCode = ref.watch(languageProvider);
 
     return MaterialApp(
       navigatorKey: navigatorKey,
@@ -88,11 +142,12 @@ class SafeSeniorApp extends ConsumerWidget {
         Locale('bn'),
       ],
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }

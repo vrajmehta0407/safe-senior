@@ -1,298 +1,317 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/guardian_service.dart';
-import 'warning_alert_screen.dart';
-import 'guardian_screen.dart';
-import 'home_screen.dart';
-import 'security_status_screen.dart';
-import 'settings_screen.dart';
-import 'help_support_screen.dart';
+import '../state/guardian_provider.dart';
+import 'sos_notifying_screen.dart';
 
-class EmergencyScreen extends StatefulWidget {
+class EmergencyScreen extends ConsumerStatefulWidget {
   const EmergencyScreen({super.key});
 
   @override
-  State<EmergencyScreen> createState() => _EmergencyScreenState();
+  ConsumerState<EmergencyScreen> createState() => _EmergencyScreenState();
 }
 
-class _EmergencyScreenState extends State<EmergencyScreen> {
-  int _selectedIndex = 0; // Keeping Home selected to match the mockup
+class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
+  bool _isActivating = false;
 
-  void _onItemTapped(int index) {
-    if (index == 0) { // Home
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-    } else if (index == 1) { // Security
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SecurityStatusScreen()));
-    } else if (index == 2) { // Support
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen()));
-    } else if (index == 3) { // Settings
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+  Future<void> _triggerSOS() async {
+    setState(() => _isActivating = true);
+    await GuardianService.sendEmergencyAlert();
+    if (!mounted) return;
+    setState(() => _isActivating = false);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SosNotifyingScreen()),
+    );
+  }
+
+  Future<void> _callPhone(String number) async {
+    final Uri uri = Uri(scheme: 'tel', path: number);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
-      setState(() {
-        _selectedIndex = index;
-      });
+      await GuardianService.sendEmergencyAlert();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryGuardian = ref.watch(primaryGuardianProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.textDark),
-          onPressed: () {},
-        ),
-        title: Text(
-          'Safe Senior',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, color: AppTheme.textDark),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF9F5F3),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Safe Status Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLightBlue.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.primaryDarkBlue.withValues(alpha: 0.1)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryLightBlue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.shield_outlined, color: AppTheme.primaryDarkBlue, size: 32),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'You are Safe',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryDarkBlue,
-                              ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              'Scanning for scammers...',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppTheme.textDark.withValues(alpha: 0.8),
-                                  ),
-                            ),
-                            const SizedBox(width: 4),
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: AppTheme.primaryDarkBlue,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+              const SizedBox(height: 12),
+              // Header Title
+              Text(
+                'Emergency',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryTeal,
                 ),
               ),
-              const SizedBox(height: 16),
-              
-              // Tip of the Day Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Icon(
-                        Icons.lightbulb_outline,
-                        size: 60,
-                        color: Colors.grey.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tip of the Day',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryDarkBlue,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "Never share your password or banking PIN with someone who calls you, even if they say they're from your bank.",
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: AppTheme.textDark,
-                                height: 1.5,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
+              const SizedBox(height: 6),
+              Text(
+                'Tap to dispatch immediate help',
+                style: GoogleFonts.atkinsonHyperlegible(
+                  fontSize: 14.5,
+                  color: const Color(0xFF5E706D),
                 ),
               ),
-              
               const Spacer(),
-              
-              // Help Button
+
+              // Giant Red Circular SOS Button
               GestureDetector(
-                onLongPress: () async {
-                  // Fire real call/SMS to guardian immediately
-                  await GuardianService.sendEmergencyAlert(
-                    message: '🚨 EMERGENCY: I need help right now! Please call me immediately.',
-                  );
-                  if (context.mounted) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const WarningAlertScreen()));
-                  }
-                },
-                child: Center(
-                  child: Container(
-                    width: 220,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: AppTheme.errorRed,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.errorRed.withValues(alpha: 0.3),
-                          blurRadius: 40,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.white, size: 50),
-                        SizedBox(height: 8),
-                        Text(
-                          'HELP ME!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                onTap: _isActivating ? null : _triggerSOS,
+                child: Container(
+                  width: 220,
+                  height: 220,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.terracottaRed,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.terracottaRed.withValues(alpha: 0.35),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 170,
+                      height: 170,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                      ),
+                      child: Center(
+                        child: _isActivating
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                'SOS',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
-              
-              Text(
-                'Press and hold if you are in immediate\ndanger or need medical help.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textDark.withValues(alpha: 0.7),
-                      height: 1.5,
-                    ),
-              ),
-              
+
               const Spacer(),
-              
-              // Guardian Contact Button
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const GuardianScreen()));
-                },
-                icon: const Icon(Icons.contact_mail_outlined),
-                label: const Text('My Guardian Contact'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  foregroundColor: AppTheme.primaryDarkBlue,
-                  backgroundColor: AppTheme.primaryLightBlue.withValues(alpha: 0.1),
-                  side: BorderSide(color: AppTheme.primaryDarkBlue.withValues(alpha: 0.3)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+
+              // Quick Connect Label
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'QUICK CONNECT',
+                  style: GoogleFonts.atkinsonHyperlegible(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF5E706D),
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
+              const SizedBox(height: 14),
+
+              // Emergency Option 1: National Emergency Response (112)
+              GestureDetector(
+                onTap: () => _callPhone('112'),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFBE0D8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.local_police_outlined, color: AppTheme.terracottaRed, size: 22),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Police / Emergency (112)',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF2C3937),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'National Emergency Hotline (India 112)',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF6B7B78)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.phone_forwarded_outlined, size: 20, color: AppTheme.terracottaRed),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Emergency Option 2: Cybercrime Reporting Helpline (1930)
+              GestureDetector(
+                onTap: () => _callPhone('1930'),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFECE8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.security, color: Color(0xFFAA361F), size: 22),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cybercrime Helpline (1930)',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF2C3937),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'MHA Cyber Financial Fraud Hotline',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF6B7B78)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.phone_forwarded_outlined, size: 20, color: Color(0xFFAA361F)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Emergency Option 3: Primary Guardian (Amit Patel)
+              GestureDetector(
+                onTap: () => _callPhone(primaryGuardian?.phone ?? '+91 98250 14820'),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFD7EFE6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.shield_outlined, color: AppTheme.primaryTeal, size: 22),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              primaryGuardian != null ? 'Call ${primaryGuardian.name}' : 'Guardian (Amit Patel)',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF2C3937),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              primaryGuardian?.phone ?? '+91 98250 14820 (Family Response)',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF6B7B78)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.phone_forwarded_outlined, size: 20, color: AppTheme.primaryTeal),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Cancel Link
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'CANCEL & RETURN',
+                  style: GoogleFonts.atkinsonHyperlegible(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF5E706D),
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.backgroundColor,
-        selectedItemColor: AppTheme.primaryDarkBlue,
-        unselectedItemColor: AppTheme.textDark.withValues(alpha: 0.6),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: [
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: _selectedIndex == 0 ? AppTheme.primaryLightBlue.withValues(alpha: 0.5) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.shield_outlined),
-            ),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.security),
-            ),
-            label: 'Security',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.help_outline),
-            ),
-            label: 'Support',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.settings_outlined),
-            ),
-            label: 'Settings',
-          ),
-        ],
       ),
     );
   }

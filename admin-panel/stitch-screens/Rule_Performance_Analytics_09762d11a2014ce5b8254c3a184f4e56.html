@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeSenior Admin - Pattern Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f2f0f0",
+                    "on-primary-fixed": "#002020",
+                    "on-surface-variant": "#3e4949",
+                    "inverse-surface": "#303031",
+                    "primary-fixed": "#93f2f2",
+                    "secondary-container": "#fe7356",
+                    "primary-container": "#008080",
+                    "surface-container-low": "#f5f3f3",
+                    "tertiary-container": "#cca830",
+                    "surface-bright": "#fbf9f9",
+                    "outline-variant": "#bdc9c8",
+                    "on-primary": "#ffffff",
+                    "background": "#fbf9f9",
+                    "on-secondary-fixed-variant": "#891e08",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline": "#6e7979",
+                    "on-primary-container": "#e3fffe",
+                    "surface-variant": "#e3e2e2",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#76d6d5",
+                    "surface": "#fbf9f9",
+                    "surface-tint": "#006a6a",
+                    "on-tertiary-fixed": "#241a00",
+                    "on-secondary": "#ffffff",
+                    "primary": "#006565",
+                    "surface-container-highest": "#e3e2e2",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#6d0f00",
+                    "tertiary": "#735c00",
+                    "surface-container": "#efeded",
+                    "on-secondary-fixed": "#3e0500",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "on-background": "#1b1c1c",
+                    "tertiary-fixed": "#ffe088",
+                    "surface-dim": "#dbdad9",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#4f3e00",
+                    "surface-container-high": "#e9e8e7",
+                    "secondary-fixed-dim": "#ffb4a4",
+                    "inverse-primary": "#76d6d5",
+                    "on-primary-fixed-variant": "#004f4f",
+                    "secondary": "#aa361f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "target-size": "48px",
+                    "margin-mobile": "20px",
+                    "gutter-mobile": "16px",
+                    "gutter-desktop": "24px",
+                    "margin-desktop": "64px",
+                    "unit": "8px"
+            },
+            "fontFamily": {
+                    "headline-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-lg": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "body-lg": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Atkinson Hyperlegible Next"
+                    ],
+                    "headline-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-md": [
+                            "Atkinson Hyperlegible Next"
+                    ]
+            },
+            "fontSize": {
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fbf9f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e3e2e2; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #bdc9c8; 
+        }
+
+        /* Ambient Shadows */
+        .ambient-shadow {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-x-hidden min-h-screen">
+<!-- SideNavBar -->
+<nav aria-label="Sidebar Navigation" class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm hidden md:flex">
+<!-- Brand/Header -->
+<div class="p-gutter-desktop flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined fill text-[24px]">admin_panel_settings</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">SafeSenior Admin</h1>
+<p class="font-label-md text-label-md text-on-surface-variant font-normal">Operations Console</p>
+</div>
+</div>
+<button class="mt-6 w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label-lg text-label-lg py-3 rounded-lg border border-[#004f4f] hover:bg-surface-tint transition-colors shadow-sm min-h-[48px] active:scale-[0.99] duration-150">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                New System Rule
+            </button>
+</div>
+<!-- Main Nav Links -->
+<div class="flex-1 overflow-y-auto py-4">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-[48px]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                        System Health
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-primary-container/10 font-body-md text-body-md min-h-[48px] active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined fill">rule</span>
+                        Pattern Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-[48px]" href="#">
+<span class="material-symbols-outlined">group</span>
+                        User Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-[48px]" href="#">
+<span class="material-symbols-outlined">emergency</span>
+                        Alerts Center
+                    </a>
+</li>
+</ul>
+</div>
+<!-- Footer Nav Links -->
+<div class="p-4 border-t border-surface-variant/50">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-[48px]" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        Settings
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-[48px]" href="#">
+<span class="material-symbols-outlined">help</span>
+                        Support
+                    </a>
+</li>
+</ul>
+<div class="mt-4 flex items-center gap-3 px-4">
+<img alt="Admin User Profile" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-highest" data-alt="A small, circular avatar portrait of a professional administrative user. Bright, clear lighting. The person looks approachable and competent. Set against a clean, light-colored background. Soft, corporate-friendly aesthetic. High resolution, 48x48 pixels equivalent." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3f7hXp7Z-9MBbkaxurzH6UNSnzUDzlaD-mOHwQui3bj2ApnGisYHjcDzcDPFVQzcIC6HuD-mATHKaC6mxshFtXVXDLcyTS9vvpDUnrAAeZZUrBStKjEZPk-kJe3AZH5-xbjiPSfTIkIKxzHUfmRJ1xFAKzPQr2LfEYF3ltwDwJobn1hlKx2REOotKSS8Klg82-vNop1giIoZQV2BCKGflrZxA0G9Eii9_5s7paftD69brrdf3Rnjs"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Admin User</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Online</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-0 md:left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Toggle (hidden on desktop) -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex items-center gap-2 bg-surface-container-low rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-primary transition-shadow w-64 lg:w-96">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md w-full placeholder:text-outline p-0" placeholder="Search rules, alerts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center relative rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center md:hidden rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="pt-24 pb-20 md:pb-8 pl-0 md:pl-64 min-h-screen flex flex-col gap-8 px-gutter-mobile md:px-gutter-desktop max-w-[1600px] mx-auto">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Rule Performance Analytics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Monitoring detection efficiency and alert accuracy across the network.</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline-variant text-on-surface font-label-md text-label-md min-h-[48px] hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Last 30 Days
+                    <span class="material-symbols-outlined text-[18px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline-variant text-on-surface font-label-md text-label-md min-h-[48px] hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    Filter
+                </button>
+</div>
+</div>
+<!-- High-level KPIs (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow flex flex-col gap-4 relative overflow-hidden border border-surface-variant/50">
+<div class="absolute -right-6 -top-6 w-32 h-32 bg-primary-container/10 rounded-full blur-2xl"></div>
+<div class="flex items-center justify-between z-10">
+<span class="font-label-lg text-label-lg text-on-surface-variant">Avg. Detection Rate</span>
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">radar</span>
+</div>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface text-4xl">94.2%</span>
+<span class="text-primary font-label-md flex items-center"><span class="material-symbols-outlined text-[16px]">trending_up</span> +2.1%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">Across all active rules</p>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow flex flex-col gap-4 relative overflow-hidden border border-surface-variant/50">
+<div class="absolute -right-6 -top-6 w-32 h-32 bg-secondary-container/10 rounded-full blur-2xl"></div>
+<div class="flex items-center justify-between z-10">
+<span class="font-label-lg text-label-lg text-on-surface-variant">False Positive Rate</span>
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">warning</span>
+</div>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface text-4xl">3.8%</span>
+<span class="text-secondary font-label-md flex items-center"><span class="material-symbols-outlined text-[16px]">trending_down</span> -0.5%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">Target: &lt; 5.0%</p>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow flex flex-col gap-4 relative overflow-hidden border border-surface-variant/50">
+<div class="absolute -right-6 -top-6 w-32 h-32 bg-tertiary-container/10 rounded-full blur-2xl"></div>
+<div class="flex items-center justify-between z-10">
+<span class="font-label-lg text-label-lg text-on-surface-variant">Total Alerts Triggered</span>
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface text-4xl">1,284</span>
+<span class="text-on-surface-variant font-label-md flex items-center">vs last month</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full mt-3 overflow-hidden">
+<div class="bg-tertiary-container h-full w-[65%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Chart Area -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow border border-surface-variant/50 flex flex-col gap-6">
+<div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Efficiency Trend (Last 30 Days)</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Comparing Detection Rate vs False Positives over time.</p>
+</div>
+<div class="flex gap-2 bg-surface-container-low p-1 rounded-lg self-start">
+<button class="px-3 py-1.5 rounded bg-surface shadow-sm text-on-surface font-label-md text-label-md">Line</button>
+<button class="px-3 py-1.5 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors">Bar</button>
+</div>
+</div>
+<div class="w-full h-[300px] md:h-[400px] relative">
+<canvas id="efficiencyChart"></canvas>
+</div>
+</div>
+<!-- Detailed Rule List -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-surface-variant/50 overflow-hidden flex flex-col">
+<div class="p-6 border-b border-surface-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Active Rules Performance</h3>
+<button class="text-primary hover:text-primary-fixed-dim font-label-md text-label-md flex items-center gap-1 transition-colors">
+                    Export CSV <span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-variant">
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap">Rule Name</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap">Status</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap text-right">Detection Rate</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap text-right">False Positive Rate</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap text-right">Alerts (30d)</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap text-center">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant font-body-md text-body-md text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">night_shelter</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Wandering Detection (Night)</div>
+<div class="text-sm text-on-surface-variant">ID: PTN-001</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/10 text-primary font-label-md text-xs border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                                </span>
+</td>
+<td class="p-4 text-right font-label-md text-label-md">98.5%</td>
+<td class="p-4 text-right font-label-md text-label-md text-primary">1.2%</td>
+<td class="p-4 text-right font-label-md text-label-md">342</td>
+<td class="p-4 text-center">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high min-h-[48px] min-w-[48px] inline-flex items-center justify-center">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">personal_injury</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Sudden Fall Detection</div>
+<div class="text-sm text-on-surface-variant">ID: PTN-042</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/10 text-primary font-label-md text-xs border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                                </span>
+</td>
+<td class="p-4 text-right font-label-md text-label-md">95.1%</td>
+<td class="p-4 text-right font-label-md text-label-md text-secondary">8.4% <span class="material-symbols-outlined text-[14px] align-middle" title="Needs tuning">warning</span></td>
+<td class="p-4 text-right font-label-md text-label-md">518</td>
+<td class="p-4 text-center">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high min-h-[48px] min-w-[48px] inline-flex items-center justify-center">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">door_open</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Exterior Door (Daytime)</div>
+<div class="text-sm text-on-surface-variant">ID: PTN-012</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-variant/50 text-on-surface-variant font-label-md text-xs border border-outline/20">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span> Paused
+                                </span>
+</td>
+<td class="p-4 text-right font-label-md text-label-md text-on-surface-variant">--</td>
+<td class="p-4 text-right font-label-md text-label-md text-on-surface-variant">--</td>
+<td class="p-4 text-right font-label-md text-label-md text-on-surface-variant">0</td>
+<td class="p-4 text-center">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high min-h-[48px] min-w-[48px] inline-flex items-center justify-center">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">medication</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Cabinet Access (Anomalous)</div>
+<div class="text-sm text-on-surface-variant">ID: PTN-088</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/10 text-primary font-label-md text-xs border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                                </span>
+</td>
+<td class="p-4 text-right font-label-md text-label-md">89.0%</td>
+<td class="p-4 text-right font-label-md text-label-md">4.1%</td>
+<td class="p-4 text-right font-label-md text-label-md">112</td>
+<td class="p-4 text-center">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high min-h-[48px] min-w-[48px] inline-flex items-center justify-center">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-surface-variant bg-surface-container-low flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Showing 1-4 of 24 rules</span>
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant disabled:opacity-50 min-h-[40px] min-w-[40px] flex items-center justify-center rounded hover:bg-surface" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary min-h-[40px] min-w-[40px] flex items-center justify-center rounded hover:bg-surface transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Chart Initialization Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('efficiencyChart').getContext('2d');
+            
+            // Generate some dummy data for the last 30 days
+            const labels = Array.from({length: 30}, (_, i) => `Day ${i+1}`);
+            
+            // Detection Rate (Teal) - generally high and stable
+            const detectionData = Array.from({length: 30}, () => Math.floor(Math.random() * (98 - 90 + 1)) + 90);
+            
+            // False Positive Rate (Coral/Secondary) - generally low
+            const fpData = Array.from({length: 30}, () => Math.floor(Math.random() * (8 - 2 + 1)) + 2);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Detection Rate (%)',
+                            data: detectionData,
+                            borderColor: '#006565', // primary color
+                            backgroundColor: 'rgba(0, 101, 101, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'False Positive Rate (%)',
+                            data: fpData,
+                            borderColor: '#fe7356', // secondary-container color
+                            backgroundColor: 'rgba(254, 115, 86, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: "'Atkinson Hyperlegible Next', sans-serif",
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#303031',
+                            titleFont: { family: "'Plus Jakarta Sans', sans-serif" },
+                            bodyFont: { family: "'Atkinson Hyperlegible Next', sans-serif" },
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                font: { family: "'Atkinson Hyperlegible Next', sans-serif" }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 80,
+                            max: 100,
+                            grid: {
+                                color: '#e3e2e2',
+                                drawBorder: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Detection Rate',
+                                font: { family: "'Atkinson Hyperlegible Next', sans-serif" }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 15,
+                            grid: {
+                                drawOnChartArea: false, // only want the grid lines for one axis to show up
+                                drawBorder: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'False Positive Rate',
+                                font: { family: "'Atkinson Hyperlegible Next', sans-serif" }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

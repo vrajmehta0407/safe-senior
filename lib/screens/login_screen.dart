@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:local_auth/local_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
-import '../widgets/custom_textfield.dart';
-import '../widgets/logo.dart';
 import '../state/auth_provider.dart';
-import '../services/permission_service.dart';
-import 'signup_screen.dart';
-import 'reset_password_screen.dart';
+import '../storage/local_preferences.dart';
 import 'home_screen.dart';
+import 'get_started_screen.dart';
+import 'forgot_pin_screen.dart';
+import 'admin/admin_login_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -18,240 +17,383 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _localAuth = LocalAuthentication();
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  bool _obscurePass = true;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (LocalPreferences.getRememberMe()) {
+      _emailCtrl.text = LocalPreferences.getRememberedEmail() ?? '';
+    }
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _handleBiometricLogin() async {
-    try {
-      final canCheck = await _localAuth.canCheckBiometrics;
-      final isDeviceSupported = await _localAuth.isDeviceSupported();
-      if (!canCheck || !isDeviceSupported) {
-        _showError('Biometric authentication is not available on this device.');
-        return;
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+
+    final email = _emailCtrl.text.trim();
+    final pass = _passCtrl.text.trim();
+    final success = await ref.read(authProvider.notifier).login(email, pass);
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (success) {
+      if (LocalPreferences.getRememberMe()) {
+        await LocalPreferences.setRememberedEmail(email);
       }
-      final authenticated = await _localAuth.authenticate(
-        localizedReason: 'Verify your identity to log in to Safe Senior',
-        options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } else {
+      final errorMsg = ref.read(authProvider).errorMessage ?? 'Invalid credentials. Please check your phone number and PIN.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            errorMsg,
+            style: GoogleFonts.atkinsonHyperlegible(color: Colors.white, fontSize: 16),
+          ),
+          backgroundColor: AppTheme.terracottaRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
-      if (!authenticated) return;
-      // Biometric passed — check if a local session exists
-      final authState = ref.read(authProvider);
-      if (authState.user != null) {
-        if (mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-        }
-      } else {
-        _showError('No saved account found. Please log in with your credentials first.');
-      }
-    } catch (e) {
-      _showError('Biometric login failed. Please use your password.');
     }
-  }
-
-  Future<void> _handleLogin() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      _showError('Please enter your email/phone and password.');
-      return;
-    }
-
-    final success = await ref
-        .read(authProvider.notifier)
-        .login(email, password);
-
-    if (success && mounted) {
-      // Request permissions after login (no new UI)
-      final navigator = Navigator.of(context);
-      await PermissionService.requestPostLoginPermissions();
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    }
-  }
-
-  void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: AppTheme.errorRed),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-    final isLoading = authState.isLoading;
-
-    // Show auth error if present
-    ref.listen(authProvider, (prev, next) {
-      if (next.errorMessage != null) {
-        _showError(next.errorMessage!);
-        ref.read(authProvider.notifier).clearError();
-      }
-    });
-
     return Scaffold(
+      // Stitch login background: warm off-white #FDFBF7
+      backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 40),
-              // Logo Background Circle
-              Center(
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: SafeSeniorLogo(size: 60, showText: false),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Title
-              Text(
-                'Safe Senior',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              const SizedBox(height: 8),
-              // Subtitle
-              Text(
-                'Your Safety Guardian',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.primaryLightBlue,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              // Stitch: white card with rounded-xl + card-shadow
+              child: Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
                     ),
-              ),
-              const SizedBox(height: 40),
-
-              // Email / Phone Field
-              CustomTextField(
-                label: 'Email or Phone Number',
-                hintText: 'e.g., 555-0123',
-                prefixIcon: Icons.email_outlined,
-                controller: _emailController,
-              ),
-              const SizedBox(height: 16),
-
-              // Password Field
-              CustomTextField(
-                label: 'Password',
-                hintText: '••••••••',
-                prefixIcon: Icons.lock_outline,
-                isPassword: true,
-                controller: _passwordController,
-              ),
-
-              // Forgot Password
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ResetPasswordScreen()));
-                  },
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: AppTheme.primaryDarkBlue,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Login Button — shows spinner while loading
-              ElevatedButton(
-                onPressed: isLoading ? null : _handleLogin,
-                child: isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.login),
-                          SizedBox(width: 8),
-                          Text('Login'),
-                        ],
-                      ),
-              ),
-              const SizedBox(height: 24),
-
-              // Divider
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text('or', style: TextStyle(color: AppTheme.textLight)),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Fingerprint Button — wired to local_auth
-              OutlinedButton(
-                onPressed: _handleBiometricLogin,
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryLightBlue.withOpacity(0.1),
-                  side: const BorderSide(color: AppTheme.primaryDarkBlue),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.fingerprint),
-                    SizedBox(width: 8),
-                    Text('Login with Fingerprint'),
                   ],
                 ),
-              ),
-              const SizedBox(height: 32),
-
-              // Sign Up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Don't have an account? ", style: TextStyle(color: AppTheme.textDark)),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
-                    },
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: AppTheme.primaryDarkBlue,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ── Brand Header: shield icon + SafeSenior (Stitch exact) ──
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.security, color: AppTheme.primaryTeal, size: 36),
+                          const SizedBox(width: 10),
+                          Text(
+                            'SafeSenior',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryTeal,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 24),
+
+                      // ── Welcome text ──
+                      Text(
+                        'Welcome Back',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1B1C1C),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Please sign in to access your dashboard.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 16,
+                          color: const Color(0xFF3E4949),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // ── Phone/Email field (Stitch label + filled input h-[56px]) ──
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Phone Number or Email',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1B1C1C),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 56,
+                        child: TextFormField(
+                          controller: _emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 18,
+                            color: const Color(0xFF1B1C1C),
+                          ),
+                          decoration: _fieldDecor(
+                            hint: 'e.g. +91 98250 14820 or name@email.com',
+                            prefixIcon: Icons.person_outline,
+                          ),
+                          validator: (v) =>
+                              (v == null || v.trim().isEmpty) ? 'Please enter phone or email' : null,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // ── PIN Code field with "Forgot PIN?" aligned right ──
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'PIN Code',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1B1C1C),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ForgotPinScreen()),
+                              );
+                            },
+                            child: Text(
+                              'Forgot PIN?',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryTeal,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 56,
+                        child: TextFormField(
+                          controller: _passCtrl,
+                          obscureText: _obscurePass,
+                          keyboardType: TextInputType.number,
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 18,
+                            color: const Color(0xFF1B1C1C),
+                          ),
+                          decoration: _fieldDecor(
+                            hint: 'Enter 4-digit PIN',
+                            prefixIcon: Icons.dialpad,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePass ? Icons.visibility_off : Icons.visibility,
+                                color: const Color(0xFF3E4949),
+                                size: 22,
+                              ),
+                              onPressed: () => setState(() => _obscurePass = !_obscurePass),
+                            ),
+                          ),
+                          validator: (v) =>
+                              (v == null || v.trim().isEmpty) ? 'Please enter your PIN' : null,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // ── Forgot PIN Link (Stitch: Forgot PIN / Help) ──
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const ForgotPinScreen()),
+                            );
+                          },
+                          child: Text(
+                            'Forgot PIN / Need Help?',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryTeal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // ── Sign In CTA (Stitch: full width, 56px, primary teal, rounded-lg) ──
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _loading ? null : _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryTeal,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                            side: const BorderSide(color: AppTheme.primaryContainer, width: 1),
+                          ),
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  'Sign In',
+                                  style: GoogleFonts.atkinsonHyperlegible(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // ── Sign Up link (Stitch exact copy) ──
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const GetStartedScreen()),
+                          );
+                        },
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 16, color: const Color(0xFF3E4949)),
+                            children: [
+                              const TextSpan(text: 'New to SafeSenior? '),
+                              TextSpan(
+                                text: 'Create Account',
+                                style: GoogleFonts.atkinsonHyperlegible(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryTeal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      const Divider(color: Color(0xFFEFEDED), height: 1),
+                      const SizedBox(height: 16),
+
+                      // ── Admin Portal link ──
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.admin_panel_settings_outlined,
+                                size: 18, color: AppTheme.primaryTeal),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Admin Management Portal',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryTeal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _fieldDecor({
+    required String hint,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.atkinsonHyperlegible(
+          fontSize: 16, color: const Color(0xFF717171)),
+      prefixIcon: Icon(prefixIcon, color: const Color(0xFF3E4949)),
+      suffixIcon: suffixIcon,
+      filled: true,
+      // Stitch: bg-surface-container-highest = #E3E2E2
+      fillColor: const Color(0xFFE3E2E2),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppTheme.primaryTeal, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppTheme.terracottaRed, width: 1.5),
+      ),
+      isDense: true,
     );
   }
 }

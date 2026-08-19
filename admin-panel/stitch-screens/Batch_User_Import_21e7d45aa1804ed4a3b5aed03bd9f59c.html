@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeSenior Admin - Batch User Import</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f2f0f0",
+                        "on-primary-fixed": "#002020",
+                        "on-surface-variant": "#3e4949",
+                        "inverse-surface": "#303031",
+                        "primary-fixed": "#93f2f2",
+                        "secondary-container": "#fe7356",
+                        "primary-container": "#008080",
+                        "surface-container-low": "#f5f3f3",
+                        "tertiary-container": "#cca830",
+                        "surface-bright": "#fbf9f9",
+                        "outline-variant": "#bdc9c8",
+                        "on-primary": "#ffffff",
+                        "background": "#fbf9f9",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#ffdad3",
+                        "outline": "#6e7979",
+                        "on-primary-container": "#e3fffe",
+                        "surface-variant": "#e3e2e2",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface": "#fbf9f9",
+                        "surface-tint": "#006a6a",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-secondary": "#ffffff",
+                        "primary": "#006565",
+                        "surface-container-highest": "#e3e2e2",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#6d0f00",
+                        "tertiary": "#735c00",
+                        "surface-container": "#efeded",
+                        "on-secondary-fixed": "#3e0500",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "on-background": "#1b1c1c",
+                        "tertiary-fixed": "#ffe088",
+                        "surface-dim": "#dbdad9",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#4f3e00",
+                        "surface-container-high": "#e9e8e7",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "inverse-primary": "#76d6d5",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "secondary": "#aa361f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "target-size": "48px",
+                        "margin-mobile": "20px",
+                        "gutter-mobile": "16px",
+                        "gutter-desktop": "24px",
+                        "margin-desktop": "64px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Atkinson Hyperlegible Next"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen overflow-hidden flex">
+<!-- JSON Component: SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface dark:bg-inverse-surface bg-surface-container-low dark:bg-inverse-surface shadow-sm shadow-sm docked left-0 h-full w-64">
+<div class="p-6 flex items-center gap-4 border-b border-surface-variant">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high shrink-0">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="A close-up, brightly lit portrait of a professional system administrator in a clean, modern office environment. High contrast, sharp focus, professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK7qghS4l6JXy9znPFksOTUHozJDPUltX0aI42khQuVlMkPzRCHyibYTAI3wgfGX5ar1GKdENq-Gw3rDUsHYsXIeQ9z_zeJe5QzH3AoDsZMXpFlpyx1zt5EAvE8TSA7cw_6J6szbJYIDMI8M9pzN83R66bj6oyVfrEV5PWKlEtP2QgULvNpZJnjfZ4xghhm-2x2bZ4ZReOOLum4YpwOKijgSjsOmvf7EgECykMVELHus8CgojaAcEs"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">SafeSenior Admin</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Operations Console</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-4">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-lg text-label-lg">System Health</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-label-lg text-label-lg">Pattern Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary-container/10 active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-lg text-label-lg">User Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-label-lg text-label-lg">Alerts Center</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="p-4">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-full font-label-lg text-label-lg shadow-sm hover:bg-surface-tint transition-colors active:scale-[0.99]">
+<span class="material-symbols-outlined">add</span>
+                New System Rule
+            </button>
+</div>
+<div class="border-t border-surface-variant py-2">
+<ul>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-64 h-screen">
+<!-- JSON Component: TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface dark:bg-inverse-surface bg-surface dark:bg-inverse-surface shadow-sm shadow-sm docked top-0 w-full">
+<div class="flex items-center gap-4">
+<!-- Search on left -->
+<div class="relative flex items-center focus-within:ring-2 focus-within:ring-primary rounded-full bg-surface-container-high px-4 py-2 w-64">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none outline-none text-on-surface w-full font-body-md text-body-md placeholder:text-outline" placeholder="Search users..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="notifications" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="history" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button aria-label="account_circle" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto mt-16 p-margin-desktop bg-surface-container-low">
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- Header -->
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Batch User Import</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Upload CSV or Excel files to bulk register new facility residents or staff members. Data will be validated before final import.</p>
+</div>
+<!-- Upload & Progress Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 flex flex-col md:flex-row items-center gap-6 border border-outline-variant/30">
+<div class="flex-shrink-0 w-24 h-24 bg-surface-container rounded-lg flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">description</span>
+</div>
+<div class="flex-1 w-full">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">facility_residents_q3.csv</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">2.4 MB • Uploaded by Admin</p>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Progress Bar (Simulating complete state for validation view) -->
+<div class="w-full bg-surface-variant rounded-full h-2 mb-2 overflow-hidden">
+<div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+</div>
+<p class="font-label-md text-label-md text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Validation Complete
+                        </p>
+</div>
+</section>
+<!-- Validation Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Total Processed -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined">table_rows</span>
+<span class="font-label-lg text-label-lg">Total Rows Processed</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-on-surface">142</p>
+</div>
+<!-- Ready to Import -->
+<div class="bg-primary-container/20 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-primary-container/30 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-primary mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+<span class="font-label-lg text-label-lg">Ready to Import</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-primary">138</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Valid entries, no action needed.</p>
+</div>
+<!-- Errors Found -->
+<div class="bg-error-container/30 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-error-container/50 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-error mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-label-lg text-label-lg">Errors Found</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-error">4</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Requires manual correction before import.</p>
+</div>
+</section>
+<!-- Data Preview Table Area -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-outline-variant/30 overflow-hidden">
+<div class="p-6 border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Data Preview</h3>
+<div class="flex gap-2">
+<button class="px-4 py-2 rounded-full font-label-md text-label-md border border-outline-variant text-on-surface hover:bg-surface-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter: Errors Only
+                            </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant bg-surface">
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant w-16">Row</th>
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant">Full Name</th>
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant">Role</th>
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant">Contact / ID</th>
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant">Status</th>
+<th class="py-4 px-6 font-label-lg text-label-lg text-on-surface-variant w-32">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<!-- Error Row 1 -->
+<tr class="border-b border-surface-variant bg-error-container/10 hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 text-on-surface-variant">12</td>
+<td class="py-4 px-6 font-bold">Martha Stewart</td>
+<td class="py-4 px-6">Resident</td>
+<td class="py-4 px-6">Missing Emergency Contact</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 text-error bg-error-container px-2 py-1 rounded-md text-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">warning</span> Required Field Missing
+                                        </span>
+</td>
+<td class="py-4 px-6">
+<button class="text-primary hover:text-surface-tint font-label-md text-label-md underline">Edit</button>
+</td>
+</tr>
+<!-- Success Row 1 -->
+<tr class="border-b border-surface-variant hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 text-on-surface-variant">13</td>
+<td class="py-4 px-6">John Doe</td>
+<td class="py-4 px-6">Staff - Nurse</td>
+<td class="py-4 px-6">j.doe@safesenior.com</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">check</span> Valid
+                                        </span>
+</td>
+<td class="py-4 px-6 text-on-surface-variant opacity-50">-</td>
+</tr>
+<!-- Error Row 2 -->
+<tr class="border-b border-surface-variant bg-error-container/10 hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 text-on-surface-variant">45</td>
+<td class="py-4 px-6 font-bold">Eleanor Rigby</td>
+<td class="py-4 px-6">Resident</td>
+<td class="py-4 px-6">ID-8821</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 text-error bg-error-container px-2 py-1 rounded-md text-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">warning</span> Duplicate ID Found
+                                        </span>
+</td>
+<td class="py-4 px-6">
+<button class="text-primary hover:text-surface-tint font-label-md text-label-md underline">Edit</button>
+</td>
+</tr>
+<!-- Success Row 2 -->
+<tr class="border-b border-surface-variant hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 text-on-surface-variant">46</td>
+<td class="py-4 px-6">Robert Chen</td>
+<td class="py-4 px-6">Resident</td>
+<td class="py-4 px-6">ID-9002</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">check</span> Valid
+                                        </span>
+</td>
+<td class="py-4 px-6 text-on-surface-variant opacity-50">-</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Bottom Action Bar -->
+<div class="flex justify-end gap-4 pt-4 border-t border-surface-variant">
+<button class="px-6 py-3 min-w-[min(100%,120px)] min-h-[48px] rounded-full font-label-lg text-label-lg text-on-surface border border-outline hover:bg-surface-container-high transition-colors">
+                        Cancel
+                    </button>
+<button class="px-6 py-3 min-w-[min(100%,180px)] min-h-[48px] rounded-full font-label-lg text-label-lg bg-primary text-on-primary border border-surface-tint hover:bg-surface-tint transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">upload</span>
+                        Import 138 Valid Users
+                    </button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

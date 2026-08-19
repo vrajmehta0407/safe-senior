@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 
 class PhishingGuideScreen extends StatefulWidget {
@@ -60,15 +61,15 @@ class _PhishingGuideScreenState extends State<PhishingGuideScreen> {
                     _buildExampleBox(
                       isFake: true,
                       label: 'FAKE:',
-                      title: 'Guardian Trust Bank',
-                      email: 'support@guardian-trust-security-alert.net',
+                      title: 'State Bank of India (SBI)',
+                      email: 'support@sbi-kyc-verify-alert.net',
                     ),
                     const SizedBox(height: 12),
                     _buildExampleBox(
                       isFake: false,
                       label: 'REAL:',
-                      title: 'Guardian Trust Bank',
-                      email: 'support@guardiantrust.com',
+                      title: 'State Bank of India (SBI)',
+                      email: 'customercare@sbi.co.in',
                     ),
                   ],
                 ),
@@ -239,7 +240,10 @@ class _PhishingGuideScreenState extends State<PhishingGuideScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final uri = Uri(scheme: 'tel', path: '100');
+                          if (await canLaunchUrl(uri)) await launchUrl(uri);
+                        },
                         icon: const Icon(Icons.call),
                         label: const Text('Call for Help', style: TextStyle(fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(

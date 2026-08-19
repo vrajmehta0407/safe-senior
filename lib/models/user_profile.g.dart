@@ -20,6 +20,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       trialStartDate: fields[6] != null ? DateTime.parse(fields[6] as String) : null,
       selectedPlanId: fields[7] as String?,
       premiumActivatedAt: fields[8] != null ? DateTime.parse(fields[8] as String) : null,
+      avatarPath: fields[9] as String?,
     );
   }
 
@@ -35,6 +36,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       6: obj.trialStartDate?.toIso8601String(),
       7: obj.selectedPlanId,
       8: obj.premiumActivatedAt?.toIso8601String(),
+      9: obj.avatarPath,
     });
   }
 }

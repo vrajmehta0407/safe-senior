@@ -28,6 +28,7 @@ class NotificationService {
     _initialized = true;
   }
 
+  /// Shows a scam detected alert — unique ID per call so all alerts stack in tray.
   static Future<void> showScamAlert({
     required String sender,
     required String reason,
@@ -42,6 +43,7 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       color: Color.fromARGB(255, 201, 39, 39),
+      groupKey: 'scam_alerts_group',
     );
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -50,10 +52,35 @@ class NotificationService {
     );
     const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
+    // Unique ID per alert — timestamps prevent overwriting previous alerts
+    final notifId = DateTime.now().millisecondsSinceEpoch & 0x7FFFFFFF;
+    await _plugin.show(notifId, '🚨 SCAM BLOCKED from $sender', reason, details);
+  }
+
+  /// Shown after a message is blocked — confirms action to user.
+  static Future<void> showMessageBlocked({
+    required String sender,
+    required String messagePreview,
+  }) async {
+    if (!PlatformCapabilities.canSendNotifications) return;
+    if (!_initialized) await init();
+
+    const androidDetails = AndroidNotificationDetails(
+      'blocked_messages',
+      'Blocked Messages',
+      channelDescription: 'Confirms when scam messages are blocked',
+      importance: Importance.high,
+      priority: Priority.high,
+      color: Color.fromARGB(255, 50, 150, 50),
+      groupKey: 'blocked_group',
+    );
+    const details = NotificationDetails(android: androidDetails);
+
+    final notifId = (DateTime.now().millisecondsSinceEpoch + 1) & 0x7FFFFFFF;
     await _plugin.show(
-      1,
-      '⚠️ Scam Detected from $sender',
-      reason,
+      notifId,
+      '🛡️ Message Blocked – Safe Senior',
+      'Blocked from $sender: "${messagePreview.length > 60 ? messagePreview.substring(0, 60) + "..." : messagePreview}"',
       details,
     );
   }
@@ -70,7 +97,6 @@ class NotificationService {
       priority: Priority.defaultPriority,
     );
     const details = NotificationDetails(android: androidDetails);
-
     await _plugin.show(2, '💡 Safety Tip', tip, details);
   }
 }

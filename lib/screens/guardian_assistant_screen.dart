@@ -153,7 +153,9 @@ class _GuardianAssistantScreenState extends State<GuardianAssistantScreen> {
                             ),
                             child: IconButton(
                               icon: const Icon(Icons.mic, color: Colors.white, size: 28),
-                              onPressed: () => VoiceService.startListening(),
+                              onPressed: () => VoiceService.startListening(
+                                onResult: (_) {}, // guardian assistant: listens but doesn't show transcript here
+                              ),
                             ),
                           ),
                         ],

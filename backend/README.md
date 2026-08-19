@@ -196,8 +196,91 @@ Should return `{ "status": "ok", ... }`.
 
 ## Security Notes
 
-- Passwords are hashed with **bcrypt** (10 rounds)
+- Passwords are hashed with **bcrypt** (10 rounds for users, 12 rounds for admins)
 - OTP codes are hashed with **bcrypt** before DB storage — never stored in plain text
 - OTPs expire after **8 minutes** and are locked after **5 failed attempts**
-- JWTs expire after **7 days**
+- JWTs expire after **7 days** (users) / **2 hours** (admins — separate secret)
 - The `/auth/otp/request` endpoint returns a generic response when a phone number is not found to prevent user enumeration
+
+---
+
+## Admin Setup
+
+> ⚠️ **Never create admin accounts through any public UI or HTTP endpoint.**  
+> The only way to create the first admin is the CLI script below.
+
+### Step 1 — Set env vars
+
+Add these to your `.env` (see `.env.example` for descriptions):
+
+```bash
+# Generate a strong secret:
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+ADMIN_JWT_SECRET=<output above>
+
+# Generate your own secret path:
+node -e "console.log('/api/ops-' + require('crypto').randomBytes(4).toString('hex'))"
+ADMIN_ROUTE_PREFIX=<output above>
+```
+
+### Step 2 — Start the backend (creates admin tables automatically)
+
+```bash
+npm run dev
+# The schema auto-runs on startup, creating admins and admin_audit_log tables
+```
+
+### Step 3 — Seed the first superadmin
+
+```bash
+node src/scripts/create-admin.js
+# Prompts for name / email / password interactively
+# Or non-interactive:
+ADMIN_NAME="Vraj" ADMIN_EMAIL="you@example.com" ADMIN_PASSWORD="strongpassword123" ADMIN_ROLE="superadmin" \
+  node src/scripts/create-admin.js
+```
+
+### Step 4 — Test login
+
+```bash
+curl -X POST http://localhost:3000$ADMIN_ROUTE_PREFIX/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"strongpassword123"}'
+# Returns: { success: true, token: "..." }
+```
+
+### Step 5 — Enable TOTP 2FA (optional but recommended)
+
+```bash
+# 1. Setup (get QR code):
+curl -X POST http://localhost:3000$ADMIN_ROUTE_PREFIX/auth/totp/setup \
+  -H "Authorization: Bearer <your_admin_token>"
+# Scan the returned QR code / base32Secret in Google Authenticator
+
+# 2. Confirm enrollment with first code:
+curl -X POST http://localhost:3000$ADMIN_ROUTE_PREFIX/auth/totp/confirm \
+  -H "Authorization: Bearer <your_admin_token>" \
+  -d '{"totpCode":"123456"}'
+
+# 3. Flip the flag in .env:
+ADMIN_2FA_REQUIRED=true
+```
+
+### Admin API endpoints
+
+All behind `ADMIN_ROUTE_PREFIX` + bearer token from `/auth/login`:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/auth/login` | Admin login |
+| `POST` | `/auth/login/2fa` | Complete TOTP step |
+| `POST` | `/auth/totp/setup` | Generate TOTP QR code |
+| `POST` | `/auth/totp/confirm` | Activate 2FA |
+| `GET`  | `/stats/overview` | Dashboard aggregates |
+| `GET`  | `/users` | Paginated user list (`?search=&limit=&offset=`) |
+| `GET`  | `/users/:id` | User detail + guardians + scam history |
+| `PATCH` | `/users/:id` | Suspend/reactivate `{ is_suspended: true\|false }` |
+| `DELETE` | `/users/:id` | GDPR account deletion |
+| `GET`  | `/scam-reports` | Paginated reports (`?classification=&type=`) |
+| `GET`  | `/audit-log` | Admin action log |
+| `POST` | `/admins` | Create another admin (superadmin only) |

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeSenior Admin - Rule Sandbox</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#76d6d5",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeded",
+                        "surface-container-low": "#f5f3f3",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-container-highest": "#e3e2e2",
+                        "surface": "#fbf9f9",
+                        "error-container": "#ffdad6",
+                        "primary": "#006565",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "background": "#fbf9f9",
+                        "on-primary-container": "#e3fffe",
+                        "inverse-surface": "#303031",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdad3",
+                        "primary-container": "#008080",
+                        "surface-dim": "#dbdad9",
+                        "on-background": "#1b1c1c",
+                        "secondary-container": "#fe7356",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f2f0f0",
+                        "surface-tint": "#006a6a",
+                        "surface-bright": "#fbf9f9",
+                        "tertiary-fixed": "#ffe088",
+                        "on-secondary-fixed": "#3e0500",
+                        "outline-variant": "#bdc9c8",
+                        "on-primary-fixed": "#002020",
+                        "on-tertiary-container": "#4f3e00",
+                        "on-surface-variant": "#3e4949",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#aa361f",
+                        "on-secondary-container": "#6d0f00",
+                        "tertiary-container": "#cca830",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "outline": "#6e7979",
+                        "primary-fixed": "#93f2f2",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary": "#735c00",
+                        "on-surface": "#1b1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "gutter-desktop": "24px",
+                        "gutter-mobile": "16px",
+                        "target-size": "48px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "label-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen">
+<!-- SideNavBar -->
+<nav aria-label="Main Navigation" class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm">
+<!-- Brand Header -->
+<div class="p-6 border-b border-surface-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined filled">shield_person</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">SafeSenior Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Operations Console</p>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-4 py-6">
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+<span class="material-symbols-outlined">add</span>
+                New System Rule
+            </button>
+</div>
+<!-- Main Tabs -->
+<div class="flex-1 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                System Health
+            </a>
+<a aria-current="page" class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-primary-container/10 rounded-l-lg" href="#">
+<span class="material-symbols-outlined filled" data-icon="rule">rule</span>
+                Pattern Management
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                User Management
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+                Alerts Center
+            </a>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto border-t border-surface-variant p-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm">
+<!-- Contextual Title -->
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Rule Sandbox</h2>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button aria-label="Notifications" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button aria-label="History" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+<button aria-label="Account" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<img alt="Admin Avatar" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small circular avatar showing a professional administrative user smiling warmly, well-lit in a modern office setting. The style is bright and clean, typical of a high-quality user profile photo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSHTKSFGQzJtVMRDnDHEzfdae8M8f_O9W7EdG6jI4EmwBOhlwtD4drp6S5a4wHIUUGsnB7PsGHRxDUkAoOOdCcVIdZx4d8k653bHnmuGsVzhvEr2ieFhP4dN41-R57FBV7X_ANOjZMPcANwW8T46JfFkrvOxuz56c5pwU9ggaZOrwKV_jYNMMa6k-o0CYa5f16xf4rcBaIZmdnX14wIYbRT1cGipFhSEZDRwjwlIrUGh1uDx2aPo46"/>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pl-64 pt-16 min-h-screen bg-surface-container-low p-margin-desktop">
+<div class="max-w-6xl mx-auto">
+<!-- Page Header -->
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2">Rule Testing Sandbox</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Input suspicious text strings or structured payloads below to test against active detection patterns. Review the confidence scores and match details before deploying new rules.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Input Panel -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<!-- Sandbox Card -->
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-surface-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Test Payload</h3>
+<div class="flex gap-2">
+<span class="bg-primary-container/20 text-primary px-3 py-1 rounded-full font-label-md text-label-md">v2.4 Engine Active</span>
+</div>
+</div>
+<div class="mb-6">
+<label class="block font-label-lg text-label-lg text-on-surface mb-2" for="payload-type">Input Type</label>
+<div class="flex gap-3">
+<button class="flex-1 py-3 px-4 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg border border-primary text-center">Raw Text (SMS/Email)</button>
+<button class="flex-1 py-3 px-4 rounded-lg bg-surface text-on-surface font-label-lg text-label-lg border border-outline hover:bg-surface-container-low transition-colors text-center">JSON / Structured</button>
+</div>
+</div>
+<div class="mb-6">
+<label class="block font-label-lg text-label-lg text-on-surface mb-2" for="test-input">Input Content</label>
+<textarea class="w-full rounded-lg border-outline-variant bg-surface-container-lowest p-4 font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all resize-y" id="test-input" placeholder="Paste the suspicious message or payload here... e.g., 'URGENT: Your account has been compromised. Click here immediately to secure your funds: http://bit.ly/secure-account'" rows="6"></textarea>
+</div>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary font-label-lg text-label-lg py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors shadow-sm flex-1">
+<span class="material-symbols-outlined">play_arrow</span>
+                                Run Analysis
+                            </button>
+<button class="bg-surface text-on-surface font-label-lg text-label-lg py-3 px-6 rounded-lg border border-outline hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">clear_all</span>
+                                Clear
+                            </button>
+</div>
+</div>
+<!-- Presets Card -->
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-surface-variant">
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-4">Quick Presets</h3>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-low text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full font-label-md text-label-md border border-outline-variant transition-colors">Grandparent Scam (Generic)</button>
+<button class="bg-surface-container-low text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full font-label-md text-label-md border border-outline-variant transition-colors">Tech Support Popup Text</button>
+<button class="bg-surface-container-low text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full font-label-md text-label-md border border-outline-variant transition-colors">Urgent Bank Alert (Phishing)</button>
+<button class="bg-surface-container-low text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full font-label-md text-label-md border border-outline-variant transition-colors">Romance Scam Script</button>
+</div>
+</div>
+</div>
+<!-- Results Panel -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6 border border-surface-variant h-full flex flex-col">
+<div class="flex items-center justify-between mb-6 border-b border-surface-variant pb-4">
+<h3 class="font-headline-sm text-headline-sm text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                                Analysis Results
+                            </h3>
+<span class="text-on-surface-variant font-label-md text-label-md">0ms</span>
+</div>
+<!-- Empty State (Placeholder) -->
+<div class="flex-1 flex flex-col items-center justify-center text-center p-8 hidden">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-3xl">science</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-background mb-2">Ready to test</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter a payload and run the analysis to see matched rules and confidence scores.</p>
+</div>
+<!-- Active Results State -->
+<div class="flex flex-col gap-4">
+<!-- Overall Score -->
+<div class="bg-error-container/20 rounded-lg p-4 border border-error/20 flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">Overall Risk Score</p>
+<p class="font-headline-md text-headline-md text-error font-bold flex items-center gap-2">
+                                        High Risk <span class="text-lg font-normal">(89/100)</span>
+</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-error text-on-error flex items-center justify-center">
+<span class="material-symbols-outlined filled">warning</span>
+</div>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-background mt-2">Matched Rules (3)</h4>
+<!-- Rule Item 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-lg text-label-lg text-on-background">Urgency + Link (Phishing)</p>
+<span class="bg-error/10 text-error px-2 py-0.5 rounded font-label-md text-sm">95% Match</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3 line-clamp-2">Detects combinations of urgent vocabulary ('URGENT', 'immediately') in close proximity to obfuscated URLs.</p>
+<div class="bg-surface-container px-3 py-2 rounded text-sm font-mono text-on-surface break-all">
+<span class="text-error font-bold">URGENT:</span> Your account has been compromised. Click <span class="text-error font-bold">here immediately</span> to secure your funds: <span class="text-error font-bold underline">http://bit.ly/secure-account</span>
+</div>
+</div>
+<!-- Rule Item 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-container"></div>
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-lg text-label-lg text-on-background">Financial Context Anomaly</p>
+<span class="bg-tertiary-container/20 text-on-tertiary-container px-2 py-0.5 rounded font-label-md text-sm">72% Match</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3 line-clamp-2">Flags unsolicited messages referencing 'funds', 'accounts', or 'transfers' outside established contact patterns.</p>
+<div class="bg-surface-container px-3 py-2 rounded text-sm font-mono text-on-surface break-all">
+                                    ... compromised. Click here immediately to secure your <span class="text-tertiary font-bold">funds</span>: ...
+                                </div>
+</div>
+<!-- Rule Item 3 (Low Confidence) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 shadow-sm relative overflow-hidden opacity-80">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline"></div>
+<div class="flex justify-between items-start mb-2">
+<p class="font-label-lg text-label-lg text-on-background">Generic Greeting (Spam)</p>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded font-label-md text-sm">20% Match</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-1 line-clamp-1">Lack of personalized greeting or context.</p>
+</div>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full bg-surface-container-low text-primary font-label-lg text-label-lg py-3 px-4 rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">tune</span>
+                                Adjust Rule Thresholds
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

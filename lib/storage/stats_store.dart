@@ -5,30 +5,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/protection_stats.dart';
 
 class StatsStore {
-  static const String _keyTotal = 'stats_total_blocked';
-  static const String _keySpamCalls = 'stats_spam_calls';
+  static const String _keyTotal       = 'stats_total_blocked';
+  static const String _keySpamCalls   = 'stats_spam_calls';
   static const String _keyPhishingSms = 'stats_phishing_sms';
-  static const String _keyScanned = 'stats_messages_scanned';
-  static const String _keyCalls = 'stats_calls_protected';
+  static const String _keyScanned     = 'stats_messages_scanned';
+  static const String _keyCalls       = 'stats_calls_protected';
+  // Weekly digest keys
+  static const String _keyWeekScanned  = 'stats_week_scanned';
+  static const String _keyWeekBlocked  = 'stats_week_blocked';
+  static const String _keyWeekStart    = 'stats_week_start';
 
   static Future<ProtectionStats> load() async {
     final prefs = await SharedPreferences.getInstance();
     return ProtectionStats(
-      totalBlocked: prefs.getInt(_keyTotal) ?? 0,
-      spamCallsBlocked: prefs.getInt(_keySpamCalls) ?? 0,
+      totalBlocked:      prefs.getInt(_keyTotal)       ?? 0,
+      spamCallsBlocked:  prefs.getInt(_keySpamCalls)   ?? 0,
       phishingSmsBlocked: prefs.getInt(_keyPhishingSms) ?? 0,
-      messagesScanned: prefs.getInt(_keyScanned) ?? 0,
-      callsProtected: prefs.getInt(_keyCalls) ?? 0,
+      messagesScanned:   prefs.getInt(_keyScanned)     ?? 0,
+      callsProtected:    prefs.getInt(_keyCalls)       ?? 0,
+      scannedThisWeek:   prefs.getInt(_keyWeekScanned) ?? 0,
+      blockedThisWeek:   prefs.getInt(_keyWeekBlocked) ?? 0,
+      weekStartDate:     prefs.getString(_keyWeekStart),
     );
   }
 
   static Future<void> save(ProtectionStats stats) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTotal, stats.totalBlocked);
-    await prefs.setInt(_keySpamCalls, stats.spamCallsBlocked);
+    await prefs.setInt(_keyTotal,       stats.totalBlocked);
+    await prefs.setInt(_keySpamCalls,   stats.spamCallsBlocked);
     await prefs.setInt(_keyPhishingSms, stats.phishingSmsBlocked);
-    await prefs.setInt(_keyScanned, stats.messagesScanned);
-    await prefs.setInt(_keyCalls, stats.callsProtected);
+    await prefs.setInt(_keyScanned,     stats.messagesScanned);
+    await prefs.setInt(_keyCalls,       stats.callsProtected);
+    await prefs.setInt(_keyWeekScanned, stats.scannedThisWeek);
+    await prefs.setInt(_keyWeekBlocked, stats.blockedThisWeek);
+    if (stats.weekStartDate != null) {
+      await prefs.setString(_keyWeekStart, stats.weekStartDate!);
+    }
   }
 
   static Future<void> incrementBlocked({bool isCall = false}) async {

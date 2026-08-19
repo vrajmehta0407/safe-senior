@@ -1,93 +1,63 @@
 // lib/storage/local_preferences.dart
-// SharedPreferences wrapper for settings, session, language, voice settings.
-
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/constants.dart';
 
 class LocalPreferences {
-  static SharedPreferences? _prefs;
+  static late SharedPreferences _instance;
 
   static Future<void> init() async {
-    _prefs = await SharedPreferences.getInstance();
+    _instance = await SharedPreferences.getInstance();
   }
 
-  static SharedPreferences get _instance {
-    if (_prefs == null) throw StateError('LocalPreferences not initialized. Call init() first.');
-    return _prefs!;
-  }
+  // ─── First Launch ──────────────────────────────────────────────────────────
+  static bool isFirstLaunch() => _instance.getBool('first_launch') ?? true;
+  static Future<void> setFirstLaunchComplete() => _instance.setBool('first_launch', false);
 
-  // ─── Session ───────────────────────────────────────────────────────────────
-  static String? getCurrentUserEmail() => _instance.getString(AppConstants.keyCurrentUserEmail);
+  // ─── Remember Me & User Session ───────────────────────────────────────────
+  static bool getRememberMe() => _instance.getBool('remember_me') ?? false;
+  static Future<void> setRememberMe(bool val) => _instance.setBool('remember_me', val);
 
-  static Future<void> setCurrentUserEmail(String email) =>
-      _instance.setString(AppConstants.keyCurrentUserEmail, email);
+  static String? getRememberedEmail() => _instance.getString('remembered_email');
+  static Future<void> setRememberedEmail(String email) => _instance.setString('remembered_email', email);
 
-  static Future<void> clearCurrentUserEmail() =>
-      _instance.remove(AppConstants.keyCurrentUserEmail);
+  static String? getCurrentUserEmail() => _instance.getString('current_user_email');
+  static Future<void> setCurrentUserEmail(String email) => _instance.setString('current_user_email', email);
+  static Future<void> clearCurrentUserEmail() => _instance.remove('current_user_email');
+
+  static String? getJwtToken() => _instance.getString('jwt_token');
+  static Future<void> setJwtToken(String token) => _instance.setString('jwt_token', token);
+  static Future<void> clearJwtToken() => _instance.remove('jwt_token');
 
   static bool isLoggedIn() => getCurrentUserEmail() != null;
 
-  static String? getJwtToken() => _instance.getString(AppConstants.keyJwtToken);
+  // ─── Voice / Speech Preferences ───────────────────────────────────────────
+  static double getSpeechRate() => _instance.getDouble('speech_rate') ?? 1.0;
+  static Future<void> setSpeechRate(double rate) => _instance.setDouble('speech_rate', rate);
 
-  static Future<void> setJwtToken(String token) =>
-      _instance.setString(AppConstants.keyJwtToken, token);
+  static double getVoiceSpeed() => _instance.getDouble('voice_speed') ?? 1.0;
+  static Future<void> setVoiceSpeed(double speed) => _instance.setDouble('voice_speed', speed);
 
-  static Future<void> clearJwtToken() =>
-      _instance.remove(AppConstants.keyJwtToken);
+  static bool getVoiceEnabled() => _instance.getBool('voice_enabled') ?? true;
+  static Future<void> setVoiceEnabled(bool val) => _instance.setBool('voice_enabled', val);
 
-  // ─── Language ──────────────────────────────────────────────────────────────
-  static String getLanguage() => _instance.getString(AppConstants.keyLanguage) ?? 'en';
+  static String getVoiceGender() => _instance.getString('voice_gender') ?? 'neutral';
+  static Future<void> setVoiceGender(String gender) => _instance.setString('voice_gender', gender);
+  static String getVoiceType() => _instance.getString('voice_type') ?? 'Neutral';
+  static Future<void> setVoiceType(String type) => _instance.setString('voice_type', type);
 
-  static Future<void> setLanguage(String code) =>
-      _instance.setString(AppConstants.keyLanguage, code);
+  // ─── Theme & Language ─────────────────────────────────────────────────────
+  static String getThemeMode() => _instance.getString('theme_mode') ?? 'system';
+  static Future<void> setThemeMode(String mode) => _instance.setString('theme_mode', mode);
 
-  // ─── Theme ─────────────────────────────────────────────────────────────────
-  static String getThemeMode() => _instance.getString(AppConstants.keyThemeMode) ?? 'system';
+  static String getLanguage() => _instance.getString('language') ?? 'en';
+  static Future<void> setLanguage(String lang) => _instance.setString('language', lang);
 
-  static Future<void> setThemeMode(String mode) =>
-      _instance.setString(AppConstants.keyThemeMode, mode);
-
-  // ─── Voice Settings ────────────────────────────────────────────────────────
-  static bool getVoiceEnabled() => _instance.getBool(AppConstants.keyVoiceEnabled) ?? true;
-
-  static Future<void> setVoiceEnabled(bool val) =>
-      _instance.setBool(AppConstants.keyVoiceEnabled, val);
-
-  static double getVoiceSpeed() => _instance.getDouble(AppConstants.keyVoiceSpeed) ?? 0.5;
-
-  static Future<void> setVoiceSpeed(double val) =>
-      _instance.setDouble(AppConstants.keyVoiceSpeed, val);
-
-  static String getVoiceType() =>
-      _instance.getString(AppConstants.keyVoiceType) ?? 'Calm Female';
-
-  static Future<void> setVoiceType(String val) =>
-      _instance.setString(AppConstants.keyVoiceType, val);
-
-  static String getVoiceGender() => _instance.getString(AppConstants.keyVoiceGender) ?? 'neutral';
-
-  static Future<void> setVoiceGender(String gender) =>
-      _instance.setString(AppConstants.keyVoiceGender, gender);
-
-  // ─── Premium ───────────────────────────────────────────────────────────────
-  static bool getPremiumStatus() => _instance.getBool(AppConstants.keyPremiumStatus) ?? false;
-
-  static Future<void> setPremiumStatus(bool val) =>
-      _instance.setBool(AppConstants.keyPremiumStatus, val);
-
-  static DateTime? getTrialStartDate() {
-    final s = _instance.getString(AppConstants.keyTrialStartDate);
-    if (s == null) return null;
-    return DateTime.tryParse(s);
-  }
-
-  static Future<void> setTrialStartDate(DateTime dt) =>
-      _instance.setString(AppConstants.keyTrialStartDate, dt.toIso8601String());
-
-  static String? getSelectedPlanId() => _instance.getString(AppConstants.keySelectedPlanId);
-
-  static Future<void> setSelectedPlanId(String planId) =>
-      _instance.setString(AppConstants.keySelectedPlanId, planId);
+  // ─── Premium (Always Active) ──────────────────────────────────────────────
+  static bool getPremiumStatus() => true;
+  static Future<void> setPremiumStatus(bool val) async {}
+  static DateTime? getTrialStartDate() => null;
+  static Future<void> setTrialStartDate(DateTime dt) async {}
+  static String? getSelectedPlanId() => 'full_free';
+  static Future<void> setSelectedPlanId(String planId) async {}
 
   // ─── Utility ───────────────────────────────────────────────────────────────
   static Future<void> clearAll() => _instance.clear();

@@ -2,163 +2,191 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryDarkBlue = Color(0xFF143B66); // Dark blue from text and buttons
-  static const Color primaryLightBlue = Color(0xFF5A94E8); // Light blue from logo and accents
-  static const Color backgroundColor = Color(0xFFF5F7FA); // Light grayish blue background
+  // SafeSenior Stitch Design Tokens
+  static const Color primaryTeal = Color(0xFF006565);          // Primary Brand Teal
+  static const Color primaryContainer = Color(0xFF008080);     // Medium Teal Container
+  static const Color onPrimaryContainer = Color(0xFFE3FFFE);   // On Teal Container
+  static const Color primaryFixed = Color(0xFF93F2F2);         // Light Teal Fixed
+  static const Color primaryFixedDim = Color(0xFF76D6D5);
+
+  static const Color secondary = Color(0xFFAA361F);            // Terracotta Alert / Danger
+  static const Color terracottaRed = Color(0xFFAA361F);
+  static const Color secondaryContainer = Color(0xFFFE7356);
+  static const Color onSecondaryContainer = Color(0xFF6D0F00);
+  static const Color secondaryFixed = Color(0xFFFFDAD3);
+
+  static const Color tertiaryGold = Color(0xFF735C00);         // Warm Gold for badges
+  static const Color tertiaryContainer = Color(0xFFCCA830);
+
+  static const Color backgroundColor = Color(0xFFFBF9F9);      // Warm Off-White
   static const Color cardColor = Colors.white;
-  static const Color errorRed = Color(0xFFD32F2F); // Red for panic button
-  static const Color textDark = Color(0xFF143B66);
-  static const Color textLight = Color(0xFF7A869A); // Grayish text
+  static const Color surfaceContainerLow = Color(0xFFF5F3F3);
+  static const Color surfaceContainer = Color(0xFFEFEDED);
+  static const Color surfaceContainerHigh = Color(0xFFE9E8E7);
+  static const Color surfaceContainerHighest = Color(0xFFE3E2E2);
+
+  static const Color textDark = Color(0xFF1B1C1C);             // On Surface
+  static const Color textBody = Color(0xFF1B1C1C);             // Primary Body Text
+  static const Color textLight = Color(0xFF3E4949);            // Muted Variant
+  static const Color outline = Color(0xFF6E7979);              // Border / Outline
+  static const Color outlineVariant = Color(0xFFBDC9C8);
+
+  // Backward compatibility aliases
+  static const Color primaryDarkBlue = primaryTeal;
+  static const Color primaryLightBlue = primaryContainer;
+  static const Color errorRed = secondary;
+  static const Color dangerRed = secondary;
+  static const Color celebrationGold = tertiaryContainer;
+  static const Color textPrimary = textDark;
+  static const Color textSecondary = textLight;
+  static const Color dividerColor = Color(0xFFE3E2E2);
+
+  static TextStyle headlineLg({double fontSize = 32, FontWeight fontWeight = FontWeight.w700, Color? color}) {
+    return GoogleFonts.plusJakartaSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textDark,
+      letterSpacing: -0.5,
+      height: 1.2,
+    );
+  }
+
+  static TextStyle headlineMd({double fontSize = 24, FontWeight fontWeight = FontWeight.w600, Color? color}) {
+    return GoogleFonts.plusJakartaSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textDark,
+      height: 1.25,
+    );
+  }
+
+  static TextStyle headlineSm({double fontSize = 20, FontWeight fontWeight = FontWeight.w600, Color? color}) {
+    return GoogleFonts.plusJakartaSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textDark,
+      height: 1.3,
+    );
+  }
+
+  static TextStyle bodyLg({double fontSize = 18, FontWeight fontWeight = FontWeight.w400, Color? color}) {
+    return GoogleFonts.atkinsonHyperlegible(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textBody,
+      height: 1.5,
+    );
+  }
+
+  static TextStyle bodyMd({double fontSize = 16, FontWeight fontWeight = FontWeight.w400, Color? color}) {
+    return GoogleFonts.atkinsonHyperlegible(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textLight,
+      height: 1.45,
+    );
+  }
+
+  static TextStyle labelLg({double fontSize = 18, FontWeight fontWeight = FontWeight.w600, Color? color}) {
+    return GoogleFonts.atkinsonHyperlegible(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? textDark,
+      height: 1.3,
+    );
+  }
+
+  static TextStyle labelMd({double fontSize = 14, FontWeight fontWeight = FontWeight.w700, Color? color}) {
+    return GoogleFonts.atkinsonHyperlegible(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color ?? primaryTeal,
+      letterSpacing: 0.5,
+    );
+  }
 
   static ThemeData get lightTheme {
     return ThemeData(
-      primaryColor: primaryDarkBlue,
+      useMaterial3: true,
+      primaryColor: primaryTeal,
       scaffoldBackgroundColor: backgroundColor,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryDarkBlue,
-        primary: primaryDarkBlue,
-        secondary: primaryLightBlue,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: primaryTeal,
+        onPrimary: Colors.white,
+        primaryContainer: primaryContainer,
+        onPrimaryContainer: onPrimaryContainer,
+        secondary: secondary,
+        onSecondary: Colors.white,
+        secondaryContainer: secondaryContainer,
+        onSecondaryContainer: onSecondaryContainer,
+        error: secondary,
+        onError: Colors.white,
         surface: backgroundColor,
-        error: errorRed,
+        onSurface: textDark,
+        onSurfaceVariant: textLight,
+        outline: outline,
+        outlineVariant: outlineVariant,
       ),
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, color: textDark),
-        displayMedium: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: textDark),
-        headlineMedium: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: textDark),
-        titleLarge: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w600, color: textDark),
-        bodyLarge: GoogleFonts.inter(fontSize: 16, color: textDark),
-        bodyMedium: GoogleFonts.inter(fontSize: 14, color: textDark),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w700, color: textDark),
+        displayMedium: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w700, color: textDark),
+        headlineMedium: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w600, color: textDark),
+        headlineSmall: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w600, color: textDark),
+        titleLarge: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w600, color: textDark),
+        bodyLarge: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: textBody),
+        bodyMedium: GoogleFonts.atkinsonHyperlegible(fontSize: 16, color: textLight),
+        labelLarge: GoogleFonts.atkinsonHyperlegible(fontSize: 18, fontWeight: FontWeight.w600, color: textDark),
+        labelMedium: GoogleFonts.atkinsonHyperlegible(fontSize: 14, fontWeight: FontWeight.w700, color: textDark),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryDarkBlue,
+          backgroundColor: primaryTeal,
           foregroundColor: Colors.white,
-          elevation: 0,
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          minimumSize: const Size(double.infinity, 54),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          textStyle: GoogleFonts.atkinsonHyperlegible(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryDarkBlue,
-          side: const BorderSide(color: primaryDarkBlue),
+          foregroundColor: primaryTeal,
+          side: const BorderSide(color: outlineVariant, width: 1.2),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          minimumSize: const Size(double.infinity, 52),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          textStyle: GoogleFonts.atkinsonHyperlegible(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: surfaceContainerHighest,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryDarkBlue, width: 2),
+          borderSide: const BorderSide(color: primaryTeal, width: 2),
         ),
-        labelStyle: TextStyle(color: textLight),
-        hintStyle: TextStyle(color: textLight.withValues(alpha: 0.7)),
+        labelStyle: GoogleFonts.atkinsonHyperlegible(color: textLight, fontSize: 16, fontWeight: FontWeight.w600),
+        hintStyle: GoogleFonts.atkinsonHyperlegible(color: const Color(0xFF717171), fontSize: 16),
         prefixIconColor: textLight,
       ),
     );
   }
 
-  static ThemeData get darkTheme {
-    const Color darkSurface = Color(0xFF1A1F2E);
-    const Color darkScaffold = Color(0xFF0D1421);
-    const Color darkCard = Color(0xFF1E2537);
-    const Color darkInputFill = Color(0xFF252D40);
-    const Color darkBorder = Color(0xFF2E3A50);
-    const Color darkTextPrimary = Color(0xFFE8EDF5);
-    const Color darkTextSecondary = Color(0xFF8899AA);
-
-    return ThemeData(
-      brightness: Brightness.dark,
-      primaryColor: primaryLightBlue,
-      scaffoldBackgroundColor: darkScaffold,
-      colorScheme: ColorScheme.fromSeed(
-        brightness: Brightness.dark,
-        seedColor: primaryLightBlue,
-        primary: primaryLightBlue,
-        secondary: primaryLightBlue,
-        surface: darkSurface,
-        error: errorRed,
-      ),
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, color: darkTextPrimary),
-        displayMedium: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: darkTextPrimary),
-        headlineMedium: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: darkTextPrimary),
-        headlineSmall: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: darkTextPrimary),
-        titleLarge: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w600, color: darkTextPrimary),
-        titleMedium: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: darkTextPrimary),
-        bodyLarge: GoogleFonts.inter(fontSize: 16, color: darkTextPrimary),
-        bodyMedium: GoogleFonts.inter(fontSize: 14, color: darkTextSecondary),
-        bodySmall: GoogleFonts.inter(fontSize: 12, color: darkTextSecondary),
-      ),
-      cardColor: darkCard,
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryLightBlue,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primaryLightBlue,
-          side: const BorderSide(color: primaryLightBlue),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: darkInputFill,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: darkBorder),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: darkBorder),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryLightBlue, width: 2),
-        ),
-        labelStyle: const TextStyle(color: darkTextSecondary),
-        hintStyle: TextStyle(color: darkTextSecondary.withValues(alpha: 0.7)),
-        prefixIconColor: darkTextSecondary,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: darkScaffold,
-        foregroundColor: darkTextPrimary,
-        elevation: 0,
-        iconTheme: IconThemeData(color: darkTextPrimary),
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: darkCard,
-        selectedItemColor: primaryLightBlue,
-        unselectedItemColor: darkTextSecondary,
-      ),
-    );
-  }
+  static ThemeData get darkTheme => lightTheme;
 }

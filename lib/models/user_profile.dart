@@ -32,23 +32,23 @@ class UserProfile extends HiveObject {
   @HiveField(8)
   DateTime? premiumActivatedAt;
 
+  @HiveField(9)
+  String? avatarPath; // local file path to profile photo
+
   UserProfile({
     required this.name,
     required this.email,
     required this.phone,
     required this.passwordHash,
     required this.createdAt,
-    this.isPremium = false,
+    this.isPremium = true,
     this.trialStartDate,
     this.selectedPlanId,
     this.premiumActivatedAt,
+    this.avatarPath,
   });
 
-  bool get isInTrial {
-    if (trialStartDate == null) return false;
-    final expiry = trialStartDate!.add(const Duration(days: 7));
-    return DateTime.now().isBefore(expiry);
-  }
+  bool get isInTrial => false;
 
-  bool get hasAnyPremiumAccess => isPremium || isInTrial;
+  bool get hasAnyPremiumAccess => true;
 }

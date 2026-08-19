@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guardian Web Portal - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008080",
+                        "surface-container-low": "#f5f3f3",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fe7356",
+                        "surface-container-high": "#e9e8e7",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "surface-container-highest": "#e3e2e2",
+                        "secondary": "#aa361f",
+                        "surface-dim": "#dbdad9",
+                        "on-secondary-fixed": "#3e0500",
+                        "tertiary-fixed": "#ffe088",
+                        "tertiary": "#735c00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#4f3e00",
+                        "inverse-surface": "#303031",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "surface-container": "#efeded",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "on-primary-fixed": "#002020",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fbf9f9",
+                        "on-surface-variant": "#3e4949",
+                        "outline-variant": "#bdc9c8",
+                        "inverse-primary": "#76d6d5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-bright": "#fbf9f9",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#e3fffe",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-tint": "#006a6a",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-container": "#cca830",
+                        "outline": "#6e7979",
+                        "on-surface": "#1b1c1c",
+                        "background": "#fbf9f9",
+                        "on-secondary-container": "#6d0f00",
+                        "primary-fixed": "#93f2f2",
+                        "secondary-fixed": "#ffdad3",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1c1c",
+                        "inverse-on-surface": "#f2f0f0",
+                        "error": "#ba1a1a",
+                        "primary": "#006565"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "target-size": "48px",
+                        "margin-desktop": "64px",
+                        "gutter-desktop": "24px",
+                        "unit": "8px",
+                        "gutter-mobile": "16px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { background-color: #FDFBF7; }
+        .shadow-lift { box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08); }
+    </style>
+</head>
+<body class="font-body-md text-on-background flex min-h-screen antialiased">
+<!-- SideNavBar -->
+<nav aria-label="Main Navigation" class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm">
+<div class="px-6 py-8 flex flex-col gap-2">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined fill text-primary text-3xl">shield_person</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">SafeSenior</h1>
+</div>
+<p class="font-label-md text-label-md text-outline">Operations Console</p>
+</div>
+<button class="mx-4 mb-6 bg-primary text-on-primary font-label-lg text-label-lg py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors border border-on-primary-fixed-variant">
+<span class="material-symbols-outlined">add</span>
+            New System Rule
+        </button>
+<div class="flex flex-col gap-1 px-4 flex-grow">
+<!-- Active Tab: System Health (maps to Dashboard conceptually) -->
+<a aria-current="page" class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-primary-container/10 rounded-l-lg transition-colors" href="#">
+<span class="material-symbols-outlined fill">dashboard</span>
+<span class="font-label-lg text-label-lg">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-l-lg" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-label-lg text-label-lg">Pattern Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-l-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-lg text-label-lg">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-l-lg" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-label-lg text-label-lg">Alerts Center</span>
+</a>
+</div>
+<div class="px-4 py-6 border-t border-surface-variant mt-auto flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-l-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-l-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-grow ml-64 flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm">
+<div class="flex-1 flex items-center">
+<div class="relative w-96 focus-within:ring-2 focus-within:ring-primary rounded-lg overflow-hidden">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-outline h-[48px]" placeholder="Search loved ones, alerts, or settings..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="History" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button aria-label="User Profile" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high flex items-center gap-2">
+<img alt="Admin User Profile" class="w-8 h-8 rounded-full object-cover border border-surface-variant" data-alt="A small circular avatar portrait of an elderly person smiling gently in a well-lit modern home environment. Soft natural lighting, realistic photography style, light mode aesthetic with warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGojG5b6fPkrRzRbUn4iO8H9n38QDFuuGGY1gRulA08wmIatKHGGnO54mGBd8xh8k-2gieIITYGjqjwyRv9bblUDWtql3GU79TvLM--jZCIK5gLYQFhMSKwjq6l_vlhFUhwN5rOnX39TYAiZkhrR9HER8EkFjvw6eUv817_Ytr7AjXmvWP00-kStYlJIBIVhhw3fLd1Fr58EFRYAN70ffKANuuuOiWyUPNoi9RN2j0Fxh5rzQiwGCE"/>
+<span class="material-symbols-outlined">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<main class="flex-grow pt-24 px-margin-desktop pb-12">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Eleanor's Dashboard</h2>
+<p class="font-body-lg text-body-lg text-outline">Last synced: 2 mins ago</p>
+</div>
+<button class="bg-secondary text-on-secondary font-label-lg text-label-lg py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-on-secondary-fixed-variant transition-colors border border-on-secondary-fixed shadow-sm">
+<span class="material-symbols-outlined fill">call</span>
+                        Call Now
+                    </button>
+</div>
+<!-- Masonry Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
+<!-- Status Summary Card (Hero/Spans 2 columns on lg) -->
+<div class="col-span-1 lg:col-span-2 bg-white rounded-[24px] shadow-lift p-6 flex flex-col justify-between overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-bl-[100px] -z-0"></div>
+<div class="relative z-10 flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined fill text-primary text-2xl">verified_user</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Overall Status</h3>
+<p class="font-body-md text-body-md text-primary font-bold">All Clear - Safe &amp; Active</p>
+</div>
+</div>
+<span class="px-4 py-2 bg-surface-container-low text-on-surface-variant rounded-full font-label-md text-label-md">Today</span>
+</div>
+<div class="relative z-10 grid grid-cols-2 gap-4 mt-4">
+<div class="bg-surface-bright border border-surface-variant rounded-xl p-4 flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-3xl">home</span>
+<div>
+<p class="font-label-md text-label-md text-outline uppercase tracking-wider">Current Location</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold">Living Room</p>
+</div>
+</div>
+<div class="bg-surface-bright border border-surface-variant rounded-xl p-4 flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-3xl">schedule</span>
+<div>
+<p class="font-label-md text-label-md text-outline uppercase tracking-wider">Last Movement</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold">10 mins ago</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Health Metrics Card -->
+<div class="bg-white rounded-[24px] shadow-lift p-6 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Vitals Summary</h3>
+<button aria-label="View Details" class="text-primary hover:bg-primary-container/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Heart Rate -->
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-container-lowest transition-colors group cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined fill">favorite</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Heart Rate</p>
+<p class="font-label-md text-label-md text-outline">Resting</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-headline-sm text-on-surface">72 <span class="text-sm font-normal text-outline">bpm</span></p>
+</div>
+</div>
+<!-- Steps -->
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-surface-container-lowest transition-colors group cursor-pointer border border-transparent hover:border-surface-variant">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined fill">directions_walk</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Daily Activity</p>
+<p class="font-label-md text-label-md text-outline">Goal: 3,000</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-headline-sm text-on-surface">2,450 <span class="text-sm font-normal text-outline">steps</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Map Card -->
+<div class="col-span-1 lg:col-span-2 bg-white rounded-[24px] shadow-lift overflow-hidden h-[300px] relative">
+<img class="w-full h-full object-cover" data-alt="A stylized, modern, light-mode map interface showing a suburban neighborhood layout. Clean white and light gray streets with a subtle teal accent marker indicating a home location. Soft drop shadows, high legibility, modern UI aesthetic." data-location="Suburban Neighborhood Map" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzDg4ALO4BI1BT9IbU_s8ADUJEvASj5gC17NoVqd9k_kTOO6SmqQgl2NvVSALUQu0_nhnpnY3LniT2XgspZ26xkWnyroWS41FIgmikqBagJR1ixV6j_REW0_QBDUgwhDzsEV785dl3X9loROGoLxWWmLKjRPl8knO_4UUMGvrU9cLLye5OErmiBniic9_OuhTsxhS9f5bZsFR2lLdTYhzqOQcClFz4YI2McCCvorJW9P0Ah5qknCJB"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<span class="font-label-lg text-label-lg text-on-surface">Home Network Active</span>
+</div>
+</div>
+<!-- Recent Alerts/Activity Feed -->
+<div class="bg-white rounded-[24px] shadow-lift p-6 flex flex-col h-[300px]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Activity Log</h3>
+<div class="flex-grow overflow-y-auto pr-2 space-y-4">
+<!-- Log Item 1 -->
+<div class="flex gap-4 items-start relative pb-4">
+<div class="absolute left-4 top-8 bottom-0 w-px bg-surface-variant"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center z-10 mt-1">
+<span class="material-symbols-outlined text-outline text-sm">coffee_maker</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Kitchen activity detected</p>
+<p class="font-label-md text-label-md text-outline">8:15 AM</p>
+</div>
+</div>
+<!-- Log Item 2 -->
+<div class="flex gap-4 items-start relative pb-4">
+<div class="absolute left-4 top-8 bottom-0 w-px bg-surface-variant"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center z-10 mt-1">
+<span class="material-symbols-outlined text-outline text-sm">sensor_door</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Front door opened/closed</p>
+<p class="font-label-md text-label-md text-outline">7:45 AM (Mail retrieval)</p>
+</div>
+</div>
+<!-- Log Item 3 -->
+<div class="flex gap-4 items-start relative">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center z-10 mt-1">
+<span class="material-symbols-outlined text-primary text-sm">bed</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Awake and out of bed</p>
+<p class="font-label-md text-label-md text-outline">7:10 AM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

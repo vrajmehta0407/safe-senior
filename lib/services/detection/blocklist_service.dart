@@ -94,4 +94,11 @@ class BlocklistService {
     final lower = body.toLowerCase();
     return _domainBlocklist.where((d) => lower.contains(d)).toList();
   }
+
+  /// Dynamically add a sender prefix to the active blocklist
+  static void blockSender(String sender) {
+    if (sender.trim().isNotEmpty) {
+      _senderPrefixBlocklist.add(sender.trim().toUpperCase());
+    }
+  }
 }

@@ -8,10 +8,12 @@ const cors    = require('cors');
 const fs      = require('fs');
 const path    = require('path');
 
-const pool           = require('./db/pool');
-const authRoutes     = require('./routes/auth');
-const guardianRoutes = require('./routes/guardian');
-const scamRoutes     = require('./routes/scamPatterns');
+const pool            = require('./db/pool');
+const authRoutes      = require('./routes/auth');
+const guardianRoutes  = require('./routes/guardian');
+const scamRoutes      = require('./routes/scamPatterns');
+const adminAuthRoutes = require('./routes/adminAuth');
+const adminRoutes     = require('./routes/admin');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -61,9 +63,46 @@ app.get('/health', (_req, res) => {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-app.use('/auth',          authRoutes);
-app.use('/guardian',      guardianRoutes);
-app.use('/scam-patterns', scamRoutes);
+app.use('/api/auth',          authRoutes);
+app.use('/api/guardian',      guardianRoutes);
+app.use('/api/scam-patterns', scamRoutes);
+app.use('/api/trusted-senders', require('./routes/trustedSenders'));
+app.use('/api/guardians',       require('./routes/guardians'));
+
+// ─── Admin Routes (secret prefix, never guessable) ───────────────────────────
+
+const ADMIN_PREFIX = process.env.ADMIN_ROUTE_PREFIX || '/api/ops-4e9f2c1a';
+
+// Optional: IP allowlist middleware for the admin prefix
+function adminIpGuard(req, res, next) {
+  const allowlist = (process.env.ADMIN_IP_ALLOWLIST || '')
+    .split(',')
+    .map((ip) => ip.trim())
+    .filter(Boolean);
+
+  // If no allowlist is configured, skip this check
+  if (allowlist.length === 0) return next();
+
+  const clientIp = req.ip;
+  if (!allowlist.includes(clientIp)) {
+    // Return 404 (not 403) — don't reveal the route exists
+    return res.status(404).json({ success: false, message: 'Route not found.' });
+  }
+  return next();
+}
+
+// Admin-only CORS — only the admin panel origin can call these routes
+const adminCorsOrigin = process.env.ADMIN_ALLOWED_ORIGIN;
+const adminCors = cors(
+  adminCorsOrigin
+    ? { origin: adminCorsOrigin, credentials: true }
+    : corsOptions  // fall back to global CORS in dev (no ADMIN_ALLOWED_ORIGIN set)
+);
+
+app.use(ADMIN_PREFIX,            adminIpGuard);
+app.use(ADMIN_PREFIX,            adminCors);
+app.use(`${ADMIN_PREFIX}/auth`,  adminAuthRoutes);
+app.use(ADMIN_PREFIX,            adminRoutes);
 
 // 404 handler for unmatched routes
 app.use((_req, res) => {
@@ -93,10 +132,22 @@ app.use((err, req, res, _next) => {
     return res.status(409).json({ success: false, message: 'Duplicate entry — record already exists.' });
   }
 
-  res.status(500).json({
+  // Database / service connectivity errors — downgrade to 503-style message but
+  // return 200 with success:false so mobile clients can parse cleanly
+  if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.code === 'ETIMEDOUT') {
+    return res.status(200).json({
+      success: false,
+      message: 'A required service is temporarily unavailable. Please try again shortly.',
+    });
+  }
+
+  // All other errors — return 200 with success:false and a readable message so the
+  // Flutter Dio client never sees a 5xx that triggers an unhandled exception
+  const statusCode = (res.headersSent || !err.status) ? 200 : (err.status < 500 ? err.status : 200);
+  res.status(statusCode).json({
     success: false,
     message: process.env.NODE_ENV === 'production'
-      ? 'Internal server error.'
+      ? 'Something went wrong. Please try again.'
       : err.message,
   });
 });

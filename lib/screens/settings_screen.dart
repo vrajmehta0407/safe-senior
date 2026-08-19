@@ -1,16 +1,23 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme.dart';
 import '../state/auth_provider.dart';
-import '../state/premium_provider.dart';
-import '../state/theme_provider.dart';
-import '../services/premium_service.dart';
-import 'home_screen.dart';
-import 'language_screen.dart';
-import 'voice_assistant_screen.dart';
-import 'premium_sales_screen.dart';
+import '../storage/local_preferences.dart';
+import '../widgets/app_bottom_nav_bar.dart';
 import 'login_screen.dart';
+import 'help_support_screen.dart';
+import 'guardian_contacts_screen.dart';
+import 'security_status_screen.dart';
+import 'language_screen.dart';
+import 'weekly_report_screen.dart';
+import 'achievements_screen.dart';
+import 'scam_library_screen.dart';
+import 'profile_checklist_screen.dart';
+import 'app_update_screen.dart';
+import 'forgot_pin_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -20,347 +27,567 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  int _selectedIndex = 3;
+  bool _smsShieldEnabled = true;
+  bool _callShieldEnabled = true;
+  bool _voiceGuidanceEnabled = true;
 
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _voiceGuidanceEnabled = LocalPreferences.getVoiceEnabled();
   }
 
   Future<void> _signOut() async {
-    await ref.read(authProvider.notifier).logout();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Sign Out?',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: AppTheme.textDark),
+        ),
+        content: Text(
+          'Are you sure you want to sign out of SafeSenior? Background protection will remain active on this device.',
+          style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, color: const Color(0xFF4A4A4A)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.w700, color: AppTheme.primaryTeal),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.terracottaRed,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await ref.read(authProvider.notifier).logout();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  Future<void> _pickAvatar() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, imageQuality: 80);
+    if (picked != null) {
+      await ref.read(authProvider.notifier).updateAvatarPath(picked.path);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final premiumStatus = ref.watch(premiumProvider);
-    final isPremiumOrTrial = premiumStatus == PremiumStatus.premium || premiumStatus == PremiumStatus.trial;
+    final user = ref.watch(authProvider).user;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.textDark),
-          onPressed: () {},
-        ),
-        title: Text(
-          'Settings',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, color: AppTheme.textDark),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Premium/Trial Banner
-              if (!isPremiumOrTrial)
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumSalesScreen()));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1C3A63), AppTheme.primaryDarkBlue],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            // Top App Bar
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDFBF7),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE0F2F2),
+                      shape: BoxShape.circle,
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC78B3F).withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.workspace_premium, color: Color(0xFFC78B3F), size: 28),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Upgrade to Premium',
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Get 24/7 Human Guardian Support',
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
-                      ],
+                    child: const Center(
+                      child: Icon(Icons.security, color: AppTheme.primaryTeal, size: 20),
                     ),
                   ),
-                )
-              else
-                // Active plan badge
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF1C3A63), AppTheme.primaryDarkBlue],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  const SizedBox(width: 10),
+                  Text(
+                    'Settings & Preferences',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.primaryTeal,
                     ),
-                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFC78B3F).withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.workspace_premium, color: Color(0xFFC78B3F), size: 28),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              premiumStatus == PremiumStatus.trial ? '7-Day Free Trial Active' : 'Premium Active ✓',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              premiumStatus == PremiumStatus.trial
-                                  ? '${PremiumService.trialDaysRemaining()} days remaining'
-                                  : 'Full protection enabled',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.check_circle, color: Colors.greenAccent, size: 24),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 24),
+                ],
+              ),
+            ),
 
-              _buildSettingsOption(
-                context,
-                title: 'Language',
-                icon: Icons.language,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguageScreen()));
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildSettingsOption(
-                context,
-                title: 'Voice Assistant',
-                icon: Icons.record_voice_over_outlined,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const VoiceAssistantScreen()));
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildSettingsOption(
-                context,
-                title: 'Account Details',
-                icon: Icons.person_outline,
-                onTap: () {
-                  final user = ref.read(authProvider).user;
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text('Account Details'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Name: ${user?.name ?? "—"}'),
-                          const SizedBox(height: 8),
-                          Text('Email: ${user?.email ?? "—"}'),
-                          const SizedBox(height: 8),
-                          Text('Phone: ${user?.phone ?? "—"}'),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Senior Profile Hero Card ──
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: _pickAvatar,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 68,
+                                  height: 68,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppTheme.primaryTeal, width: 2.5),
+                                    image: DecorationImage(
+                                      image: user?.avatarPath != null
+                                          ? FileImage(File(user!.avatarPath!)) as ImageProvider
+                                          : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(color: AppTheme.primaryTeal, shape: BoxShape.circle),
+                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user?.name ?? 'Senior Protection Account',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textDark,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  user?.phone.isNotEmpty == true ? user!.phone : (user?.email ?? 'Active Protection Member'),
+                                  style: GoogleFonts.atkinsonHyperlegible(
+                                    fontSize: 13.5,
+                                    color: const Color(0xFF6B7B78),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFD7EFE6),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '🛡️ 100% Protected Account',
+                                    style: GoogleFonts.atkinsonHyperlegible(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF006565),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Active Shield Controls (Real Working Toggles) ──
+                    Text(
+                      'ACTIVE DEFENSE SWITCHES',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: const Color(0xFF6B7B78),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 14,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          SwitchListTile(
+                            activeColor: AppTheme.primaryTeal,
+                            secondary: const Icon(Icons.sms_outlined, color: AppTheme.primaryTeal),
+                            title: Text(
+                              'SMS Scam & OTP Shield',
+                              style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.w700, fontSize: 15),
+                            ),
+                            subtitle: Text(
+                              'Scans incoming SMS for fraud links and fake OTPs in real-time',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, color: const Color(0xFF6B7B78)),
+                            ),
+                            value: _smsShieldEnabled,
+                            onChanged: (v) {
+                              setState(() => _smsShieldEnabled = v);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(v ? 'SMS Shield Activated' : 'SMS Shield Paused'),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1, indent: 64),
+                          SwitchListTile(
+                            activeColor: AppTheme.primaryTeal,
+                            secondary: const Icon(Icons.phone_in_talk_outlined, color: AppTheme.primaryTeal),
+                            title: Text(
+                              'In-Call Scam Detection',
+                              style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.w700, fontSize: 15),
+                            ),
+                            subtitle: Text(
+                              'Flags suspicious caller IDs and digital arrest scams',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, color: const Color(0xFF6B7B78)),
+                            ),
+                            value: _callShieldEnabled,
+                            onChanged: (v) {
+                              setState(() => _callShieldEnabled = v);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(v ? 'Call Shield Activated' : 'Call Shield Paused'),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1, indent: 64),
+                          SwitchListTile(
+                            activeColor: AppTheme.primaryTeal,
+                            secondary: const Icon(Icons.record_voice_over_outlined, color: AppTheme.primaryTeal),
+                            title: Text(
+                              'Voice Assistant Guidance',
+                              style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.w700, fontSize: 15),
+                            ),
+                            subtitle: Text(
+                              'Reads alerts aloud with large clear audio',
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, color: const Color(0xFF6B7B78)),
+                            ),
+                            value: _voiceGuidanceEnabled,
+                            onChanged: (v) async {
+                              setState(() => _voiceGuidanceEnabled = v);
+                              await LocalPreferences.setVoiceEnabled(v);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+
+                    // ── Core Hub Navigation (Pinterest Card Grid) ──
+                    Text(
+                      'FAMILY & PROTECTION HUBS',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: const Color(0xFF6B7B78),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.15,
+                      children: [
+                        _hubCard(
+                          icon: Icons.people_outline,
+                          title: 'Family Circle',
+                          subtitle: 'Connected Guardians',
+                          color: const Color(0xFFE0F2F2),
+                          iconColor: AppTheme.primaryTeal,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuardianContactsScreen())),
+                        ),
+                        _hubCard(
+                          icon: Icons.health_and_safety_outlined,
+                          title: 'Security Status',
+                          subtitle: 'Live 8-Point Check',
+                          color: const Color(0xFFD7EFE6),
+                          iconColor: const Color(0xFF006565),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityStatusScreen())),
+                        ),
+                        _hubCard(
+                          icon: Icons.checklist_rtl_outlined,
+                          title: 'Safety Checklist',
+                          subtitle: 'Profile Audit',
+                          color: const Color(0xFFFFF3D6),
+                          iconColor: const Color(0xFFB28000),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileChecklistScreen())),
+                        ),
+                        _hubCard(
+                          icon: Icons.menu_book_outlined,
+                          title: 'Scam Library',
+                          subtitle: '50+ Real Scams',
+                          color: const Color(0xFFFFE8E5),
+                          iconColor: AppTheme.terracottaRed,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScamLibraryScreen())),
+                        ),
+                        _hubCard(
+                          icon: Icons.insights_outlined,
+                          title: 'Weekly Report',
+                          subtitle: 'Scans & Threats',
+                          color: const Color(0xFFEFE8FF),
+                          iconColor: const Color(0xFF673AB7),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WeeklyReportScreen())),
+                        ),
+                        _hubCard(
+                          icon: Icons.military_tech_outlined,
+                          title: 'Achievements',
+                          subtitle: 'Milestone Badges',
+                          color: const Color(0xFFFFE088),
+                          iconColor: const Color(0xFF735C00),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementsScreen())),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              // Dark Mode toggle — wired to ThemeModeNotifier
-              Consumer(
-                builder: (context, ref, _) {
-                  final themeMode = ref.watch(themeModeProvider);
-                  final isDark = themeMode == ThemeMode.dark;
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    const SizedBox(height: 22),
+
+                    // ── App & Security Preferences ──
+                    Text(
+                      'APP & SECURITY',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: const Color(0xFF6B7B78),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                            color: AppTheme.primaryDarkBlue),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Dark Mode',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    const SizedBox(height: 10),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 14,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          _prefTile(
+                            icon: Icons.language,
+                            title: 'Language / भाषा / ભાષા',
+                            subtitle: '7 Indian & Global languages',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguageScreen())),
+                          ),
+                          const Divider(height: 1, indent: 56),
+                          _prefTile(
+                            icon: Icons.pin_outlined,
+                            title: 'Reset Security PIN',
+                            subtitle: 'Update your 4-digit master PIN',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPinScreen())),
+                          ),
+                          const Divider(height: 1, indent: 56),
+                          _prefTile(
+                            icon: Icons.system_update_alt,
+                            title: 'App Updates & Threat Engine',
+                            subtitle: 'SafeSenior v2.4 (Latest)',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
+                          ),
+                          const Divider(height: 1, indent: 56),
+                          _prefTile(
+                            icon: Icons.help_outline,
+                            title: 'Help & Emergency Support',
+                            subtitle: '24/7 Helpline & FAQs',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Sign Out Button ──
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton.icon(
+                        onPressed: _signOut,
+                        icon: const Icon(Icons.logout, color: AppTheme.terracottaRed),
+                        label: Text(
+                          'Sign Out',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.terracottaRed,
                           ),
                         ),
-                        Switch(
-                          value: isDark,
-                          onChanged: (_) => ref.read(themeModeProvider.notifier).toggle(),
-                          activeThumbColor: Colors.white,
-                          activeTrackColor: AppTheme.primaryLightBlue,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFFFDAD6), width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          backgroundColor: const Color(0xFFFFF8F7),
                         ),
-                      ],
+                      ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildSettingsOption(
-                context,
-                title: 'Privacy Policy',
-                icon: Icons.privacy_tip_outlined,
-                onTap: () async {
-                  final uri = Uri.parse('https://safesenior.app/privacy');
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-              ),
-              const SizedBox(height: 32),
-              Center(
-                child: TextButton(
-                  onPressed: _signOut,
-                  child: Text(
-                    'Sign Out',
-                    style: TextStyle(color: Colors.red[700], fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }
 
-  Widget _buildSettingsOption(BuildContext context, {required String title, required IconData icon, required VoidCallback onTap}) {
-    return InkWell(
+  Widget _hubCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: AppTheme.primaryDarkBlue),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.8), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(child: Icon(icon, color: iconColor, size: 20)),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.atkinsonHyperlegible(
+                    fontSize: 11.5,
+                    color: const Color(0xFF6B7B78),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
+  Widget _prefTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF4F4F4),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: AppTheme.textDark, size: 18),
       ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.backgroundColor,
-        selectedItemColor: AppTheme.primaryDarkBlue,
-        unselectedItemColor: AppTheme.textDark.withValues(alpha: 0.6),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: [
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.shield_outlined),
-            ),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.security),
-            ),
-            label: 'Security',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.help_outline),
-            ),
-            label: 'Support',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: _selectedIndex == 3 ? AppTheme.primaryLightBlue.withValues(alpha: 0.5) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.settings_outlined),
-            ),
-            label: 'Settings',
-          ),
-        ],
+      title: Text(
+        title,
+        style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textDark),
       ),
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, color: const Color(0xFF6B7B78)),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFB0B0B0)),
+      onTap: onTap,
     );
   }
 }

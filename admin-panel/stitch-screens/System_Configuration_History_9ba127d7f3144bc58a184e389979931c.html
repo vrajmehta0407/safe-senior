@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Configuration Versioning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008080",
+                        "surface-container-low": "#f5f3f3",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fe7356",
+                        "surface-container-high": "#e9e8e7",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "surface-container-highest": "#e3e2e2",
+                        "secondary": "#aa361f",
+                        "surface-dim": "#dbdad9",
+                        "on-secondary-fixed": "#3e0500",
+                        "tertiary-fixed": "#ffe088",
+                        "tertiary": "#735c00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#4f3e00",
+                        "inverse-surface": "#303031",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "surface-container": "#efeded",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "on-primary-fixed": "#002020",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fbf9f9",
+                        "on-surface-variant": "#3e4949",
+                        "outline-variant": "#bdc9c8",
+                        "inverse-primary": "#76d6d5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-bright": "#fbf9f9",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#e3fffe",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-tint": "#006a6a",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-container": "#cca830",
+                        "outline": "#6e7979",
+                        "on-surface": "#1b1c1c",
+                        "background": "#fbf9f9",
+                        "on-secondary-container": "#6d0f00",
+                        "primary-fixed": "#93f2f2",
+                        "secondary-fixed": "#ffdad3",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1c1c",
+                        "inverse-on-surface": "#f2f0f0",
+                        "error": "#ba1a1a",
+                        "primary": "#006565"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "target-size": "48px",
+                        "margin-desktop": "64px",
+                        "gutter-desktop": "24px",
+                        "unit": "8px",
+                        "gutter-mobile": "16px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- SideNavBar -->
+<nav aria-label="Sidebar Navigation" class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm">
+<div class="p-gutter-desktop flex flex-col gap-unit">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">SafeSenior Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Operations Console</p>
+</div>
+<div class="px-gutter-desktop pb-gutter-desktop">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md min-h-target-size shadow-sm hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined icon-fill">add</span>
+                New System Rule
+            </button>
+</div>
+<ul class="flex-1 flex flex-col gap-1 mt-4">
+<li>
+<a class="flex items-center gap-3 px-6 py-4 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md active:scale-[0.99] duration-150 min-h-target-size" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    System Health
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-4 text-primary font-bold border-r-4 border-primary bg-primary-container/10 active:scale-[0.99] transition-transform duration-150 font-body-md text-body-md min-h-target-size" href="#">
+<span class="material-symbols-outlined icon-fill">rule</span>
+                    Pattern Management
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-4 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md active:scale-[0.99] duration-150 min-h-target-size" href="#">
+<span class="material-symbols-outlined">group</span>
+                    User Management
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-4 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md active:scale-[0.99] duration-150 min-h-target-size" href="#">
+<span class="material-symbols-outlined">emergency</span>
+                    Alerts Center
+                </a>
+</li>
+</ul>
+<div class="border-t border-surface-container-high mt-auto">
+<ul class="flex flex-col gap-1 py-4">
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-target-size" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        Settings
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-md text-body-md min-h-target-size" href="#">
+<span class="material-symbols-outlined">help</span>
+                        Support
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm">
+<div class="flex items-center gap-4 flex-1 focus-within:ring-2 focus-within:ring-primary rounded-lg px-3 py-2 bg-surface-container-low max-w-md">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface font-body-md w-full placeholder:text-outline p-0" placeholder="Search configuration history..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full min-h-target-size min-w-target-size flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full min-h-target-size min-w-target-size flex items-center justify-center">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full min-h-target-size min-w-target-size flex items-center justify-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pl-64 pt-16 min-h-screen">
+<div class="p-margin-desktop max-w-6xl mx-auto">
+<header class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">System Configuration Versioning</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Review and rollback global security settings and alert thresholds.</p>
+</header>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-highest overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-container-highest">
+<th class="p-4 font-label-lg text-label-lg text-on-surface">Version</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface">Date &amp; Time</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface">Admin</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface">Summary</th>
+<th class="p-4 font-label-lg text-label-lg text-on-surface text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest">
+<!-- Row 1: Current -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4 align-top">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-primary">v2.4.1</span>
+<span class="bg-primary-container/20 text-primary-fixed-dim font-label-md text-label-md px-2 py-1 rounded-full text-xs">Current</span>
+</div>
+</td>
+<td class="p-4 align-top font-body-md text-on-surface-variant">
+                                    Oct 24, 2023<br/><span class="text-outline">14:30 EST</span>
+</td>
+<td class="p-4 align-top">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Sarah J." class="w-full h-full object-cover" data-alt="A professional headshot of a female system administrator in her late 30s with short dark hair, wearing glasses and a casual navy blazer. The lighting is bright and modern office style. High resolution portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdla2xVO7tlpLdG1Mvah2r3eVROr48YjTg3uLSuUMxd2XhkFOArjC3yuL6EflqtmQ0Ue2kqN1YpmLdx_4Kw5f5ICEh_yWkxENBgqsL9zAO4Pd7DR23hNqS-QUba1rKVpdVzpLEKtWkKa8xUlZsq0YhsT8-3AY-9fhvGEXVxiVs2jnrkr7n9FPcRpuYi-mZbscyhQxij_CSHeQPZi4OletZPr4FAZ9uKFNOmRbMM3bhGzg2i4l8WJ5I"/>
+</div>
+<div>
+<p class="font-body-md text-on-surface font-semibold">Sarah J.</p>
+<p class="text-sm text-on-surface-variant">Lead Admin</p>
+</div>
+</div>
+</td>
+<td class="p-4 align-top">
+<p class="font-body-md text-on-surface mb-2">Adjusted nocturnal activity thresholds for Fall Risk segment.</p>
+<details class="cursor-pointer group/details">
+<summary class="font-label-md text-label-md text-primary flex items-center gap-1 list-none">
+<span class="material-symbols-outlined text-[20px] group-open/details:rotate-180 transition-transform">expand_more</span>
+                                            View Details
+                                        </summary>
+<div class="mt-3 p-4 bg-surface rounded-lg border border-surface-container-highest text-sm">
+<ul class="space-y-2 font-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px] mt-0.5">remove</span>
+<span><del>Nocturnal bathroom visits &gt; 3 triggers Moderate Alert</del></span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">add</span>
+<span>Nocturnal bathroom visits &gt; 4 triggers Moderate Alert</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">add</span>
+<span>Time away from bed &gt; 45 mins triggers High Alert (previously 60 mins)</span>
+</li>
+</ul>
+</div>
+</details>
+</td>
+<td class="p-4 align-top text-right">
+<button class="opacity-50 cursor-not-allowed border border-outline text-outline font-label-md px-4 py-2 rounded-lg min-h-[40px] transition-colors inline-flex items-center gap-2" disabled="">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+                                        Rollback
+                                    </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4 align-top">
+<span class="font-headline-sm text-headline-sm text-on-surface">v2.4.0</span>
+</td>
+<td class="p-4 align-top font-body-md text-on-surface-variant">
+                                    Oct 15, 2023<br/><span class="text-outline">09:15 EST</span>
+</td>
+<td class="p-4 align-top">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Marcus T." class="w-full h-full object-cover" data-alt="A professional headshot of a male IT director in his 40s, bald with a neat beard, wearing a grey sweater. Soft, warm lighting typical of a modern tech office environment. High resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr7Pa0mV4O6EBY0Z0otkmgiiG2p-FGGiApbEjPqm1TVjxuKAUT0vN8nFwZuFisgDkdTxRVQgssMs_qYVntdtFfV1zBkCaURfnP0wWS3v7FIcn5PUv4NHAWPGKEST7sJZVlqH37fB06Jh-RUspkKH-7XDVE3twNEylx497NwXnUh3XEmRG9L0JgHD_nFfAb5AO3R_4VxsRypK51wwZi3lIsovI_G2YMx1hOrp8O29xdOmq1I8idr_dp"/>
+</div>
+<div>
+<p class="font-body-md text-on-surface font-semibold">Marcus T.</p>
+<p class="text-sm text-on-surface-variant">System Architect</p>
+</div>
+</div>
+</td>
+<td class="p-4 align-top">
+<p class="font-body-md text-on-surface mb-2">Major update to geofencing radius globally.</p>
+<details class="cursor-pointer group/details">
+<summary class="font-label-md text-label-md text-primary flex items-center gap-1 list-none">
+<span class="material-symbols-outlined text-[20px] group-open/details:rotate-180 transition-transform">expand_more</span>
+                                            View Details
+                                        </summary>
+<div class="mt-3 p-4 bg-surface rounded-lg border border-surface-container-highest text-sm">
+<ul class="space-y-2 font-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-outline text-[18px] mt-0.5">edit</span>
+<span>Global Safe Zone radius updated from 50m to 75m default.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">add</span>
+<span>Added new parameter: "Wander Risk Area" padding (10m).</span>
+</li>
+</ul>
+</div>
+</details>
+</td>
+<td class="p-4 align-top text-right">
+<button class="border border-primary text-primary hover:bg-primary-container/10 font-label-md px-4 py-2 rounded-lg min-h-[40px] transition-colors inline-flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+                                        Rollback
+                                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

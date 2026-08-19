@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeSenior Admin - User Growth &amp; Demographics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1b1c1c",
+                        "outline-variant": "#bdc9c8",
+                        "on-surface": "#1b1c1c",
+                        "on-primary-container": "#e3fffe",
+                        "on-secondary-container": "#6d0f00",
+                        "tertiary-fixed": "#ffe088",
+                        "surface-dim": "#dbdad9",
+                        "primary-fixed-dim": "#76d6d5",
+                        "surface-bright": "#fbf9f9",
+                        "on-secondary-fixed": "#3e0500",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e3e2e2",
+                        "surface-container-high": "#e9e8e7",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffdad3",
+                        "on-primary-fixed": "#002020",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "primary-container": "#008080",
+                        "background": "#fbf9f9",
+                        "surface-container": "#efeded",
+                        "outline": "#6e7979",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-container-low": "#f5f3f3",
+                        "inverse-surface": "#303031",
+                        "on-surface-variant": "#3e4949",
+                        "surface": "#fbf9f9",
+                        "secondary-container": "#fe7356",
+                        "on-tertiary-container": "#4f3e00",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary": "#006565",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#cca830",
+                        "primary-fixed": "#93f2f2",
+                        "secondary": "#aa361f",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "surface-variant": "#e3e2e2",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#006a6a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#735c00",
+                        "inverse-primary": "#76d6d5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter-desktop": "24px",
+                        "gutter-mobile": "16px",
+                        "target-size": "48px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-x-hidden min-h-screen">
+<!-- SideNavBar -->
+<nav aria-label="Main Navigation" class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface shadow-sm">
+<!-- Brand Header -->
+<div class="px-6 py-8 flex flex-col items-center border-b border-surface-variant">
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-4">
+<img class="w-10 h-10 object-contain rounded-full" data-alt="A clean, modern geometric logo mark for a senior care application. The design uses solid teal colors on a light background. It conveys trust and reliability in a minimal, flat vector style without any text." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNMfR6300bqxrWTtXdBVfh_tEimqdWzljWnnKZcpG8YPe2XKTNG6L0cDlL4qDTJ85FzVOna5k-hLhtOynl9A8bdpkSfMM-hP5oNGN5-KduCOWsPzAr-g9gFAa9ias7OIZlHk3ECDYi3WB_ZpHd8u0MMDGntWsaQXuBH7bna1EfErFOU2QsW2GSjAMqprhvqZGBUDXukNI7QEjnoTTrjQo9_Uv3JqF1jCNlkw2oqsFQXObXSRNNOESW"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary text-center">SafeSenior Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant text-center mt-1">Operations Console</p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex-1 overflow-y-auto py-6">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>System Health</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span>Pattern Management</span>
+</a>
+</li>
+<li>
+<a aria-current="page" class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-primary-container/10 active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined icon-fill text-primary">group</span>
+<span>User Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span>Alerts Center</span>
+</a>
+</li>
+</ul>
+<!-- Call to Action -->
+<div class="px-4 py-4">
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors active:scale-[0.99]">
+<span class="material-symbols-outlined">add</span>
+                New System Rule
+            </button>
+</div>
+<!-- Footer Links -->
+<ul class="py-4 border-t border-surface-variant">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface shadow-sm">
+<!-- Search Bar (Left) -->
+<div class="flex-1 max-w-md">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-0" placeholder="Search users, IDs..." type="text"/>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button aria-label="History" class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button aria-label="Account" class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="pl-64 pt-16 min-h-screen flex flex-col p-8 gap-8">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b border-surface-variant">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background">User Growth &amp; Demographics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Analytics for Senior and Guardian engagement.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border border-outline-variant text-on-surface font-label-md text-label-md rounded-full px-4 py-2 pr-10 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+<option>Last 30 Days</option>
+<option>Last 90 Days</option>
+<option>Year to Date</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<button class="bg-surface-container-low border border-outline-variant text-on-surface font-label-md text-label-md rounded-full px-4 py-2 hover:bg-surface-container-high transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    More Filters
+                </button>
+</div>
+</div>
+<!-- Key Metrics Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest flex flex-col relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary-container/10 rounded-bl-full -z-10"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-lg text-label-lg text-on-surface-variant">Total Active Users</span>
+<span class="material-symbols-outlined text-primary bg-primary-container/20 p-2 rounded-full">group</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-background">14,285</h3>
+<span class="font-label-md text-label-md text-primary flex items-center">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> 12%
+                    </span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest flex flex-col relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-container/10 rounded-bl-full -z-10"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-lg text-label-lg text-on-surface-variant">New Seniors</span>
+<span class="material-symbols-outlined text-secondary bg-secondary-container/20 p-2 rounded-full">elderly</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-background">842</h3>
+<span class="font-label-md text-label-md text-primary flex items-center">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> 5%
+                    </span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest flex flex-col relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-tertiary-container/10 rounded-bl-full -z-10"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-lg text-label-lg text-on-surface-variant">Guardian Ratio</span>
+<span class="material-symbols-outlined text-tertiary bg-tertiary-container/20 p-2 rounded-full">family_restroom</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-on-background">1 : 2.4</h3>
+<span class="font-label-md text-label-md text-outline-variant flex items-center">
+<span class="material-symbols-outlined text-[16px]">trending_flat</span> 0%
+                    </span>
+</div>
+</div>
+</div>
+<!-- Charts Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Main Line Chart: Active Users Over Time -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Active Users Trend</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-label-md text-label-md text-on-surface-variant">Guardians</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface-variant">Seniors</span>
+</div>
+</div>
+</div>
+<!-- Placeholder for Chart -->
+<div class="w-full h-[300px] bg-surface-container-low rounded-lg relative flex items-end px-4 pb-8 pt-4 gap-2">
+<!-- Faux Grid Lines -->
+<div class="absolute left-0 right-0 top-1/4 h-px bg-outline-variant/30"></div>
+<div class="absolute left-0 right-0 top-2/4 h-px bg-outline-variant/30"></div>
+<div class="absolute left-0 right-0 top-3/4 h-px bg-outline-variant/30"></div>
+<!-- Faux Line Chart Visuals (Simplified CSS Representation) -->
+<div class="w-full h-full relative z-10 overflow-hidden">
+<!-- Guardians Line (Teal) -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 Q10,70 20,75 T40,50 T60,60 T80,30 T100,20" fill="none" stroke="#006565" stroke-linecap="round" stroke-width="2"></path>
+<path d="M0,80 Q10,70 20,75 T40,50 T60,60 T80,30 T100,20 L100,100 L0,100 Z" fill="url(#guardianGrad)" opacity="0.1"></path>
+<defs>
+<lineargradient id="guardianGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#006565"></stop>
+<stop offset="100%" stop-color="#fbf9f9" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Seniors Line (Secondary/Rust) -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,90 Q15,85 30,80 T50,70 T70,75 T90,60 T100,55" fill="none" stroke="#aa361f" stroke-dasharray="4,4" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Pie Chart: Age Distribution -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-6">Senior Age Distribution</h3>
+<div class="flex-1 flex flex-col items-center justify-center relative">
+<!-- Faux Donut Chart -->
+<div class="w-48 h-48 rounded-full border-[16px] border-surface-container-highest relative mb-6">
+<!-- Segment 1 (Primary) -->
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-primary" style="clip-path: polygon(50% 50%, 100% 0, 100% 100%, 0 100%, 0 50%); transform: rotate(-45deg);"></div>
+<!-- Segment 2 (Secondary) -->
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-secondary" style="clip-path: polygon(50% 50%, 0 50%, 0 0, 50% 0); transform: rotate(-45deg);"></div>
+<!-- Segment 3 (Tertiary) -->
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-tertiary" style="clip-path: polygon(50% 50%, 50% 0, 100% 0); transform: rotate(-45deg);"></div>
+<!-- Center Label -->
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-on-background font-bold">4.2k</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Seniors</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="w-full space-y-3 mt-auto">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-body-md text-body-md text-on-surface">65-74 yrs</span>
+</div>
+<span class="font-label-md text-label-md text-on-background">45%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-body-md text-body-md text-on-surface">75-84 yrs</span>
+</div>
+<span class="font-label-md text-label-md text-on-background">35%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary"></span>
+<span class="font-body-md text-body-md text-on-surface">85+ yrs</span>
+</div>
+<span class="font-label-md text-label-md text-on-background">20%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Geographical Demographics List -->
+<div class="lg:col-span-3 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Top Regions</h3>
+<button class="text-primary font-label-md text-label-md hover:underline">View All Regions</button>
+</div>
+<div class="space-y-6">
+<!-- Region Item 1 -->
+<div class="flex items-center gap-4">
+<span class="font-label-lg text-label-lg w-32 text-on-surface">California</span>
+<div class="flex-1 bg-surface-container-highest h-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 75%;"></div>
+</div>
+<span class="font-label-md text-label-md w-16 text-right">3,500</span>
+</div>
+<!-- Region Item 2 -->
+<div class="flex items-center gap-4">
+<span class="font-label-lg text-label-lg w-32 text-on-surface">Florida</span>
+<div class="flex-1 bg-surface-container-highest h-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 60%;"></div>
+</div>
+<span class="font-label-md text-label-md w-16 text-right">2,800</span>
+</div>
+<!-- Region Item 3 -->
+<div class="flex items-center gap-4">
+<span class="font-label-lg text-label-lg w-32 text-on-surface">New York</span>
+<div class="flex-1 bg-surface-container-highest h-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 45%;"></div>
+</div>
+<span class="font-label-md text-label-md w-16 text-right">2,100</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

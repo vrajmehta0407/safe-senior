@@ -4,6 +4,7 @@
 
 import '../../models/scanned_message.dart';
 import '../../storage/message_store.dart';
+import '../trusted_sender_cache.dart';
 import 'keyword_detector.dart';
 import 'urgency_detector.dart';
 import 'link_and_code_detector.dart';
@@ -58,8 +59,8 @@ class ScamRuleEngine {
     final reasons = <String>[];
     final keywords = <String>[];
 
-    // 1. Trusted sender → safe immediately
-    if (_trustedSenders.contains(sender.toUpperCase())) {
+    // 1. Trusted sender (hardcoded bank IDs or user's personal allowlist) → safe immediately
+    if (_trustedSenders.contains(sender.toUpperCase()) || TrustedSenderCache.isTrusted(sender)) {
       return AnalysisResult(
         riskLevel: RiskLevel.safe,
         maskedBody: OtpMaskingService.maskCodes(body),

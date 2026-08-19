@@ -12,296 +12,296 @@ class AppLocalizationsTe extends AppLocalizations {
   String get appName => 'Safe Senior';
 
   @override
-  String get tagline => 'Your Safety Guardian';
+  String get tagline => 'మీ భద్రతా సంరక్షకుడు';
 
   @override
-  String get login => 'Login';
+  String get login => 'లాగిన్';
 
   @override
-  String get loginWithFingerprint => 'Login with Fingerprint';
+  String get loginWithFingerprint => 'వేలిముద్రతో లాగిన్';
 
   @override
-  String get signUp => 'Sign Up';
+  String get signUp => 'నమోదు చేసుకోండి';
 
   @override
-  String get logout => 'Sign Out';
+  String get logout => 'నిష్క్రమించు';
 
   @override
-  String get email => 'Email';
+  String get email => 'ఇమెయిల్';
 
   @override
-  String get emailOrPhone => 'Email or Phone Number';
+  String get emailOrPhone => 'ఇమెయిల్ లేదా ఫోన్ నంబర్';
 
   @override
-  String get phone => 'Phone Number';
+  String get phone => 'ఫోన్ నంబర్';
 
   @override
-  String get password => 'Password';
+  String get password => 'పాస్‌వర్డ్';
 
   @override
-  String get confirmPassword => 'Confirm Password';
+  String get confirmPassword => 'పాస్‌వర్డ్ నిర్ధారించు';
 
   @override
-  String get fullName => 'Full Name';
+  String get fullName => 'పూర్తి పేరు';
 
   @override
-  String get forgotPassword => 'Forgot Password?';
+  String get forgotPassword => 'పాస్‌వర్డ్ మర్చిపోయారా?';
 
   @override
-  String get resetPassword => 'Reset Password';
+  String get resetPassword => 'పాస్‌వర్డ్ రీసెట్ చేయి';
 
   @override
-  String get sendResetCode => 'Send Reset Code';
+  String get sendResetCode => 'రీసెట్ కోడ్ పంపు';
 
   @override
-  String get noAccount => 'Don\'t have an account? ';
+  String get noAccount => 'ఖాతా లేదా? ';
 
   @override
-  String get alreadyHaveAccount => 'Already have an account? ';
+  String get alreadyHaveAccount => 'ఇప్పటికే ఖాతా ఉందా? ';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'ఖాతా సృష్టించు';
 
   @override
-  String get agreeToTerms => 'I agree to the ';
+  String get agreeToTerms => 'నేను అంగీకరిస్తున్నాను ';
 
   @override
-  String get termsOfService => 'Terms of Service';
+  String get termsOfService => 'సేవా నిబంధనలు';
 
   @override
-  String get and => ' and ';
+  String get and => ' మరియు ';
 
   @override
-  String get privacyPolicy => 'Privacy Policy';
+  String get privacyPolicy => 'గోప్యతా విధానం';
 
   @override
-  String get trialBanner => 'Get 7 days free premium trial!';
+  String get trialBanner => '7 రోజుల ఉచిత ప్రీమియం ట్రయల్ పొందండి!';
 
   @override
-  String get settings => 'Settings';
+  String get settings => 'సెట్టింగులు';
 
   @override
-  String get language => 'Language';
+  String get language => 'భాష';
 
   @override
-  String get voiceAssistant => 'Voice Assistant';
+  String get voiceAssistant => 'వాయిస్ అసిస్టెంట్';
 
   @override
-  String get accountDetails => 'Account Details';
+  String get accountDetails => 'ఖాతా వివరాలు';
 
   @override
-  String get darkMode => 'Dark Mode';
+  String get darkMode => 'డార్క్ మోడ్';
 
   @override
-  String get helpAndSupport => 'Help & Support';
+  String get helpAndSupport => 'సహాయం & మద్దతు';
 
   @override
-  String get emergencySos => 'EMERGENCY SOS';
+  String get emergencySos => 'అత్యవసర SOS';
 
   @override
-  String get helpMe => 'HELP ME!';
+  String get helpMe => 'సహాయం చేయండి!';
 
   @override
   String get pressAndHold =>
-      'Press and hold if you are in immediate danger or need medical help.';
+      'మీరు తక్షణ ప్రమాదంలో ఉన్నారు లేదా వైద్య సహాయం అవసరమైతే నొక్కి పట్టుకోండి.';
 
   @override
-  String get myGuardianContact => 'My Guardian Contact';
+  String get myGuardianContact => 'నా సంరక్షక పరిచయం';
 
   @override
-  String get guardianContact => 'Guardian Contact';
+  String get guardianContact => 'సంరక్షక పరిచయం';
 
   @override
-  String get addGuardian => 'Add Guardian';
+  String get addGuardian => 'సంరక్షకుడిని జోడించు';
 
   @override
-  String get callGuardian => 'Call Guardian';
+  String get callGuardian => 'సంరక్షకుడిని కాల్ చేయి';
 
   @override
-  String get messageGuardian => 'Message Guardian';
+  String get messageGuardian => 'సంరక్షకుడికి సందేశం';
 
   @override
-  String get sendEmergencyAlert => 'Send Emergency Alert';
+  String get sendEmergencyAlert => 'అత్యవసర హెచ్చరిక పంపు';
 
   @override
-  String get scannedMessages => 'Scanned Messages';
+  String get scannedMessages => 'స్కాన్ చేసిన సందేశాలు';
 
   @override
-  String get blockedHistory => 'Blocked History';
+  String get blockedHistory => 'బ్లాక్ చేసిన చరిత్ర';
 
   @override
-  String get reportScam => 'Report Scam';
+  String get reportScam => 'స్కామ్ నివేదించు';
 
   @override
-  String get verifySender => 'Verify Sender';
+  String get verifySender => 'పంపినవారిని ధృవీకరించు';
 
   @override
-  String get blocked => 'BLOCKED';
+  String get blocked => 'నిరోధించబడింది';
 
   @override
-  String get suspect => 'SUSPECT';
+  String get suspect => 'అనుమానాస్పదం';
 
   @override
-  String get safe => 'SAFE';
+  String get safe => 'సురక్షితం';
 
   @override
-  String get stopDoNotShare => 'STOP! DO NOT SHARE!';
+  String get stopDoNotShare => 'ఆగు! షేర్ చేయకు!';
 
   @override
   String get suspiciousActivityDetected =>
-      'A highly suspicious activity has been detected. Protect your account immediately.';
+      'అత్యంత అనుమానాస్పద కార్యకలాపం గుర్తించబడింది. వెంటనే మీ ఖాతాను రక్షించుకోండి.';
 
   @override
-  String get iDidNotShare => 'I Did NOT Share This Code';
+  String get iDidNotShare => 'నేను ఈ కోడ్ షేర్ చేయలేదు';
 
   @override
-  String get iUnderstandClose => 'I Understand - Close';
+  String get iUnderstandClose => 'అర్థమైంది - మూసివేయి';
 
   @override
-  String get safetyVerificationChecklist => 'Safety Verification Checklist';
+  String get safetyVerificationChecklist => 'భద్రతా ధృవీకరణ చెక్‌లిస్ట్';
 
   @override
   String get neverShareCode =>
-      'NEVER share this code with anyone, even family or \"bank staff\".';
+      'ఈ కోడ్‌ను ఎవరితోనూ షేర్ చేయకండి, కుటుంబ సభ్యులతో లేదా \'బ్యాంకు సిబ్బంది\' తోనైనా.';
 
   @override
-  String get banksNeverAsk => 'Banks NEVER ask for OTP via phone call or text.';
+  String get banksNeverAsk => 'బ్యాంకులు ఫోన్ కాల్ లేదా SMS ద్వారా OTP అడగవు.';
 
   @override
-  String get couldBeScam => 'This could be a SCAM intended to lock you out.';
+  String get couldBeScam => 'ఇది మీకు లాక్‌అవుట్ చేయడానికి స్కామ్ కావచ్చు.';
 
   @override
-  String get upgradeToPremium => 'Upgrade to Premium';
+  String get upgradeToPremium => 'ప్రీమియమ్‌కు అప్‌గ్రేడ్ చేయండి';
 
   @override
-  String get premiumActive => 'Premium Active âœ“';
+  String get premiumActive => 'ప్రీమియమ్ యాక్టివ్ ✓';
 
   @override
-  String get trialActive => '7-Day Free Trial Active';
+  String get trialActive => '7-రోజుల ఉచిత ట్రయల్ యాక్టివ్';
 
   @override
-  String get howCanWeHelp => 'How can we help you today?';
+  String get howCanWeHelp => 'ఈరోజు మీకు ఎలా సహాయపడగలం?';
 
   @override
-  String get searchForHelp => 'Search for help...';
+  String get searchForHelp => 'సహాయం కోసం వెతకండి...';
 
   @override
-  String get chatWithUs => 'Chat with Us';
+  String get chatWithUs => 'మాతో చాట్ చేయండి';
 
   @override
-  String get callSupport => 'Call Support';
+  String get callSupport => 'మద్దతును కాల్ చేయండి';
 
   @override
-  String get browseCategories => 'Browse Categories';
+  String get browseCategories => 'వర్గాలను చూడండి';
 
   @override
-  String get gettingStarted => 'Getting Started';
+  String get gettingStarted => 'ప్రారంభించడం';
 
   @override
-  String get securityTips => 'Security Tips';
+  String get securityTips => 'భద్రతా చిట్కాలు';
 
   @override
-  String get billing => 'Billing';
+  String get billing => 'బిల్లింగ్';
 
   @override
-  String get appSettings => 'App Settings';
+  String get appSettings => 'యాప్ సెట్టింగులు';
 
   @override
-  String get frequentQuestions => 'Frequent Questions';
+  String get frequentQuestions => 'తరచుగా అడిగే ప్రశ్నలు';
 
   @override
-  String get howToBlockCaller => 'How do I block a caller?';
+  String get howToBlockCaller => 'కాలర్‌ను ఎలా బ్లాక్ చేయాలి?';
 
   @override
-  String get isMyDataSafe => 'Is my data safe?';
+  String get isMyDataSafe => 'నా డేటా సురక్షితంగా ఉందా?';
 
   @override
-  String get howToInviteFamily => 'How do I invite a family member?';
+  String get howToInviteFamily => 'కుటుంబ సభ్యుడిని ఎలా ఆహ్వానించాలి?';
 
   @override
-  String get voiceAlerts => 'Voice Alerts';
+  String get voiceAlerts => 'వాయిస్ హెచ్చరికలు';
 
   @override
-  String get voiceSpeed => 'Voice Speed';
+  String get voiceSpeed => 'వాయిస్ వేగం';
 
   @override
-  String get voiceGender => 'Voice Gender';
+  String get voiceGender => 'వాయిస్ లింగం';
 
   @override
-  String get female => 'Female';
+  String get female => 'స్త్రీ';
 
   @override
-  String get male => 'Male';
+  String get male => 'పురుషుడు';
 
   @override
-  String get neutral => 'Neutral';
+  String get neutral => 'తటస్థ';
 
   @override
-  String get testVoice => 'Test Voice';
+  String get testVoice => 'వాయిస్ పరీక్షించు';
 
   @override
-  String get saveSettings => 'Save Settings';
+  String get saveSettings => 'సెట్టింగులు సేవ్ చేయి';
 
   @override
   String get otp => 'OTP';
 
   @override
-  String get enterOtp => 'Enter the OTP sent to your number';
+  String get enterOtp => 'మీ నంబర్‌కు పంపిన OTP నమోదు చేయండి';
 
   @override
-  String get verify => 'Verify';
+  String get verify => 'ధృవీకరించు';
 
   @override
-  String get resendOtp => 'Resend OTP';
+  String get resendOtp => 'OTP మళ్లీ పంపు';
 
   @override
-  String get guardianAssistant => 'Guardian Assistant';
+  String get guardianAssistant => 'సంరక్షక సహాయకుడు';
 
   @override
-  String get typeYourQuestion => 'Type your question...';
+  String get typeYourQuestion => 'మీ ప్రశ్నను టైప్ చేయండి...';
 
   @override
-  String get tapToSpeak => 'Tap to Speak';
+  String get tapToSpeak => 'మాట్లాడడానికి నొక్కండి';
 
   @override
-  String get securityStatus => 'Security Status';
+  String get securityStatus => 'భద్రతా స్థితి';
 
   @override
-  String get messagesScanned => 'Messages Scanned';
+  String get messagesScanned => 'స్కాన్ చేసిన సందేశాలు';
 
   @override
-  String get callsProtected => 'Calls Protected';
+  String get callsProtected => 'రక్షించబడిన కాల్స్';
 
   @override
-  String get threatsBlocked => 'Threats Blocked';
+  String get threatsBlocked => 'నిరోధించిన బెదిరింపులు';
 
   @override
-  String get loading => 'Loading...';
+  String get loading => 'లోడ్ అవుతోంది...';
 
   @override
-  String get error => 'Error';
+  String get error => 'లోపం';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'మళ్లీ ప్రయత్నించు';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'రద్దు';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'నిర్ధారించు';
 
   @override
-  String get save => 'Save';
+  String get save => 'సేవ్';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'తొలగించు';
 
   @override
-  String get back => 'Back';
+  String get back => 'వెనక్కి';
 
   @override
-  String get next => 'Next';
+  String get next => 'తదుపరి';
 
   @override
-  String get done => 'Done';
+  String get done => 'పూర్తయింది';
 }

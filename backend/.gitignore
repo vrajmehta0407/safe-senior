@@ -1,0 +1,11 @@
+# Backend environment secrets — NEVER commit
+.env
+
+# Node
+node_modules/
+npm-debug.log
+*.log
+
+# FCM service account key
+serviceAccountKey.json
+*-firebase-adminsdk-*.json

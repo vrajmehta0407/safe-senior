@@ -43,4 +43,24 @@ const authRateLimiter = rateLimit({
   },
 });
 
-module.exports = { otpRateLimiter, authRateLimiter };
+/**
+ * adminLoginRateLimiter
+ * Stricter — 5 attempts per IP per 15 minutes for the admin login endpoint.
+ * Keyed on IP only (not email) to prevent user enumeration via rate-limit fingerprinting.
+ */
+const adminLoginRateLimiter = rateLimit({
+  windowMs:        15 * 60 * 1000,  // 15 minutes
+  max:             5,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  keyGenerator: (req) => req.ip,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Too many admin login attempts. Please try again in 15 minutes.',
+    });
+  },
+});
+
+module.exports = { otpRateLimiter, authRateLimiter, adminLoginRateLimiter };
+

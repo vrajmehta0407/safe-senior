@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management - SafeSenior Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#303031",
+                        "surface-container-low": "#f5f3f3",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "secondary-container": "#fe7356",
+                        "surface": "#fbf9f9",
+                        "tertiary": "#735c00",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "primary": "#006565",
+                        "on-primary-container": "#e3fffe",
+                        "primary-fixed-dim": "#76d6d5",
+                        "on-tertiary-container": "#4f3e00",
+                        "outline": "#6e7979",
+                        "surface-bright": "#fbf9f9",
+                        "primary-container": "#008080",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#002020",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-container": "#efeded",
+                        "primary-fixed": "#93f2f2",
+                        "secondary-fixed": "#ffdad3",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#bdc9c8",
+                        "on-secondary-container": "#6d0f00",
+                        "on-secondary-fixed": "#3e0500",
+                        "on-surface-variant": "#3e4949",
+                        "secondary": "#aa361f",
+                        "surface-tint": "#006a6a",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-fixed": "#ffe088",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-container-highest": "#e3e2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f2f0f0",
+                        "inverse-primary": "#76d6d5",
+                        "on-secondary-fixed-variant": "#891e08",
+                        "background": "#fbf9f9",
+                        "on-background": "#1b1c1c",
+                        "tertiary-container": "#cca830",
+                        "on-primary-fixed-variant": "#004f4f",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "surface-dim": "#dbdad9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "gutter-mobile": "16px",
+                        "margin-desktop": "64px",
+                        "gutter-desktop": "24px",
+                        "target-size": "48px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Atkinson Hyperlegible Next"],
+                        "body-lg": ["Atkinson Hyperlegible Next"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Atkinson Hyperlegible Next"],
+                        "label-md": ["Atkinson Hyperlegible Next"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-30 flex items-center justify-between px-gutter-desktop bg-surface dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">SafeSenior Admin</span>
+</div>
+<!-- Search Bar (on_left logic implemented as requested in JSON, though visually in center-left for layout balance) -->
+<div class="flex-1 max-w-xl mx-8 hidden md:block">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface-container-highest rounded-full border border-transparent focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-body-md text-on-surface placeholder-on-surface-variant outline-none" placeholder="Search users, guardians, or ID..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors focus-within:ring-2 focus-within:ring-primary ml-2">
+<span class="material-symbols-outlined filled">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 z-40 flex flex-col bg-surface dark:bg-inverse-surface bg-surface-container-low dark:bg-inverse-surface shadow-sm shadow-sm">
+<!-- Header -->
+<div class="p-6 pb-8 border-b border-surface-variant/50">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary-container">admin_panel_settings</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim leading-tight">SafeSenior</h1>
+<p class="text-label-md font-label-md text-on-surface-variant">Operations Console</p>
+</div>
+</div>
+<button class="w-full h-[48px] bg-primary text-on-primary rounded-xl flex items-center justify-center gap-2 font-label-lg hover:bg-primary/90 transition-colors shadow-sm active:scale-[0.99]">
+<span class="material-symbols-outlined">add</span>
+                New System Rule
+            </button>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 py-6 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-lg text-label-lg">System Health</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined">rule</span>
+<span class="font-label-lg text-label-lg">Pattern Management</span>
+</a>
+</li>
+<li>
+<!-- ACTIVE STATE: User Management -->
+<a class="flex items-center gap-3 px-4 py-3 text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-primary-container/10 active:scale-[0.99] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined filled">group</span>
+<span class="font-label-lg text-label-lg">User Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-label-lg text-label-lg">Alerts Center</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- Footer Nav -->
+<div class="p-4 border-t border-surface-variant/50">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-variant/10 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen p-margin-desktop bg-surface-container-lowest">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">User Directory</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage active profiles, guardian links, and monitor account status patterns.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-[48px] px-6 rounded-xl border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-label-lg flex items-center gap-2">
+<span class="material-symbols-outlined">filter_list</span>
+                    Filters
+                </button>
+<button class="h-[48px] px-6 rounded-xl bg-primary text-on-primary hover:bg-primary/90 transition-colors font-label-lg shadow-sm border border-primary-fixed-variant flex items-center gap-2">
+<span class="material-symbols-outlined">person_add</span>
+                    Invite Guardian
+                </button>
+</div>
+</div>
+<!-- Metric Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-surface p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-1 uppercase tracking-wider">Total Active Users</p>
+<p class="font-headline-md text-headline-md text-on-surface">12,458</p>
+</div>
+</div>
+<div class="bg-surface p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">gpp_maybe</span>
+</div>
+<div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-1 uppercase tracking-wider">Flagged Accounts</p>
+<p class="font-headline-md text-headline-md text-on-surface">34</p>
+</div>
+</div>
+<div class="bg-surface p-6 rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-1 uppercase tracking-wider">Suspicious Activity</p>
+<p class="font-headline-md text-headline-md text-on-surface">7</p>
+</div>
+</div>
+</div>
+<!-- Data Table / List View -->
+<div class="bg-surface rounded-2xl shadow-[0px_4px_12px_rgba(0,0,0,0.08)] border border-surface-variant overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 p-4 border-b border-surface-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+<div class="col-span-4 pl-4">Senior Profile</div>
+<div class="col-span-3">Primary Guardian</div>
+<div class="col-span-2">Account Status</div>
+<div class="col-span-2">Joined Date</div>
+<div class="col-span-1 text-right pr-4">Actions</div>
+</div>
+<!-- Table Body -->
+<div class="divide-y divide-surface-variant">
+<!-- Row 1: Active -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 pl-4 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface" data-alt="A close-up portrait of a cheerful elderly woman with silver hair, set against a soft, bright white background. Warm, natural lighting highlighting a serene and trustworthy expression. Modern, editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBunE_Tp93raWjXgXyZO0u1unOoK4_kzjeswg4jBeKXmFGAAPtsLchohCjN641okElYp-8U7Yuyi2DBSxJmGmYUskk-eBg96B8ybpdMOxEbLfKrndvZYdfV1axqLJp7X4BS3M4S3FJBjE1pianBIumOQa-lY-xGpA72psAnboJsOxyum0P4Y4AiQcNcoY9RtB4VnLYLlGW7o8jAGM8ZGz7vYtB6g_L1i2L3KlM7hmJsBSvCLS0v4fEJ"/>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Eleanor Vance</p>
+<p class="font-body-sm text-on-surface-variant">ID: SS-8492</p>
+</div>
+</div>
+<div class="col-span-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary text-sm font-bold">MR</div>
+<p class="font-body-md text-body-md text-on-surface">Marcus Vance</p>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2F2] text-primary font-label-md text-sm border border-primary/20">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Active
+                        </span>
+</div>
+<div class="col-span-2 text-on-surface-variant font-body-md">
+                        Oct 12, 2023
+                    </div>
+<div class="col-span-1 flex justify-end pr-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 2: Suspicious -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center bg-error-container/5 hover:bg-error-container/10 transition-colors group">
+<div class="col-span-4 pl-4 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface" data-alt="A portrait of an older gentleman with glasses looking slightly concerned, soft ambient lighting in a comfortable living room setting. Warm, muted color palette conveying a sense of care and modern editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf_QhOUvlaP05p1ZHg15GkQBV1b_69unhwmk5Ft3TwZLSPwrRlxG2okCw-kl98E_XA0CwpJBH9iKKrRDQnWYpawo6J8IYAAPwk_HTJOcaFu1WCRLwJpBJd2f4XrSFbnEEMXl-HP0nWcIxLSLaWkhOaGlzlJ28pWrFuoNYqCesea0b-xCP0jpODF7OBoPXx-Rhxu_8PQyLHBRFtNqjQj6LHA33mS-Er2PWNpLRkDI7wON-jMMwi8LOr"/>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Arthur Pendelton</p>
+<p class="font-body-sm text-error">ID: SS-9102</p>
+</div>
+</div>
+<div class="col-span-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-sm font-bold">JP</div>
+<p class="font-body-md text-body-md text-on-surface">Julia Pendelton</p>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-error font-label-md text-sm border border-error/20">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                            Suspicious
+                        </span>
+</div>
+<div class="col-span-2 text-on-surface-variant font-body-md">
+                        Nov 05, 2023
+                    </div>
+<div class="col-span-1 flex justify-end pr-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 3: Flagged -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 pl-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/30 flex items-center justify-center text-tertiary font-headline-sm">MC</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Margaret Chen</p>
+<p class="font-body-sm text-on-surface-variant">ID: SS-7731</p>
+</div>
+</div>
+<div class="col-span-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-sm font-bold">DC</div>
+<p class="font-body-md text-body-md text-on-surface">David Chen</p>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-container/20 text-tertiary font-label-md text-sm border border-tertiary/20">
+<span class="material-symbols-outlined text-[16px]">flag</span>
+                            Review
+                        </span>
+</div>
+<div class="col-span-2 text-on-surface-variant font-body-md">
+                        Jan 18, 2024
+                    </div>
+<div class="col-span-1 flex justify-end pr-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 4: Active -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 pl-4 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-surface" data-alt="A portrait of an elderly man with a warm smile, wearing a casual sweater. High-key lighting, modern clean background, conveying trust and safety." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClaabeOqX1SrLSWrY5uWrSJ3mGvVkIiuR5O1c36HxONjv_C78OtsBeRMZbw5nj9yfzYKPxE0EcxM0fb84qRQXDQSm-kmbpUC22sdFYgxHlq0JRT6847Pu7ARCNtbQto5Ibqgg5Gip7sIsUfx4D3yuPCPEMQVi-UWXo2wpXNBLXDxctPtVlfWNSgPnyhKRuI6DrF2aerq_dYbhgT--vszbC6A8dFmMLTyoh_KrZwTMWysW5M0a4l1iZ"/>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Robert Martinez</p>
+<p class="font-body-sm text-on-surface-variant">ID: SS-6542</p>
+</div>
+</div>
+<div class="col-span-3 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-sm font-bold">SM</div>
+<p class="font-body-md text-body-md text-on-surface">Sarah Martinez</p>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F2F2] text-primary font-label-md text-sm border border-primary/20">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Active
+                        </span>
+</div>
+<div class="col-span-2 text-on-surface-variant font-body-md">
+                        Feb 02, 2024
+                    </div>
+<div class="col-span-1 flex justify-end pr-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<div class="p-4 border-t border-surface-variant flex items-center justify-between bg-surface-container-lowest">
+<p class="text-on-surface-variant font-body-md text-sm">Showing 1 to 4 of 12,458 entries</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-lg border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

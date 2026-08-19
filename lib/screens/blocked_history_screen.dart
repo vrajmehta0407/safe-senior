@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
-import '../state/protection_stats_provider.dart';
-import 'home_screen.dart';
+import '../state/auth_provider.dart';
+import '../services/platform_capabilities.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import 'settings_screen.dart';
 
 class BlockedHistoryScreen extends ConsumerStatefulWidget {
   const BlockedHistoryScreen({super.key});
@@ -12,291 +16,233 @@ class BlockedHistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _BlockedHistoryScreenState extends ConsumerState<BlockedHistoryScreen> {
-  int _selectedIndex = 1; // Security selected
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+  Widget _buildAndroidOnlyBanner() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFB74D), width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, color: Color(0xFFF57C00), size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'SMS scanning and call blocking require Android system permissions '
+              "that Apple doesn't allow — but your Guardian alerts and manual "
+              'scam checks still work here.',
+              style: GoogleFonts.atkinsonHyperlegible(
+                fontSize: 13,
+                color: const Color(0xFF5D4037),
+                height: 1.45,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+  final List<Map<String, String>> _blockedItems = [
+    {
+      'sender': '+91 98210 44921',
+      'reason': 'Digital Arrest & Bail Extortion Demand',
+      'time': 'Today, 10:42 AM',
+      'body': 'Babuji, I am under Customs arrest at Delhi Airport. Transfer ₹50,000 immediately via UPI to avoid jail...',
+    },
+    {
+      'sender': 'SBI YONO KYC Helpline',
+      'reason': 'Phishing Link & False Account Lock',
+      'time': 'Yesterday, 4:15 PM',
+      'body': 'Your SBI YONO access expires today. Update PAN card at http://sbi-kyc-verify.in to prevent ₹5,000 fine.',
+    },
+    {
+      'sender': 'MSEDCL Bijli Alert',
+      'reason': 'Fake Disconnection Threat & APK',
+      'time': '3 days ago',
+      'body': 'Dear consumer, your electricity will be disconnected tonight at 9:30 PM. Call officer at +91 98765 43210 immediately.',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).user;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.textDark),
-          onPressed: () {},
-        ),
-        title: Text(
-          'Blocked History',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, color: AppTheme.textDark),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Total Blocked Header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLightBlue.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primaryDarkBlue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.shield_outlined, color: Colors.white, size: 36),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Total Blocked',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.primaryDarkBlue,
-                                ),
-                          ),
-                          Text(
-                            '${ref.watch(protectionStatsProvider).phishingSmsBlocked}',
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.textDark,
-                                  height: 1.2,
-                                ),
-                          ),
-                          Text(
-                            'Scam messages intercepted this month.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textDark,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // Intercepted Threats Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          children: [
+            // Top Header Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
                 children: [
-                  Text(
-                    'INTERCEPTED THREATS',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
-                          color: AppTheme.primaryDarkBlue,
-                        ),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.primaryTeal,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.shield, color: Colors.white, size: 18),
+                    ),
                   ),
+                  const SizedBox(width: 10),
                   Text(
-                    'Recent First',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          color: AppTheme.textDark.withValues(alpha: 0.7),
-                        ),
+                    'SafeSenior',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryTeal,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: const Color(0xFFD6ECE8),
+                      backgroundImage: user?.avatarPath != null
+                          ? FileImage(File(user!.avatarPath!)) as ImageProvider
+                          : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                      child: user?.avatarPath == null && (user?.name.isEmpty ?? true)
+                          ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 20)
+                          : null,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              
-              // Threat List
-              _buildThreatCard(
-                context,
-                time: 'Today, 10:42 AM',
-                title: 'Unknown Number (+1 555-0192)',
-                message: '"Your account has been suspended. Click here to verify your identity: http://scam-..."',
-              ),
-              const SizedBox(height: 12),
-              _buildThreatCard(
-                context,
-                time: 'Yesterday, 4:15 PM',
-                title: 'Potential Fraud (International)',
-                message: '"IRS Alert: You have an unclaimed refund of \$2,400. Reply DEPOSIT to claim your..."',
-              ),
-              const SizedBox(height: 12),
-              _buildThreatCard(
-                context,
-                time: 'Yesterday, 9:20 AM',
-                title: 'Spam (Package Delivery)',
-                message: '"USPS: Your package is on hold due to a missing house number. Please update..."',
-              ),
-              const SizedBox(height: 12),
-              _buildThreatCard(
-                context,
-                time: 'Oct 24, 2:50 PM',
-                title: 'Unknown Number',
-                message: '"Grandson needs help. Please send \$500 via wire transfer to bail him out. Extremel..."',
-              ),
-              const SizedBox(height: 12),
-              _buildThreatCard(
-                context,
-                time: 'Oct 22, 11:05 AM',
-                title: 'Tech Support Scam',
-                message: '"Microsoft Security: Your computer has been infected with a trojan virus. Call 1-..."',
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Privacy Note
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  'Safe Senior automatically deletes blocked messages after 30 days to protect your privacy.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textDark.withValues(alpha: 0.8),
-                        height: 1.5,
+            ),
+
+            if (!PlatformCapabilities.canMonitorSms) _buildAndroidOnlyBanner(),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+
+                    // Title & Subtitle
+                    Text(
+                      'Blocked Threats',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryTeal,
                       ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Messages and calls neutralized by your sanctuary defenses.',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 14.5,
+                        color: const Color(0xFF5E706D),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    ..._blockedItems.map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Container(
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFBE0D8),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.block, color: AppTheme.terracottaRed, size: 20),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['sender']!,
+                                          style: GoogleFonts.atkinsonHyperlegible(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF2C3937),
+                                          ),
+                                        ),
+                                        Text(
+                                          item['time']!,
+                                          style: GoogleFonts.atkinsonHyperlegible(fontSize: 12, color: const Color(0xFF8FA19E)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFBE0D8),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      'Blocked',
+                                      style: GoogleFonts.atkinsonHyperlegible(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.terracottaRed,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                item['body']!,
+                                style: GoogleFonts.atkinsonHyperlegible(
+                                  fontSize: 14,
+                                  color: const Color(0xFF4E5D5A),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildThreatCard(BuildContext context, {required String time, required String title, required String message}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red[700],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  'BLOCKED',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                ),
-              ),
-              Text(
-                time,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textDark.withValues(alpha: 0.8),
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppTheme.textDark.withValues(alpha: 0.8),
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.backgroundColor,
-        selectedItemColor: AppTheme.primaryDarkBlue,
-        unselectedItemColor: AppTheme.textDark.withValues(alpha: 0.6),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: [
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.shield_outlined),
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: _selectedIndex == 1 ? AppTheme.primaryLightBlue.withValues(alpha: 0.5) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.security),
-            ),
-            label: 'Security',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.help_outline),
-            ),
-            label: 'Support',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.settings_outlined),
-            ),
-            label: 'Settings',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
     );
   }
 }

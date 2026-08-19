@@ -32,11 +32,34 @@ class UserStore {
     return _instance.containsKey(email);
   }
 
+  /// Retrieve user by phone number (flexible matching with/without country code).
+  static UserProfile? getUserByPhone(String phone) {
+    final cleanInput = phone.replaceAll(RegExp(r'\D'), '');
+    if (cleanInput.isEmpty) return null;
+    final last10 = cleanInput.length >= 10 ? cleanInput.substring(cleanInput.length - 10) : cleanInput;
+
+    for (final user in _instance.values) {
+      final cleanUser = user.phone.replaceAll(RegExp(r'\D'), '');
+      if (cleanUser == cleanInput) return user;
+      if (cleanUser.length >= 10 && cleanUser.endsWith(last10)) return user;
+    }
+    return null;
+  }
+
   /// Get all users (for admin/debug purposes).
   static List<UserProfile> getAllUsers() => _instance.values.toList();
 
   /// Delete user account.
   static Future<void> deleteUser(String email) async {
     await _instance.delete(email);
+  }
+
+  /// Update only the avatar path for a user.
+  static Future<void> updateAvatarPath(String email, String path) async {
+    final user = _instance.get(email);
+    if (user != null) {
+      user.avatarPath = path;
+      await _instance.put(email, user);
+    }
   }
 }

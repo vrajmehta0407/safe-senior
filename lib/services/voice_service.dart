@@ -1,14 +1,20 @@
 // lib/services/voice_service.dart
-// flutter_tts wrapper for voice alerts — now with gender selection and available voices.
+// flutter_tts wrapper for voice alerts + speech_to_text for mic input.
+// BUG 6 FIX: startListening() now uses speech_to_text — no longer a stub.
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../services/platform_capabilities.dart';
 import '../storage/local_preferences.dart';
 
 class VoiceService {
   static final FlutterTts _tts = FlutterTts();
+  static final SpeechToText _speech = SpeechToText();
   static bool _initialized = false;
+  static bool _speechAvailable = false;
   static List<dynamic> _availableVoices = [];
 
   static Future<void> init() async {
@@ -25,6 +31,21 @@ class VoiceService {
     }
 
     await _applyStoredSettings();
+
+    // Initialise speech-to-text (non-fatal if unavailable)
+    try {
+      _speechAvailable = await _speech.initialize(
+        onError: (err) {
+          if (kDebugMode) print('[VoiceService] STT error: ${err.errorMsg}');
+        },
+        onStatus: (status) {
+          if (kDebugMode) print('[VoiceService] STT status: $status');
+        },
+      );
+    } catch (e) {
+      _speechAvailable = false;
+      if (kDebugMode) print('[VoiceService] STT init failed: $e');
+    }
   }
 
   static Future<void> _applyStoredSettings() async {
@@ -63,42 +84,32 @@ class VoiceService {
       final voices = _availableVoices;
       if (voices.isEmpty) return;
 
-      // Search voice list for gender match
       final lowerGender = gender.toLowerCase();
       Map<String, String>? matchedVoice;
 
       for (final v in voices) {
         if (v is Map) {
-          final name = (v['name'] ?? '').toString().toLowerCase();
+          final name   = (v['name']   ?? '').toString().toLowerCase();
           final locale = (v['locale'] ?? '').toString().toLowerCase();
 
-          bool isEnglish = locale.startsWith('en');
-          bool genderMatch = false;
+          bool isEnglish    = locale.startsWith('en');
+          bool genderMatch  = false;
 
           if (lowerGender == 'female') {
-            genderMatch = name.contains('female') ||
-                name.contains('woman') ||
-                name.contains('girl') ||
-                // Common female voice names across platforms
-                name.contains('samantha') ||
-                name.contains('victoria') ||
-                name.contains('karen') ||
-                name.contains('moira') ||
-                name.contains('tessa');
+            genderMatch = name.contains('female') || name.contains('woman') ||
+                name.contains('girl') || name.contains('samantha') ||
+                name.contains('victoria') || name.contains('karen') ||
+                name.contains('moira') || name.contains('tessa');
           } else if (lowerGender == 'male') {
-            genderMatch = name.contains('male') ||
-                name.contains('man') ||
-                name.contains('daniel') ||
-                name.contains('alex') ||
-                name.contains('fred') ||
-                name.contains('tom') ||
-                name.contains('gordon') ||
-                name.contains('lee');
+            genderMatch = name.contains('male') || name.contains('man') ||
+                name.contains('daniel') || name.contains('alex') ||
+                name.contains('fred') || name.contains('tom') ||
+                name.contains('gordon') || name.contains('lee');
           }
 
           if (isEnglish && genderMatch) {
             matchedVoice = {
-              'name': v['name'].toString(),
+              'name':   v['name'].toString(),
               'locale': v['locale'].toString(),
             };
             break;
@@ -175,11 +186,65 @@ class VoiceService {
     await speak('Hello! Your voice alerts are working correctly.');
   }
 
-  /// Start listening (stub — speech-to-text requires speech_to_text plugin,
-  /// not in this pass scope, but the button is wired to this no-op).
-  static Future<void> startListening() async {
-    if (kDebugMode) print('[VoiceService] startListening — speech_to_text not wired yet.');
-    // TODO(next-pass): Add speech_to_text plugin for mic input.
-    await speak('Listening is not available yet. Please type your question.');
+  // ─── Speech-to-Text ───────────────────────────────────────────────────────
+
+  /// Returns true if real STT is available on this device.
+  static bool get canListen => _speechAvailable;
+
+  /// BUG 6 FIX: Real speech-to-text using speech_to_text plugin.
+  /// [onResult] receives the recognised text as the user speaks.
+  /// [onDone] called when the session ends (timeout or stopListening).
+  static Future<void> startListening({
+    required void Function(String text) onResult,
+    void Function()? onDone,
+    String? localeId,
+  }) async {
+    if (!PlatformCapabilities.hasTts) {
+      await speak('Voice features are not available on this device.');
+      return;
+    }
+
+    if (!_initialized) await init();
+
+    // Request mic permission first
+    final micStatus = await Permission.microphone.request();
+    if (!micStatus.isGranted) {
+      await speak('Microphone permission is required for voice listening. Please grant it in Settings.');
+      return;
+    }
+
+    if (!_speechAvailable) {
+      // Graceful fallback — don't silently fail
+      await speak('Voice listening is not available on this device.');
+      onDone?.call();
+      return;
+    }
+
+    // Stop TTS before listening so it doesn't pick up its own speech
+    await _tts.stop();
+
+    await _speech.listen(
+      onResult: (SpeechRecognitionResult result) {
+        final text = result.recognizedWords;
+        if (text.isNotEmpty) onResult(text);
+        if (result.finalResult) onDone?.call();
+      },
+      listenOptions: SpeechListenOptions(
+        listenMode: ListenMode.confirmation,
+        partialResults: true,
+        localeId: localeId,
+        pauseFor: const Duration(seconds: 3),
+      ),
+    );
   }
+
+  /// Stops an active listening session.
+  static Future<void> stopListening() async {
+    if (_speech.isListening) {
+      await _speech.stop();
+    }
+  }
+
+  /// Returns true if STT is currently active.
+  static bool get isListening => _speech.isListening;
 }

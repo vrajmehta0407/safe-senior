@@ -69,6 +69,8 @@ dependencies:
   dio: ^5.4.3
   local_auth: ^2.1.8
   image_picker: ^1.1.2
+  telephony: ^0.2.0
+  speech_to_text: ^7.0.0  # 7.x uses mavenCentral (not jcenter); SpeechListenOptions API already applied
 
 dev_dependencies:
   flutter_test:
@@ -87,3 +89,6 @@ flutter:
 
   assets:
     - assets/scam_patterns.json
+    - assets/images/premium_hero.png
+    - assets/images/checkout_hero.png
+    - assets/images/security_tips_hero.png

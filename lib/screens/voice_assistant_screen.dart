@@ -4,6 +4,8 @@ import '../theme.dart';
 import '../state/voice_settings_provider.dart';
 import '../services/voice_service.dart';
 import 'home_screen.dart';
+import 'settings_screen.dart';
+import '../widgets/app_bottom_nav_bar.dart';
 
 class VoiceAssistantScreen extends ConsumerStatefulWidget {
   const VoiceAssistantScreen({super.key});
@@ -13,7 +15,12 @@ class VoiceAssistantScreen extends ConsumerStatefulWidget {
 }
 
 class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
-  int _selectedIndex = 3; // Settings selected
+  int _selectedIndex = 3;
+
+  // BUG 6 FIX: real STT state
+  bool _isListening = false;
+  String _lastTranscript = '';
+  String _statusMessage = 'Tap the mic to speak';
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -23,6 +30,37 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
         _selectedIndex = index;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    // Stop listening when navigating away
+    if (_isListening) VoiceService.stopListening();
+    super.dispose();
+  }
+
+  Future<void> _toggleListening() async {
+    if (_isListening) {
+      await VoiceService.stopListening();
+      if (mounted) setState(() { _isListening = false; _statusMessage = 'Tap the mic to speak'; });
+      return;
+    }
+
+    if (!VoiceService.canListen) {
+      setState(() => _statusMessage = 'Voice listening not available on this device.');
+      await VoiceService.speak('Voice listening is not available on this device.');
+      return;
+    }
+
+    setState(() { _isListening = true; _statusMessage = 'Listening… Speak now'; _lastTranscript = ''; });
+    await VoiceService.startListening(
+      onResult: (text) {
+        if (mounted) setState(() => _lastTranscript = text);
+      },
+      onDone: () {
+        if (mounted) setState(() { _isListening = false; _statusMessage = 'Tap the mic to speak'; });
+      },
+    );
   }
 
   Future<void> _saveSettings() async {
@@ -54,7 +92,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle_outlined, color: AppTheme.textDark),
-            onPressed: () {},
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
           ),
         ],
       ),
@@ -105,6 +143,79 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                         ],
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Live Mic Section (BUG 6 FIX) ─────────────────────────────
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _isListening ? AppTheme.primaryDarkBlue : Colors.grey.withValues(alpha: 0.3),
+                    width: _isListening ? 2 : 1,
+                  ),
+                  boxShadow: _isListening ? [
+                    BoxShadow(color: AppTheme.primaryDarkBlue.withValues(alpha: 0.15), blurRadius: 16, spreadRadius: 2),
+                  ] : [],
+                ),
+                child: Column(
+                  children: [
+                    // Mic button
+                    GestureDetector(
+                      onTap: _toggleListening,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.primaryLightBlue.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.primaryLightBlue,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          _isListening ? Icons.mic : Icons.mic_none,
+                          color: _isListening ? Colors.white : AppTheme.primaryDarkBlue,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _statusMessage,
+                      style: TextStyle(
+                        color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.textDark,
+                        fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (_lastTranscript.isNotEmpty) ...[  
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryLightBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '“$_lastTranscript”',
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 15,
+                            color: AppTheme.textDark,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -240,7 +351,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }
 
@@ -301,57 +412,6 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.backgroundColor,
-        selectedItemColor: AppTheme.primaryDarkBlue,
-        unselectedItemColor: AppTheme.textDark.withValues(alpha: 0.6),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: [
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.shield_outlined),
-            ),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.security),
-            ),
-            label: 'Security',
-          ),
-          const BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Icon(Icons.help_outline),
-            ),
-            label: 'Support',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: _selectedIndex == 3 ? AppTheme.primaryLightBlue.withValues(alpha: 0.5) : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.settings_outlined),
-            ),
-            label: 'Settings',
-          ),
-        ],
       ),
     );
   }
