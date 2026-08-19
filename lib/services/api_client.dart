@@ -11,9 +11,17 @@ import '../storage/local_preferences.dart';
 /// 2. Direct local Wi-Fi IP: http://192.168.31.53:3000/api
 const String _kPublicBaseUrl = 'https://safesenior-api.loca.lt/api';
 const String _kLocalBaseUrl = 'http://192.168.31.53:3000/api';
+const String _kEmulatorBaseUrl = 'http://10.0.2.2:3000/api';
 
 String get kBackendBaseUrl {
-  return _kLocalBaseUrl; // Direct local Wi-Fi IP for instantaneous response on home network
+  final customUrl = LocalPreferences.getCustomBackendUrl();
+  if (customUrl != null && customUrl.trim().isNotEmpty) {
+    return customUrl.endsWith('/') ? '${customUrl}api' : '$customUrl/api';
+  }
+  if (!kIsWeb && Platform.isAndroid) {
+    return _kLocalBaseUrl;
+  }
+  return _kLocalBaseUrl;
 }
 
 class ApiClient {

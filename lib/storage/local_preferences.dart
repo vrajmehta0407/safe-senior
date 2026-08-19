@@ -59,6 +59,10 @@ class LocalPreferences {
   static String? getSelectedPlanId() => 'full_free';
   static Future<void> setSelectedPlanId(String planId) async {}
 
+  // ─── Custom API Endpoint Configuration ───────────────────────────────────────
+  static String? getCustomBackendUrl() => _instance.getString('custom_backend_url');
+  static Future<void> setCustomBackendUrl(String url) => _instance.setString('custom_backend_url', url);
+
   // ─── Utility ───────────────────────────────────────────────────────────────
   static Future<void> clearAll() => _instance.clear();
 }

@@ -11,7 +11,7 @@
  * Run: npm test   (from the backend/ directory)
  */
 
-const request = require('supertest');
+require('dotenv').config();
 
 const dbAvailable = !!process.env.DATABASE_URL;
 const describeIfDb = dbAvailable ? describe : describe.skip;

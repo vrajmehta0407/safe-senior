@@ -7,6 +7,7 @@
  * Run: npm test   (from the backend/ directory)
  */
 
+require('dotenv').config();
 const request = require('supertest');
 
 const dbAvailable = !!process.env.DATABASE_URL;
