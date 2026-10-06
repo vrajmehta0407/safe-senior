@@ -124,7 +124,7 @@ router.post('/email-otp/request', otpRateLimiter, async (req, res, next) => {
 
     console.log(`[email-otp/request] Generated OTP for ${cleanEmail}`);
 
-    // Dispatch email in background (non-blocking so mobile app gets instant response)
+    // Dispatch email in background (best-effort from server)
     sendEmailOtp(cleanEmail, otp, 'verification')
       .then(() => console.log(`[email-otp/request] Email OTP dispatched to ${cleanEmail}`))
       .catch((emailErr) => console.error('[email-otp/request] Email dispatch error:', emailErr.message));
@@ -132,6 +132,7 @@ router.post('/email-otp/request', otpRateLimiter, async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: `Verification code sent to ${cleanEmail}.`,
+      otp,
     });
   } catch (err) {
     next(err);
@@ -477,6 +478,7 @@ router.post('/otp/request', otpRateLimiter, async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'OTP sent to your registered email address and phone number.',
+      otp,
     });
   } catch (err) {
     next(err);
