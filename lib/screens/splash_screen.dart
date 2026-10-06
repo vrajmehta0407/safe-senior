@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import 'get_started_screen.dart';
-import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,8 +36,8 @@ class _SplashScreenState extends State<SplashScreen>
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const GetStartedScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
+            pageBuilder: (_, _, _) => const GetStartedScreen(),
+            transitionsBuilder: (_, anim, _, child) =>
                 FadeTransition(opacity: anim, child: child),
             transitionDuration: const Duration(milliseconds: 600),
           ),
@@ -127,7 +126,7 @@ class _PulsingShieldState extends State<_PulsingShield>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulseAnimation,
-      builder: (_, __) => Transform.scale(
+      builder: (_, _) => Transform.scale(
         scale: _pulseAnimation.value,
         child: Container(
           width: 130,

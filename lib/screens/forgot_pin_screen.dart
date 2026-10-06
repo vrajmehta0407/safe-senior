@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 
 class ForgotPinScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
   final _pin1Controller = TextEditingController();
   final _pin2Controller = TextEditingController();
   bool _loading = false;
-  String _maskedPhone = '+91 98••••1234';
+  final String _maskedPhone = '+91 98••••1234';
 
   @override
   void dispose() {
@@ -146,11 +147,11 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
         ),
         const SizedBox(height: 32),
 
-        // Option 1: SMS OTP
+        // Option 1: Email OTP
         _buildVerifyOption(
-          Icons.sms_outlined,
-          'Send OTP to Phone',
-          'We\'ll send a 6-digit code to $_maskedPhone',
+          Icons.mark_email_read_outlined,
+          'Send OTP to Email',
+          'We\'ll send a 6-digit verification code to your registered email',
           _sendOtp,
         ),
         const SizedBox(height: 16),
@@ -172,8 +173,19 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
         _buildVerifyOption(
           Icons.support_agent_outlined,
           'Contact Support',
-          'Our team can help you recover your account',
-          () {},
+          'Call our 24/7 Helpline (14567) to recover your account',
+          () async {
+            final uri = Uri.parse('tel:14567');
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri);
+            } else {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Helpline: Call 14567 or 1930 for immediate assistance.')),
+                );
+              }
+            }
+          },
         ),
       ],
     );
@@ -187,14 +199,14 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 3))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 3))],
         ),
         child: Row(
           children: [
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(color: AppTheme.primaryTeal.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+              decoration: BoxDecoration(color: AppTheme.primaryTeal.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, color: AppTheme.primaryTeal, size: 24),
             ),
             const SizedBox(width: 14),
@@ -208,7 +220,7 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
                 ],
               ),
             ),
-            if (_loading && title == 'Send OTP to Phone')
+            if (_loading && title == 'Send OTP to Email')
               const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppTheme.primaryTeal)))
             else
               const Icon(Icons.chevron_right, color: AppTheme.textSecondary, size: 20),
@@ -222,12 +234,12 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.sms_outlined, color: AppTheme.primaryTeal, size: 48),
+        const Icon(Icons.mark_email_read_outlined, color: AppTheme.primaryTeal, size: 48),
         const SizedBox(height: 20),
         Text('Enter OTP', style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         const SizedBox(height: 8),
         Text(
-          'A 6-digit code has been sent to $_maskedPhone',
+          'A 6-digit code has been sent to your registered email.',
           style: GoogleFonts.atkinsonHyperlegible(fontSize: 16, color: AppTheme.textSecondary, height: 1.5),
         ),
         const SizedBox(height: 32),
@@ -339,7 +351,7 @@ class _ForgotPinScreenState extends State<ForgotPinScreen> {
         Container(
           width: 120,
           height: 120,
-          decoration: BoxDecoration(color: AppTheme.primaryTeal.withOpacity(0.1), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: AppTheme.primaryTeal.withValues(alpha: 0.1), shape: BoxShape.circle),
           child: const Icon(Icons.check_circle_outline, color: AppTheme.primaryTeal, size: 64),
         ),
         const SizedBox(height: 24),

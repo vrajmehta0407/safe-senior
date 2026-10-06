@@ -173,7 +173,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: _categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, i) {
                   final cat = _categories[i];
                   final isSelected = _selectedCategory == cat;
@@ -211,8 +211,8 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
               child: GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SafetyQuizHubScreen())),
                 child: Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(20),
+                  constraints: const BoxConstraints(minHeight: 100),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppTheme.primaryTeal, const Color(0xFF004D4D)],
@@ -231,7 +231,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(50),
                               ),
                               child: Text(
@@ -246,7 +246,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                             ),
                             Text(
                               'Test your scam knowledge',
-                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: Colors.white.withOpacity(0.8)),
+                              style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
                             ),
                           ],
                         ),
@@ -255,7 +255,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.quiz_outlined, color: Colors.white, size: 30),
@@ -275,7 +275,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: _filteredItems.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, i) => _buildExploreCard(_filteredItems[i]),
                     ),
             ),
@@ -292,7 +292,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 3)),
         ],
       ),
       child: Row(
@@ -301,7 +301,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: item.color.withOpacity(0.1),
+              color: item.color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(item.icon, color: item.color, size: 26),
@@ -323,7 +323,7 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: item.color.withOpacity(0.1),
+                          color: item.color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Text(
@@ -365,9 +365,9 @@ class _ExploreDiscoverScreenState extends State<ExploreDiscoverScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off_outlined, size: 60, color: AppTheme.textSecondary.withOpacity(0.3)),
+          Icon(Icons.search_off_outlined, size: 60, color: AppTheme.textSecondary.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
-          Text('No results in "${_selectedCategory}"',
+          Text('No results in "$_selectedCategory"',
               style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
         ],
       ),

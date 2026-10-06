@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
 import 'safety_quiz_hub_screen.dart';
 import 'achievements_screen.dart';
@@ -230,7 +231,48 @@ class QuizResultsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final box = context.findRenderObject() as RenderBox?;
+                    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+                    final msg = '''🎓 SafeSenior Safety Quiz Completed!
+
+I scored $correctCount out of $totalQuestions (${scorePercent.toInt()}%) on "${topic.title}"!
+Total XP Earned: +$earnedXp XP 🛡️
+
+Keeping my digital habits sharp and protected with SafeSenior.''';
+
+                    await SharePlus.instance.share(
+                      ShareParams(
+                        text: msg,
+                        subject: 'SafeSenior Quiz Score: ${topic.title}',
+                        sharePositionOrigin: origin,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.share, size: 20, color: Colors.white),
+                  label: Text(
+                    'Share Score with Family (WhatsApp / Apps)',
+                    style: GoogleFonts.atkinsonHyperlegible(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryTeal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
 
               SizedBox(
                 width: double.infinity,

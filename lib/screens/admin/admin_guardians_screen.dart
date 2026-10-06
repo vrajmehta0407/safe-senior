@@ -131,7 +131,7 @@ class _AdminGuardiansScreenState extends ConsumerState<AdminGuardiansScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16),
                             itemCount: _guardians.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(height: 8),
                             itemBuilder: (_, i) {
                               final g =

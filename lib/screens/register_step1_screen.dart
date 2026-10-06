@@ -9,7 +9,7 @@ class RegisterStep1Screen extends StatefulWidget {
 
   const RegisterStep1Screen({
     super.key,
-    this.isEmail = false,
+    this.isEmail = true,
   });
 
   @override
@@ -20,45 +20,26 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _contactCtrl = TextEditingController();
-  final _emailFallbackCtrl = TextEditingController(); // only used when isEmail=false
   final _referralCtrl = TextEditingController();
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _contactCtrl.dispose();
-    _emailFallbackCtrl.dispose();
     _referralCtrl.dispose();
     super.dispose();
   }
 
-  /// Converts any Indian phone number to E.164 (+91XXXXXXXXXX).
-  /// Works for: "9879616132", "09879616132", "+919879616132", "919879616132"
-  static String _normalisePhone(String raw) {
-    // Strip spaces, dashes, parentheses
-    final s = raw.replaceAll(RegExp(r'[\s\-().]'), '');
-    if (s.startsWith('+')) return s;                         // already E.164
-    if (s.startsWith('91') && s.length == 12) return '+$s'; // 919879... → +91...
-    if (s.startsWith('0')  && s.length == 11) return '+91${s.substring(1)}'; // 0987... → +91...
-    if (s.length == 10) return '+91$s';                      // bare 10-digit
-    return '+$s';                                            // fallback
-  }
-
   void _next() {
     if (!_formKey.currentState!.validate()) return;
-    final rawContact = _contactCtrl.text.trim();
-    final contact = widget.isEmail ? rawContact : _normalisePhone(rawContact);
-    final emailFallback = !widget.isEmail && _emailFallbackCtrl.text.trim().contains('@')
-        ? _emailFallbackCtrl.text.trim()
-        : null;
+    final contact = _contactCtrl.text.trim();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => OtpVerificationScreen(
           name: _nameCtrl.text.trim(),
           contactValue: contact,
-          isEmail: widget.isEmail,
-          emailFallback: emailFallback,
+          isEmail: true,
         ),
       ),
     );
@@ -132,9 +113,7 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        isEmail
-                            ? 'Create your account with your email address to stay protected.'
-                            : 'Create your account to stay connected and safe with your loved ones.',
+                        'Create your account with your email address to stay protected.',
                         style: GoogleFonts.atkinsonHyperlegible(
                           fontSize: 18,
                           color: AppTheme.textLight,
@@ -173,17 +152,17 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // ── Phone Number or Email Field ──
-                      _fieldLabel(isEmail ? 'Email Address' : 'Phone Number'),
+                      // ── Email Address Field ──
+                      _fieldLabel('Email Address'),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _contactCtrl,
-                        keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.phone,
+                        keyboardType: TextInputType.emailAddress,
                         style: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: AppTheme.textDark),
                         decoration: InputDecoration(
-                          hintText: isEmail ? 'name@email.com' : '98765 43210 or +91 98765 43210',
+                          hintText: 'name@email.com',
                           hintStyle: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: const Color(0xFF717171)),
-                          prefixIcon: Icon(isEmail ? Icons.mail_outline : Icons.phone_outlined),
+                          prefixIcon: const Icon(Icons.mail_outline),
                           filled: true,
                           fillColor: AppTheme.backgroundColor,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -202,18 +181,10 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
                         ),
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return isEmail ? 'Please enter your email address' : 'Please enter your phone number';
+                            return 'Please enter your email address';
                           }
-                          if (isEmail) {
-                            if (!v.contains('@') || !v.contains('.')) {
-                              return 'Enter a valid email address';
-                            }
-                          } else {
-                            // Strip non-digits to count actual digit length
-                            final digits = v.trim().replaceAll(RegExp(r'\D'), '');
-                            if (digits.length < 10 || digits.length > 13) {
-                              return 'Enter a valid mobile number (10 digits or +91 format)';
-                            }
+                          if (!v.contains('@') || !v.contains('.')) {
+                            return 'Enter a valid email address';
                           }
                           return null;
                         },
@@ -222,53 +193,11 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: Text(
-                          isEmail
-                              ? 'We\'ll send a 6-digit code to verify this email inbox.'
-                              : 'We\'ll send an SMS code to verify this number.',
+                          'We\'ll send a 6-digit code to verify this email inbox.',
                           style: GoogleFonts.atkinsonHyperlegible(fontSize: 14, color: AppTheme.textLight),
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // ── Email Fallback (only shown for phone-based signup) ──
-                      if (!isEmail) ...[
-                        _fieldLabel('Email Address (for OTP backup)'),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _emailFallbackCtrl,
-                          keyboardType: TextInputType.emailAddress,
-                          style: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: AppTheme.textDark),
-                          decoration: InputDecoration(
-                            hintText: 'name@email.com (optional)',
-                            hintStyle: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: const Color(0xFF717171)),
-                            prefixIcon: const Icon(Icons.mail_outline),
-                            filled: true,
-                            fillColor: AppTheme.backgroundColor,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: AppTheme.outlineVariant),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: AppTheme.outlineVariant),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: AppTheme.primaryTeal, width: 2),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Text(
-                            'If SMS is delayed, we\'ll also send the code to this email.',
-                            style: GoogleFonts.atkinsonHyperlegible(fontSize: 14, color: AppTheme.textLight),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
 
                       // ── Referral Code (Optional) ──
                       Row(

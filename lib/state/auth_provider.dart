@@ -79,11 +79,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// BUG 2 FIX: phone-based reset with mandatory OTP verification.
-  Future<bool> resetPassword(String phoneNumber, String otpCode, String newPassword) async {
+  /// Email-based reset with mandatory OTP verification.
+  Future<bool> resetPassword(String identifier, String otpCode, String newPassword) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     final result = await AuthService.resetPassword(
-      phoneNumber: phoneNumber,
+      identifier: identifier,
       otpCode: otpCode,
       newPassword: newPassword,
     );

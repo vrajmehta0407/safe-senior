@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme.dart';
-import 'admin_logs_screen.dart';
 import 'admin_network_screen.dart';
-import 'admin_rules_screen.dart';
 import 'admin_scam_reports_screen.dart';
 import 'admin_dashboard_screen.dart';
 

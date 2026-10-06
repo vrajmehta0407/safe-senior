@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../state/language_provider.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../utils/app_translations.dart';
 import 'settings_screen.dart';
 
 class LanguageScreen extends ConsumerStatefulWidget {
@@ -15,10 +16,9 @@ class LanguageScreen extends ConsumerStatefulWidget {
 
 class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   final List<Map<String, String>> _languages = [
-    {'code': 'en', 'badge': 'EN', 'title': 'English', 'sub': 'US / UK'},
-    {'code': 'es', 'badge': 'ES', 'title': 'Español', 'sub': 'Spanish'},
-    {'code': 'fr', 'badge': 'FR', 'title': 'Français', 'sub': 'French'},
-    {'code': 'de', 'badge': 'DE', 'title': 'Deutsch', 'sub': 'German'},
+    {'code': 'en', 'badge': 'EN', 'title': 'English', 'sub': 'English (Default)'},
+    {'code': 'hi', 'badge': 'HI', 'title': 'हिन्दी', 'sub': 'Hindi • हिंदी भाषा'},
+    {'code': 'gu', 'badge': 'GU', 'title': 'ગુજરાતી', 'sub': 'Gujarati • ગુજરાતી ભાષા'},
   ];
 
   @override
@@ -83,7 +83,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
 
                     // Section Title & Subtitle
                     Text(
-                      'Language',
+                      AppTranslations.tr('Language', currentCode),
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Select your primary display & translation language.',
+                      AppTranslations.tr('Select your primary display & translation language.', currentCode),
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 14.5,
                         color: const Color(0xFF5E706D),
@@ -108,7 +108,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                         padding: const EdgeInsets.only(bottom: 14),
                         child: GestureDetector(
                           onTap: () {
-                            ref.read(languageProvider.notifier).state = lang['code']!;
+                            ref.read(languageProvider.notifier).setLanguage(lang['code']!);
                           },
                           child: Container(
                             padding: const EdgeInsets.all(20),
@@ -161,7 +161,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        lang['sub']!,
+                                        AppTranslations.tr(lang['sub']!, currentCode),
                                         style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF6B7B78)),
                                       ),
                                     ],
@@ -176,7 +176,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                     const SizedBox(height: 16),
 
                     // Information Card
@@ -192,7 +192,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              'Scam alerts and high-urgency notifications are automatically translated into your active language.',
+                              AppTranslations.tr('Scam alerts and high-urgency notifications are automatically translated into your active language.', currentCode),
                               style: GoogleFonts.atkinsonHyperlegible(
                                 fontSize: 13.5,
                                 color: const Color(0xFF2C3937),

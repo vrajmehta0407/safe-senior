@@ -41,7 +41,7 @@ class TipDetailScreen extends ConsumerWidget {
                     backgroundColor: const Color(0xFFD6ECE8),
                     backgroundImage: user?.avatarPath != null
                         ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                        : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                        : const AssetImage('assets/images/app_logo.jpg'),
                     child: user?.avatarPath == null && (user?.name.isEmpty ?? true)
                         ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 20)
                         : null,
@@ -63,7 +63,7 @@ class TipDetailScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(32),
                         image: const DecorationImage(
-                          image: NetworkImage('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800'),
+                          image: AssetImage('assets/images/security_tips_hero.png'),
                           fit: BoxFit.cover,
                         ),
                       ),

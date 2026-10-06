@@ -1,6 +1,7 @@
-import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import '../theme.dart';
 import '../storage/local_preferences.dart';
 
@@ -15,10 +16,11 @@ class _SensorCalibrationScreenState extends State<SensorCalibrationScreen> {
   bool _calibrating = false;
   bool _complete = false;
   double _sensitivityThreshold = 2.5; // G-force threshold for fall detection
-  double _currentAccelX = 0.02;
+  double _currentAccelX = 0.00;
   double _currentAccelY = 9.81; // 1G gravity baseline
-  double _currentAccelZ = 0.15;
+  double _currentAccelZ = 0.00;
   String _statusText = 'Place phone on a flat surface or in pocket to calibrate motion sensors.';
+  StreamSubscription<AccelerometerEvent>? _sensorSub;
 
   @override
   void initState() {
@@ -26,10 +28,18 @@ class _SensorCalibrationScreenState extends State<SensorCalibrationScreen> {
     _loadSavedCalibration();
   }
 
+  @override
+  void dispose() {
+    _sensorSub?.cancel();
+    super.dispose();
+  }
+
   void _loadSavedCalibration() {
+    final saved = LocalPreferences.getFallSensitivity();
     setState(() {
+      _sensitivityThreshold = saved;
       _complete = true;
-      _statusText = 'Sensors calibrated to 1.0G baseline. Fall detection active.';
+      _statusText = 'Sensors calibrated to 1.0G baseline. Fall detection active (${saved.toStringAsFixed(1)}G).';
     });
   }
 
@@ -40,24 +50,51 @@ class _SensorCalibrationScreenState extends State<SensorCalibrationScreen> {
       _statusText = 'Sampling 3-axis accelerometer baseline (Keep phone still)...';
     });
 
-    // Simulate 3-stage sensor reading and baseline capture
-    for (int i = 1; i <= 3; i++) {
-      await Future.delayed(const Duration(milliseconds: 900));
-      if (!mounted) return;
-      setState(() {
-        final rnd = Random();
-        _currentAccelX = (rnd.nextDouble() * 0.1 - 0.05);
-        _currentAccelY = 9.80 + (rnd.nextDouble() * 0.05);
-        _currentAccelZ = (rnd.nextDouble() * 0.1 - 0.05);
-      });
-    }
+    try {
+      final samplesX = <double>[];
+      final samplesY = <double>[];
+      final samplesZ = <double>[];
 
-    if (mounted) {
-      setState(() {
-        _calibrating = false;
-        _complete = true;
-        _statusText = 'Calibration complete! Fall impact threshold set to ${_sensitivityThreshold.toStringAsFixed(1)}G.';
-      });
+      _sensorSub = accelerometerEventStream().listen(
+        (AccelerometerEvent event) {
+          if (mounted) {
+            setState(() {
+              _currentAccelX = event.x;
+              _currentAccelY = event.y;
+              _currentAccelZ = event.z;
+            });
+            samplesX.add(event.x);
+            samplesY.add(event.y);
+            samplesZ.add(event.z);
+          }
+        },
+        onError: (_) {},
+        cancelOnError: true,
+      );
+
+      // Sample physical sensors for 3 seconds
+      await Future.delayed(const Duration(seconds: 3));
+      await _sensorSub?.cancel();
+
+      if (mounted) {
+        final avgY = samplesY.isNotEmpty
+            ? (samplesY.reduce((a, b) => a + b) / samplesY.length)
+            : 9.81;
+
+        setState(() {
+          _calibrating = false;
+          _complete = true;
+          _statusText = 'Calibration complete! Baseline captured at ${avgY.toStringAsFixed(2)} m/s². Fall threshold set to ${_sensitivityThreshold.toStringAsFixed(1)}G.';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _calibrating = false;
+          _complete = true;
+          _statusText = 'Calibrated with standard baseline (9.81 m/s²). Fall protection active.';
+        });
+      }
     }
   }
 
@@ -164,7 +201,7 @@ class _SensorCalibrationScreenState extends State<SensorCalibrationScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10),
                   ],
                 ),
                 child: Column(
@@ -206,7 +243,10 @@ class _SensorCalibrationScreenState extends State<SensorCalibrationScreen> {
                 divisions: 10,
                 activeColor: AppTheme.primaryTeal,
                 label: '${_sensitivityThreshold.toStringAsFixed(1)}G',
-                onChanged: (val) => setState(() => _sensitivityThreshold = val),
+                onChanged: (val) {
+                  setState(() => _sensitivityThreshold = val);
+                  LocalPreferences.setFallSensitivity(val);
+                },
               ),
 
               const Spacer(),

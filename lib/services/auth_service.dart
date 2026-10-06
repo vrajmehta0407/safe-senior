@@ -139,53 +139,54 @@ class AuthService {
       final input = emailOrPhone.trim();
       final inputLower = input.toLowerCase();
 
-      // 1. Try local cache lookup
-      UserProfile? user = UserStore.getUserByEmail(inputLower) ?? UserStore.getUserByPhone(input);
+      // 1. Try local cache lookup first (fast path)
+      UserProfile? localUser = UserStore.getUserByEmail(inputLower) ?? UserStore.getUserByPhone(input);
 
-      if (user != null && PasswordHasher.verify(password, user.passwordHash)) {
-        await LocalPreferences.setCurrentUserEmail(user.email);
+      if (localUser != null && PasswordHasher.verify(password, localUser.passwordHash)) {
+        await LocalPreferences.setCurrentUserEmail(localUser.email);
         // Sync JWT in background
         syncLoginToBackend(phoneOrEmail: emailOrPhone, password: password);
-        return AuthResult.success(user);
+        return AuthResult.success(localUser);
       }
 
-      // 2. Fallback to backend API authentication
+      // 2. Always try backend — covers: no local user, stale local hash, or PIN changed on another device
       try {
         final resp = await ApiClient.login(phoneOrEmail: input, password: password);
-        if (resp != null && resp['success'] == true && resp['user'] != null) {
-          final uMap = resp['user'] as Map<String, dynamic>;
-          final token = resp['token']?.toString();
-          if (token != null) {
-            await LocalPreferences.setJwtToken(token);
+        if (resp != null) {
+          if (resp['success'] == true && resp['user'] != null) {
+            final uMap = resp['user'] as Map<String, dynamic>;
+            final token = resp['token']?.toString();
+            if (token != null) {
+              await LocalPreferences.setJwtToken(token);
+            }
+
+            final remoteEmail = (uMap['email'] as String? ?? '').toLowerCase().trim();
+            final remotePhone = (uMap['phone_number'] as String? ?? '').trim();
+            final remoteName = (uMap['name'] as String? ?? 'User').trim();
+
+            final updatedUser = UserProfile(
+              name: remoteName,
+              email: remoteEmail.isNotEmpty ? remoteEmail : (localUser?.email ?? '${input.replaceAll(RegExp(r'\D'), '')}@safesenior.app'),
+              phone: remotePhone.isNotEmpty ? remotePhone : (localUser?.phone ?? input),
+              // Re-hash with local algorithm so future offline logins work
+              passwordHash: PasswordHasher.hash(password),
+              createdAt: DateTime.tryParse(uMap['created_at']?.toString() ?? '') ?? DateTime.now(),
+              isPremium: true,
+            );
+
+            await UserStore.saveUser(updatedUser);
+            await LocalPreferences.setCurrentUserEmail(updatedUser.email);
+            return AuthResult.success(updatedUser);
+          } else if (resp['message'] != null) {
+            return AuthResult.failure(AuthError.invalidCredentials, resp['message'].toString());
           }
-
-          final remoteEmail = (uMap['email'] as String? ?? '').toLowerCase().trim();
-          final remotePhone = (uMap['phone_number'] as String? ?? '').trim();
-          final remoteName = (uMap['name'] as String? ?? 'User').trim();
-
-          user = UserProfile(
-            name: remoteName,
-            email: remoteEmail.isNotEmpty ? remoteEmail : (user?.email ?? '${input.replaceAll(RegExp(r'\D'), '')}@safesenior.app'),
-            phone: remotePhone.isNotEmpty ? remotePhone : (user?.phone ?? input),
-            passwordHash: PasswordHasher.hash(password),
-            createdAt: DateTime.tryParse(uMap['created_at']?.toString() ?? '') ?? DateTime.now(),
-            isPremium: true,
-          );
-
-          await UserStore.saveUser(user);
-          await LocalPreferences.setCurrentUserEmail(user.email);
-          return AuthResult.success(user);
         }
       } catch (backendErr) {
         if (kDebugMode) print('[AuthService] Backend login fallback error: $backendErr');
       }
 
-      // If user was found locally but password failed
-      if (user != null) {
-        return AuthResult.failure(AuthError.invalidCredentials, 'Incorrect PIN. Please try again.');
-      }
-
-      return AuthResult.failure(AuthError.invalidCredentials, 'No account found with this phone number or email.');
+      // Both local and backend failed
+      return AuthResult.failure(AuthError.invalidCredentials, 'Incorrect PIN. Please try again.');
     } catch (e) {
       if (kDebugMode) print('[AuthService] login error: $e');
       return AuthResult.failure(AuthError.unknown, 'Login failed. Please try again.');
@@ -265,23 +266,24 @@ class AuthService {
   /// BUG 2 FIX: reset is phone-based end-to-end (matches backend POST /auth/reset-password).
   /// OTP must be requested via requestOtp(purpose: 'reset') before calling this.
   static Future<AuthResult> resetPassword({
-    required String phoneNumber,
+    String? phoneNumber,
+    String? identifier,
     required String otpCode,
     required String newPassword,
   }) async {
     try {
-      final trimmedPhone = phoneNumber.trim();
+      final id = (identifier ?? phoneNumber ?? '').trim();
 
       if (newPassword.length < 8) {
         return AuthResult.failure(AuthError.weakPassword, 'New password must be at least 8 characters.');
       }
       if (otpCode.isEmpty) {
-        return AuthResult.failure(AuthError.otpInvalid, 'Please enter the OTP sent to your phone.');
+        return AuthResult.failure(AuthError.otpInvalid, 'Please enter the OTP sent to your email.');
       }
 
       // Backend reset (authoritative — OTP verified server-side)
       final resp = await ApiClient.resetPassword(
-        phoneNumber: trimmedPhone,
+        identifier: id,
         otpCode: otpCode,
         newPassword: newPassword,
       );
@@ -295,7 +297,7 @@ class AuthService {
       }
 
       // Also update local Hive copy if user is stored locally (offline-first)
-      final user = UserStore.getUserByPhone(trimmedPhone);
+      final user = UserStore.getUserByEmail(id.toLowerCase()) ?? UserStore.getUserByPhone(id);
       if (user != null) {
         user.passwordHash = PasswordHasher.hash(newPassword);
         await user.save();

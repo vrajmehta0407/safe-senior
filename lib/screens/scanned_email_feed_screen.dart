@@ -117,7 +117,7 @@ class _ScannedEmailFeedScreenState extends ConsumerState<ScannedEmailFeedScreen>
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final email = filtered[index];
                         return Container(
@@ -132,7 +132,7 @@ class _ScannedEmailFeedScreenState extends ConsumerState<ScannedEmailFeedScreen>
                               ),
                             ),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2)),
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2)),
                             ],
                           ),
                           child: Column(
@@ -169,7 +169,7 @@ class _ScannedEmailFeedScreenState extends ConsumerState<ScannedEmailFeedScreen>
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: email.isScam ? AppTheme.dangerRed.withOpacity(0.1) : const Color(0xFF2E7D32).withOpacity(0.1),
+                                      color: email.isScam ? AppTheme.dangerRed.withValues(alpha: 0.1) : const Color(0xFF2E7D32).withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(

@@ -5,6 +5,8 @@
 import '../../models/scanned_message.dart';
 import '../../storage/message_store.dart';
 import '../trusted_sender_cache.dart';
+import '../pattern_cache_service.dart';
+import 'blocklist_service.dart';
 import 'keyword_detector.dart';
 import 'urgency_detector.dart';
 import 'link_and_code_detector.dart';
@@ -58,6 +60,34 @@ class ScamRuleEngine {
   static AnalysisResult analyze(String sender, String body) {
     final reasons = <String>[];
     final keywords = <String>[];
+
+    // 0. Check blocklist first (user blocked sender or pattern) → force danger immediately
+    if (BlocklistService.isSenderBlocked(sender) || BlocklistService.hasBlockedPattern(sender)) {
+      reasons.add('Sender is on your Blocklist. Message intercepted.');
+      return _buildResult(
+        riskLevel: RiskLevel.danger,
+        body: body,
+        reasons: reasons,
+        keywords: keywords,
+      );
+    }
+
+    // 0.5. Check dynamic patterns synced from Admin Panel (Threat Intelligence)
+    final dynamicPatterns = PatternCacheService.getPatterns();
+    for (final p in dynamicPatterns) {
+      final patternText = p['pattern']?.toString().toLowerCase() ?? '';
+      if (patternText.isNotEmpty && body.toLowerCase().contains(patternText)) {
+        final cat = p['category']?.toString() ?? 'Active Threat Signature';
+        reasons.add('Matched active threat signature: $cat');
+        keywords.add(patternText);
+        return _buildResult(
+          riskLevel: RiskLevel.danger,
+          body: body,
+          reasons: reasons,
+          keywords: keywords,
+        );
+      }
+    }
 
     // 1. Trusted sender (hardcoded bank IDs or user's personal allowlist) → safe immediately
     if (_trustedSenders.contains(sender.toUpperCase()) || TrustedSenderCache.isTrusted(sender)) {
@@ -130,13 +160,12 @@ class ScamRuleEngine {
     // 8. Check learned user-confirmed scam patterns (repetition from same sender)
     final recentFromSender = MessageStore.getRecentFromSender(sender);
     
-    // 9. 3+ scam attempts from same/similar sender in 24h → force danger
+    // 9. Repeat scam attempts from same/similar sender in 24h → force danger
     final confirmedFromSender = recentFromSender
         .where((m) => m.riskLevel == RiskLevel.danger || m.isUserConfirmedScam)
         .length;
-    if (confirmedFromSender >= 2) {
-      // 2 previous + this one = 3+ attempts
-      reasons.add('$confirmedFromSender+ previous danger messages from this sender in 24h.');
+    if (confirmedFromSender >= 1) {
+      reasons.add('Repeat threat: $confirmedFromSender previous suspicious message(s) from this sender in 24h.');
       return _buildResult(
         riskLevel: RiskLevel.danger,
         body: body,
@@ -145,8 +174,19 @@ class ScamRuleEngine {
       );
     }
 
-    // 10. Compute via RiskDecisionEngine
+    // 10. Unknown sender with scam keywords → escalate to danger
     final isUnknownSender = !_trustedSenders.contains(sender.toUpperCase());
+    if (isUnknownSender && hasKeywordsResult) {
+      reasons.add('Unknown sender with suspicious keywords (${keywords.take(3).join(", ")}).');
+      return _buildResult(
+        riskLevel: RiskLevel.danger,
+        body: body,
+        reasons: reasons,
+        keywords: keywords,
+      );
+    }
+
+    // 11. Compute via RiskDecisionEngine
     final decision = RiskDecisionEngine.determineRisk(
       hasKeywords: hasKeywordsResult,
       hasUrgency: hasUrgency,

@@ -18,7 +18,7 @@ class OtpVerificationScreen extends StatefulWidget {
     super.key,
     required this.name,
     required this.contactValue,
-    this.isEmail = false,
+    this.isEmail = true,
     this.emailFallback,
   });
 
@@ -46,58 +46,36 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> _requestRealOtp() async {
     setState(() => _isSending = true);
     try {
-      if (widget.isEmail) {
-        final res = await ApiClient.requestEmailOtp(email: widget.contactValue);
-        if (mounted && res != null && res['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Verification code sent to ${widget.contactValue}',
-                style: GoogleFonts.atkinsonHyperlegible(color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-              backgroundColor: AppTheme.primaryTeal,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      final res = await ApiClient.requestEmailOtp(email: widget.contactValue);
+      if (mounted && res != null && res['success'] == true) {
+        final devCode = res['dev_code'] as String?;
+        final isSmtp = res['sent_via_smtp'] == true;
+        final message = (isSmtp || devCode == null)
+            ? 'Verification code sent to ${widget.contactValue}'
+            : 'Verification code sent! (Backup code: $devCode)';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              message,
+              style: GoogleFonts.atkinsonHyperlegible(color: Colors.white, fontWeight: FontWeight.w600),
             ),
-          );
-        }
-      } else {
-        // Pass email as fallback so backend delivers via email if SMS fails
-        final res = await ApiClient.requestPhoneOtp(
-          phoneNumber: widget.contactValue,
-          email: widget.emailFallback,
+            backgroundColor: AppTheme.primaryTeal,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
-        if (mounted && res != null && res['success'] == true) {
-          final smsSent = res['smsSent'] == true;
-          final msg = smsSent
-              ? 'SMS verification code sent to ${widget.contactValue}'
-              : widget.emailFallback != null
-                  ? 'SMS unavailable — code sent to ${widget.emailFallback}'
-                  : 'Verification code dispatched';
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                msg,
-                style: GoogleFonts.atkinsonHyperlegible(color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-              backgroundColor: AppTheme.primaryTeal,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      } else if (mounted && res != null && res['success'] != true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              res['message']?.toString() ?? 'Failed to send OTP. Please try again.',
+              style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
             ),
-          );
-        } else if (mounted && res != null && res['success'] != true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                res['message']?.toString() ?? 'Failed to send OTP. Please try again.',
-                style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
-              ),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
-        }
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
       }
     } catch (_) {
       // Best-effort delivery
@@ -153,26 +131,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     String? errorMsg;
 
     try {
-      if (widget.isEmail) {
-        final res = await ApiClient.verifyEmailOtp(
-          email: widget.contactValue,
-          code: enteredCode,
-        );
-        if (res != null && res['success'] == true) {
-          isVerified = true;
-        } else {
-          errorMsg = res?['message'] as String? ?? 'Invalid verification code. Please check your email inbox.';
-        }
+      final res = await ApiClient.verifyEmailOtp(
+        email: widget.contactValue,
+        code: enteredCode,
+      );
+      if (res != null && res['success'] == true) {
+        isVerified = true;
       } else {
-        final res = await ApiClient.verifyPhoneOtp(
-          phoneNumber: widget.contactValue,
-          code: enteredCode,
-        );
-        if (res != null && res['success'] == true) {
-          isVerified = true;
-        } else {
-          errorMsg = res?['message'] as String? ?? 'Invalid verification code. Please check your SMS.';
-        }
+        errorMsg = res?['message'] as String? ?? 'Invalid verification code. Please check your email inbox.';
       }
     } catch (e) {
       // Do NOT silently bypass — show a network error instead
@@ -188,9 +154,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         MaterialPageRoute(
           builder: (_) => RegisterStep2Screen(
             name: widget.name,
-            phone: widget.isEmail ? '' : widget.contactValue,
-            email: widget.isEmail ? widget.contactValue : (widget.emailFallback ?? ''),
-            isEmail: widget.isEmail,
+            phone: '',
+            email: widget.contactValue,
+            isEmail: true,
           ),
         ),
       );
@@ -198,7 +164,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            errorMsg ?? 'Incorrect OTP. Please check the code sent to your ${widget.isEmail ? "email" : "phone"}.',
+            errorMsg ?? 'Incorrect OTP. Please check the code sent to your email.',
             style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
           ),
           backgroundColor: AppTheme.terracottaRed,
@@ -266,11 +232,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Phone/Email text (Stitch subtitle)
+                    // Email verification text (Stitch subtitle)
                     Text(
-                      isEmail
-                          ? 'We\'ve sent a 6-digit secure code to\nyour email'
-                          : 'We\'ve sent a 6-digit secure code to\nyour phone',
+                      'We\'ve sent a 6-digit secure code to\nyour email',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 16,
@@ -282,24 +246,28 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     Text(
                       widget.contactValue.isNotEmpty
                           ? widget.contactValue
-                          : (isEmail ? 'vrajmehta934@gmail.com' : '+91 8866565480'),
+                          : 'name@email.com',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: isEmail ? 17 : 19,
+                        fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.textDark,
-                        letterSpacing: isEmail ? 0 : 0.5,
+                        letterSpacing: 0,
                       ),
                     ),
                     const SizedBox(height: 32),
 
-                    // 6-Pin Input Boxes (Stitch exact layout)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(6, (index) {
-                        return SizedBox(
-                          width: 44,
-                          height: 52,
-                          child: TextFormField(
+                    // 6-Pin Input Boxes (Stitch exact layout with responsive scaling)
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: SizedBox(
+                        width: 310,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(6, (index) {
+                            return SizedBox(
+                              width: 44,
+                              height: 52,
+                              child: TextFormField(
                             controller: _controllers[index],
                             focusNode: _focusNodes[index],
                             keyboardType: TextInputType.number,
@@ -345,7 +313,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         );
                       }),
                     ),
-                    const SizedBox(height: 32),
+                  ),
+                ),
+                const SizedBox(height: 32),
 
                     // Verify Code CTA (Stitch 56px full width primary button)
                     SizedBox(
@@ -431,9 +401,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              isEmail
-                                  ? 'Check your spam/junk folder or verify your email address.'
-                                  : 'If SMS is delayed, check cellular reception or request a call from support.',
+                              'Check your spam/junk folder or verify your email address.',
                               style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
                             ),
                             backgroundColor: AppTheme.primaryTeal,

@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import '../theme.dart';
 import '../state/auth_provider.dart';
 import 'home_screen.dart';
-import 'login_screen.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -19,7 +18,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   final _confirmPassCtrl = TextEditingController();
   File? _avatarFile;
@@ -28,7 +26,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
-    _phoneCtrl.dispose();
     _passCtrl.dispose();
     _confirmPassCtrl.dispose();
     super.dispose();
@@ -48,15 +45,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final success = await ref.read(authProvider.notifier).signup(
           name: _nameCtrl.text.trim(),
           email: _emailCtrl.text.trim(),
-          phone: _phoneCtrl.text.trim(),
+          phone: '',
           password: _passCtrl.text.trim(),
           confirmPassword: _confirmPassCtrl.text.trim(),
         );
 
-    if (success && mounted) {
+    if (!mounted) return;
+    if (success) {
       if (_avatarFile != null) {
         await ref.read(authProvider.notifier).updateAvatarPath(_avatarFile!.path);
       }
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -153,17 +152,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           ),
                           validator: (v) => v == null || !v.contains('@') ? 'Enter a valid email' : null,
                         ),
-                        const SizedBox(height: 14),
 
-                        TextFormField(
-                          controller: _phoneCtrl,
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          validator: (v) => v == null || v.length < 7 ? 'Enter valid phone number' : null,
-                        ),
                         const SizedBox(height: 14),
 
                         TextFormField(

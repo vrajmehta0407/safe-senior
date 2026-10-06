@@ -90,7 +90,7 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
+                            color: Colors.black.withValues(alpha: 0.07),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -103,7 +103,7 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryTeal.withOpacity(0.1),
+                              color: AppTheme.primaryTeal.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.shield_outlined, color: AppTheme.primaryTeal, size: 42),
@@ -143,7 +143,7 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -181,9 +181,9 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryTeal.withOpacity(0.06),
+                          color: AppTheme.primaryTeal.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppTheme.primaryTeal.withOpacity(0.2)),
+                          border: Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           children: [
@@ -261,7 +261,7 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
         Icon(
           allowed ? Icons.check_circle_outline : Icons.not_interested_outlined,
           size: 20,
-          color: allowed ? AppTheme.primaryTeal : AppTheme.textSecondary.withOpacity(0.4),
+          color: allowed ? AppTheme.primaryTeal : AppTheme.textSecondary.withValues(alpha: 0.4),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -291,7 +291,7 @@ class _GuardianApprovalScreenState extends State<GuardianApprovalScreen> {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.12),
+                  color: AppTheme.primaryTeal.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle_outline, color: AppTheme.primaryTeal, size: 64),

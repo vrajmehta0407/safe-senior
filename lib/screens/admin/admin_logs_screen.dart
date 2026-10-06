@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme.dart';
+import '../../services/pdf_report_service.dart';
+import '../../storage/message_store.dart';
 import 'admin_network_screen.dart';
 import 'admin_rules_screen.dart';
 import 'admin_dashboard_screen.dart';
@@ -102,7 +104,13 @@ class AdminLogsScreen extends StatelessWidget {
                         ],
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          PdfReportService.exportAndShare(
+                            context: context,
+                            messages: MessageStore.getAllMessages(),
+                            userName: 'Admin Security Center',
+                          );
+                        },
                         icon: const Icon(Icons.download, size: 16),
                         label: Text('Export Report', style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(

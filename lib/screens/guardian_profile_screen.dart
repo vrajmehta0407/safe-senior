@@ -43,7 +43,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
@@ -71,9 +71,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.25),
+                        color: Colors.white.withValues(alpha: 0.25),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 3),
                       ),
                       child: Center(
                         child: Text(
@@ -103,7 +103,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                           widget.relation,
                           style: GoogleFonts.atkinsonHyperlegible(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                           ),
                         ),
                         if (widget.isPrimary) ...[
@@ -305,7 +305,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -327,7 +327,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
                     ),
                   ),
                   const Spacer(),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ],
               ),
             ),
@@ -345,9 +345,9 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
@@ -397,7 +397,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppTheme.primaryTeal.withOpacity(0.1),
+              color: AppTheme.primaryTeal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 18, color: AppTheme.primaryTeal),
@@ -415,7 +415,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.primaryTeal,
+            activeThumbColor: AppTheme.primaryTeal,
           ),
         ],
       ),
@@ -430,7 +430,7 @@ class _GuardianProfileScreenState extends State<GuardianProfileScreen> {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(icon, size: 18, color: color),
           ),
           const SizedBox(width: 12),

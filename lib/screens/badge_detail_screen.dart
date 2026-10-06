@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
+import '../models/guardian_contact.dart';
+import '../services/guardian_service.dart';
+import 'guardian_contacts_screen.dart';
 
 class BadgeItem {
   final String id;
@@ -35,6 +39,266 @@ class BadgeDetailScreen extends StatelessWidget {
 
   const BadgeDetailScreen({super.key, required this.badge});
 
+  String _formatShareText() {
+    return '''🏆 SafeSenior Milestone: ${badge.title}
+
+${badge.description}
+
+🎯 Category: ${badge.category}
+🔒 Status: ${badge.isUnlocked ? "Unlocked & Active ✅" : "In Progress (${badge.currentProgress}/${badge.targetProgress})"}
+
+Protected by SafeSenior — AI Threat Shield for Families.''';
+  }
+
+  Future<void> _shareViaNativeSheet(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+    await SharePlus.instance.share(
+      ShareParams(
+        text: _formatShareText(),
+        subject: 'SafeSenior Milestone: ${badge.title}',
+        sharePositionOrigin: origin,
+      ),
+    );
+  }
+
+  void _showShareOptions(BuildContext context) {
+    final guardians = GuardianService.getAllGuardians();
+    final shareText = _formatShareText();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E0E0),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: badge.bgTint,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(badge.icon, color: badge.primaryColor, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Share "${badge.title}"',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textDark,
+                          ),
+                        ),
+                        Text(
+                          'Let family know your device is secure',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 13,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(color: Color(0xFFEFEDED)),
+              const SizedBox(height: 12),
+
+              // ── Primary Action: Share to All Apps ──
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _shareViaNativeSheet(context);
+                  },
+                  icon: const Icon(Icons.share, size: 20, color: Colors.white),
+                  label: Text(
+                    'Share via WhatsApp / Messages / Apps',
+                    style: GoogleFonts.atkinsonHyperlegible(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryTeal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // ── Direct Guardian Sharing ──
+              Text(
+                'Directly Notify Family Guardians',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textDark,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              if (guardians.isNotEmpty) ...[
+                ...guardians.map((g) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9F7F4),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE8E5E0)),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: AppTheme.primaryTeal.withValues(alpha: 0.15),
+                          child: Text(
+                            g.name.isNotEmpty ? g.name[0].toUpperCase() : 'G',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryTeal,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                g.name,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textDark,
+                                ),
+                              ),
+                              Text(
+                                '${g.relationship ?? "Guardian"} • ${g.phone}',
+                                style: GoogleFonts.atkinsonHyperlegible(
+                                  fontSize: 12,
+                                  color: AppTheme.textLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // WhatsApp button
+                        IconButton(
+                          icon: const Icon(Icons.chat_bubble, color: Color(0xFF25D366), size: 22),
+                          tooltip: 'Share on WhatsApp',
+                          onPressed: () async {
+                            Navigator.pop(ctx);
+                            final sent = await GuardianService.messageWhatsApp(
+                              phone: g.phone,
+                              message: shareText,
+                            );
+                            if (context.mounted && !sent) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Could not open WhatsApp for ${g.name}. Using SMS...'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              await GuardianService.messageGuardian(shareText, g.phone);
+                            }
+                          },
+                        ),
+                        // SMS button
+                        IconButton(
+                          icon: const Icon(Icons.sms, color: AppTheme.primaryTeal, size: 22),
+                          tooltip: 'Send SMS',
+                          onPressed: () async {
+                            Navigator.pop(ctx);
+                            await GuardianService.messageGuardian(shareText, g.phone);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('SMS opened to share badge with ${g.name}!'),
+                                  backgroundColor: AppTheme.primaryTeal,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9F7F4),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE8E5E0)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: AppTheme.primaryTeal, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'No family guardians linked yet. Add a guardian contact so they can celebrate your milestones and receive security alerts.',
+                          style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, color: AppTheme.textDark),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const GuardianContactsScreen()),
+                          );
+                        },
+                        child: Text('Add Now', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryTeal)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final progressFraction = (badge.currentProgress / badge.targetProgress).clamp(0.0, 1.0);
@@ -61,6 +325,12 @@ class BadgeDetailScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: AppTheme.primaryTeal,
                     ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.share, color: AppTheme.primaryTeal),
+                    tooltip: 'Share Badge',
+                    onPressed: () => _showShareOptions(context),
                   ),
                 ],
               ),
@@ -219,19 +489,7 @@ class BadgeDetailScreen extends StatelessWidget {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '🎉 Badge shared with your family guardians!',
-                                style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
-                              ),
-                              backgroundColor: AppTheme.primaryTeal,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          );
-                        },
+                        onPressed: () => _showShareOptions(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryTeal,
                           foregroundColor: Colors.white,

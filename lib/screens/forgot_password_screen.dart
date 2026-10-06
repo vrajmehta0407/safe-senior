@@ -203,7 +203,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6)],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6)],
               ),
               child: const Icon(Icons.verified_user, color: Color(0xFF0F2A4C), size: 22),
             ),
@@ -237,7 +237,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF0F2644).withOpacity(0.08), blurRadius: 24, offset: const Offset(0, 8)),
+                        BoxShadow(color: const Color(0xFF0F2644).withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 8)),
                       ],
                     ),
                     child: _step == 1
@@ -287,7 +287,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
               elevation: 4,
-              shadowColor: const Color(0xFF285BA3).withOpacity(0.3),
+              shadowColor: const Color(0xFF285BA3).withValues(alpha: 0.3),
             ),
             child: _isLoading
                 ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))

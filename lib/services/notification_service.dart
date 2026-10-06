@@ -80,7 +80,7 @@ class NotificationService {
     await _plugin.show(
       notifId,
       '🛡️ Message Blocked – Safe Senior',
-      'Blocked from $sender: "${messagePreview.length > 60 ? messagePreview.substring(0, 60) + "..." : messagePreview}"',
+      'Blocked from $sender: "${messagePreview.length > 60 ? '${messagePreview.substring(0, 60)}...' : messagePreview}"',
       details,
     );
   }
@@ -98,5 +98,39 @@ class NotificationService {
     );
     const details = NotificationDetails(android: androidDetails);
     await _plugin.show(2, '💡 Safety Tip', tip, details);
+  }
+
+  /// Real-time alert when SecOps Admin deploys a new scam detection pattern.
+  static Future<void> showPatternUpdateAlert({
+    required String patternTitle,
+    required String patternPreview,
+    String severity = 'high-risk',
+  }) async {
+    if (!PlatformCapabilities.canSendNotifications) return;
+    if (!_initialized) await init();
+
+    const androidDetails = AndroidNotificationDetails(
+      'pattern_updates',
+      'Threat Shield Updates',
+      channelDescription: 'Alerts when dynamic scam defense patterns are updated by admin',
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Color.fromARGB(255, 16, 185, 129),
+      groupKey: 'pattern_updates_group',
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    final notifId = (DateTime.now().millisecondsSinceEpoch + 3) & 0x7FFFFFFF;
+    await _plugin.show(
+      notifId,
+      '🛡️ New Scam Defense Active: $patternTitle',
+      'Protected against: "${patternPreview.length > 70 ? '${patternPreview.substring(0, 70)}...' : patternPreview}"',
+      details,
+    );
   }
 }

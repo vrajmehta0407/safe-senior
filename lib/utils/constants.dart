@@ -165,8 +165,5 @@ class AppConstants {
     {'code': 'en', 'name': 'English', 'native': 'English'},
     {'code': 'hi', 'name': 'Hindi', 'native': 'हिन्दी'},
     {'code': 'gu', 'name': 'Gujarati', 'native': 'ગુજરાતી'},
-    {'code': 'ta', 'name': 'Tamil', 'native': 'தமிழ்'},
-    {'code': 'te', 'name': 'Telugu', 'native': 'తెలుగు'},
-    {'code': 'bn', 'name': 'Bengali', 'native': 'বাংলা'},
   ];
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
+import '../services/detection/blocklist_service.dart';
+import '../services/guardian_service.dart';
+import '../services/trusted_sender_cache.dart';
 
 class SmsScamAlertScreen extends StatelessWidget {
   final String senderNumber;
@@ -59,7 +63,7 @@ class SmsScamAlertScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Text(
@@ -90,9 +94,9 @@ class SmsScamAlertScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.dangerRed.withOpacity(0.05),
+                        color: AppTheme.dangerRed.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.dangerRed.withOpacity(0.2)),
+                        border: Border.all(color: AppTheme.dangerRed.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +112,7 @@ class SmsScamAlertScreen extends StatelessWidget {
                               const Spacer(),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(color: AppTheme.dangerRed.withOpacity(0.1), borderRadius: BorderRadius.circular(50)),
+                                decoration: BoxDecoration(color: AppTheme.dangerRed.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(50)),
                                 child: Text('BLOCKED', style: GoogleFonts.atkinsonHyperlegible(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.dangerRed)),
                               ),
                             ],
@@ -137,14 +141,14 @@ class SmsScamAlertScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
                         ),
                         child: Row(
                           children: [
                             Container(
                               width: 32,
                               height: 32,
-                              decoration: BoxDecoration(color: AppTheme.dangerRed.withOpacity(0.1), shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: AppTheme.dangerRed.withValues(alpha: 0.1), shape: BoxShape.circle),
                               child: const Icon(Icons.warning_amber_outlined, size: 18, color: AppTheme.dangerRed),
                             ),
                             const SizedBox(width: 12),
@@ -162,9 +166,9 @@ class SmsScamAlertScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryTeal.withOpacity(0.08),
+                        color: AppTheme.primaryTeal.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.primaryTeal.withOpacity(0.2)),
+                        border: Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,13 +213,58 @@ class SmsScamAlertScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final box = context.findRenderObject() as RenderBox?;
+                        final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+                        final shareMsg = '''🚨 SafeSenior Phishing Alert!
+
+A fraudulent SMS was intercepted and blocked on my phone:
+⚠️ Type: $scamType
+📞 Sender: $senderNumber
+💬 Message: "$messageBody"
+
+SafeSenior has secured my phone. Please do not open links from this sender!''';
+
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            text: shareMsg,
+                            subject: '⚠️ Phishing Scam Warning: $scamType',
+                            sharePositionOrigin: origin,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.share, size: 16, color: AppTheme.primaryTeal),
+                      label: Text('Share Warning with Family / WhatsApp', style: GoogleFonts.plusJakartaSans(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppTheme.primaryTeal)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.primaryTeal, width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            BlocklistService.blockSender(senderNumber);
+                            GuardianService.notifyAllGuardiansAboutScam(sender: senderNumber, reason: scamType).ignore();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Sender $senderNumber blocked & guardians notified.'),
+                                backgroundColor: AppTheme.dangerRed,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
                           icon: const Icon(Icons.report_outlined, size: 16),
-                          label: const Text('Report Sender'),
+                          label: const Text('Block & Report'),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: AppTheme.dangerRed),
                             foregroundColor: AppTheme.dangerRed,
@@ -227,7 +276,18 @@ class SmsScamAlertScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            TrustedSenderCache.addLocal(senderNumber);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Sender $senderNumber added to trusted safe list.'),
+                                backgroundColor: AppTheme.primaryTeal,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
                           icon: const Icon(Icons.check_circle_outline, size: 16),
                           label: const Text('Mark as Safe'),
                           style: OutlinedButton.styleFrom(

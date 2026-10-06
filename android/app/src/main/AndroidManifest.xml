@@ -21,7 +21,8 @@
     <application
         android:label="Safe Senior"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
 
         <!-- ── Main Activity ────────────────────────────────────────────── -->
         <activity

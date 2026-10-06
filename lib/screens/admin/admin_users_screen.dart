@@ -155,7 +155,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16),
                             itemCount: _users.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(height: 8),
                             itemBuilder: (_, i) {
                               final u = _users[i] as Map<String, dynamic>;

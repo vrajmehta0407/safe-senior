@@ -1,41 +1,127 @@
 // lib/services/pattern_cache_service.dart
-// Fetches scam patterns from /scam-patterns/active and caches them in Hive.
-// The ScamRuleEngine can then call getPatterns() which works fully offline.
+// Fetches scam patterns from /scam-patterns/active, caches them in Hive and SharedPreferences,
+// polls for real-time admin broadcasts, and notifies the user whenever patterns are updated.
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_client.dart';
+import 'notification_service.dart';
 
 class PatternCacheService {
-  static const _boxName   = 'scam_patterns_cache';
-  static const _keyData    = 'patterns_data';
+  static const _boxName = 'scam_patterns_cache';
+  static const _keyData = 'patterns_data';
   static const _keyVersion = 'patterns_version';
+  static const _keyLastBroadcast = 'last_seen_broadcast_time';
   static const _maxAgeHours = 24; // re-fetch after 24h
 
   static Box? _box;
+  static Timer? _pollingTimer;
+
+  // Stream for in-app UI listeners (HomeScreen, banners, snackbars)
+  static final StreamController<Map<String, dynamic>> _updateController =
+      StreamController<Map<String, dynamic>>.broadcast();
+
+  static Stream<Map<String, dynamic>> get onPatternUpdate => _updateController.stream;
 
   /// Call once during app startup (after Hive.initFlutter()).
   static Future<void> init() async {
     _box = await Hive.openBox(_boxName);
   }
 
-  /// Fetch fresh patterns from API and cache them. Safe to call on every startup.
-  /// Returns true if patterns were updated, false if using cache or error.
-  static Future<bool> syncPatterns() async {
+  /// Start background polling to dynamically detect scam pattern updates from admin panel.
+  static void startBackgroundPolling({Duration interval = const Duration(seconds: 30)}) {
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(interval, (_) {
+      syncPatterns(notifyUser: true);
+    });
+  }
+
+  /// Stop background polling (e.g. during testing or teardown)
+  static void stopBackgroundPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
+  /// Fetch fresh patterns from API and cache them.
+  /// If [notifyUser] is true and newly added patterns or a new broadcast beacon is found,
+  /// triggers a local notification and broadcasts on [onPatternUpdate].
+  static Future<bool> syncPatterns({bool notifyUser = false}) async {
     try {
       final result = await ApiClient.get('/scam-patterns/active');
       if (result == null || result['success'] != true) return false;
 
       final patterns = result['patterns'] as List<dynamic>?;
-      final version  = result['version']  as String? ?? 'unknown';
+      final version = result['version'] as String? ?? 'unknown';
       if (patterns == null || patterns.isEmpty) return false;
 
-      await _box?.put(_keyData,    jsonEncode(patterns));
+      final oldPatterns = getPatterns();
+      final oldIds = oldPatterns.map((p) => p['id']).toSet();
+
+      // Detect newly introduced patterns
+      final List<Map<String, dynamic>> newItems = [];
+      for (final item in patterns) {
+        if (item is Map) {
+          final id = item['id'];
+          if (id != null && !oldIds.contains(id)) {
+            newItems.add(Map<String, dynamic>.from(item));
+          }
+        }
+      }
+
+      // Check for broadcast beacon from admin panel
+      final broadcast = result['latestBroadcast'] as Map<String, dynamic>?;
+      bool hasNewBroadcast = false;
+      if (broadcast != null && broadcast['timestamp'] != null) {
+        final lastSeen = _box?.get(_keyLastBroadcast) as String?;
+        if (lastSeen == null || lastSeen != broadcast['timestamp']) {
+          hasNewBroadcast = true;
+          await _box?.put(_keyLastBroadcast, broadcast['timestamp']);
+        }
+      }
+
+      // Save to Hive
+      await _box?.put(_keyData, jsonEncode(patterns));
       await _box?.put(_keyVersion, '${DateTime.now().toIso8601String()}::$version');
 
-      if (kDebugMode) print('[PatternCache] Synced ${patterns.length} patterns (v$version)');
+      // Also mirror to SharedPreferences
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cached_scam_patterns', jsonEncode(patterns));
+      } catch (_) {}
+
+      // Fire notifications if an admin broadcast was issued OR new patterns were added during background sync
+      final bool shouldNotify = hasNewBroadcast || (notifyUser && newItems.isNotEmpty && oldPatterns.isNotEmpty);
+      if (shouldNotify) {
+        final String title = broadcast?['category'] as String? ??
+            (newItems.isNotEmpty ? (newItems.first['category'] as String? ?? 'Emerging Threat') : 'Dynamic Defense');
+        final String preview = broadcast?['pattern'] as String? ??
+            (newItems.isNotEmpty ? (newItems.first['pattern'] ?? newItems.first['pattern_text'] ?? 'New scam signature') : 'Updated neural threat filters');
+
+        // 1. Post system notification tray alert
+        NotificationService.showPatternUpdateAlert(
+          patternTitle: title,
+          patternPreview: preview.toString(),
+        ).ignore();
+
+        // 2. Broadcast on internal Stream for in-app widgets
+        _updateController.add({
+          'title': title,
+          'preview': preview,
+          'count': newItems.length,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        if (kDebugMode) {
+          print('[PatternCache] Notified user of ${newItems.length} new patterns: $title');
+        }
+      }
+
+      if (kDebugMode) {
+        print('[PatternCache] Synced ${patterns.length} patterns (v$version, ${newItems.length} new)');
+      }
       return true;
     } catch (e) {
       if (kDebugMode) print('[PatternCache] Sync failed (offline?): $e');
@@ -70,14 +156,6 @@ class PatternCacheService {
 
   /// Refreshes patterns from backend and stores them in SharedPreferences
   static Future<void> refreshFromBackend() async {
-    try {
-      final result = await ApiClient.get('/scam-patterns/active');
-      if (result != null && result['success'] == true && result['patterns'] != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('cached_scam_patterns', jsonEncode(result['patterns']));
-      }
-    } catch (_) {
-      // Fail silently (offline-safe)
-    }
+    await syncPatterns(notifyUser: false);
   }
 }

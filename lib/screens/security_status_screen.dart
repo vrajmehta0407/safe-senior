@@ -3,12 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../state/guardian_provider.dart';
-import '../services/sms_service.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'guardian_contacts_screen.dart';
-import 'scanned_messages_screen.dart';
 import 'scanned_email_feed_screen.dart';
-import 'scanned_whatsapp_feed_screen.dart';
 import 'voice_call_history_screen.dart';
 import 'blocked_site_history_screen.dart';
 import 'wearable_status_screen.dart';
@@ -49,8 +46,8 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
   @override
   Widget build(BuildContext context) {
     final primaryGuardian = ref.watch(primaryGuardianProvider);
-    final gName = primaryGuardian?.name ?? 'Amit Patel';
-    final gPhone = primaryGuardian?.phone ?? '+91 98250 14820';
+    final gName = primaryGuardian?.name ?? 'Family Guardian';
+    final gPhone = primaryGuardian?.phone ?? '';
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -226,20 +223,26 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.dialpad, color: AppTheme.primaryTeal, size: 24),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Security PIN Protection',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.textDark,
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.dialpad, color: AppTheme.primaryTeal, size: 24),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Security PIN Protection',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textDark,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: const BoxDecoration(
@@ -309,7 +312,7 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                           ),
                           Switch(
                             value: _biometricsEnabled,
-                            activeColor: AppTheme.primaryTeal,
+                            activeThumbColor: AppTheme.primaryTeal,
                             onChanged: (val) => setState(() => _biometricsEnabled = val),
                           ),
                         ],

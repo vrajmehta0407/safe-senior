@@ -185,7 +185,7 @@ class _AdminPatternsScreenState extends ConsumerState<AdminPatternsScreen> {
                             padding:
                                 const EdgeInsets.fromLTRB(16, 0, 16, 100),
                             itemCount: _patterns.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(height: 8),
                             itemBuilder: (_, i) {
                               final p =
@@ -439,7 +439,7 @@ class _PatternFormState extends ConsumerState<_PatternForm> {
                 Switch(
                   value: _active,
                   onChanged: (v) => setState(() => _active = v),
-                  activeColor: const Color(0xFF4F8EF7),
+                  activeThumbColor: const Color(0xFF4F8EF7),
                 ),
               ]),
             ],

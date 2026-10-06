@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/guardian_service.dart';
 import '../services/detection/blocklist_service.dart';
 import '../services/detection/otp_masking_service.dart';
+import 'guardian_contacts_screen.dart';
 
 class OtpAlertScreen extends StatelessWidget {
   final String? code;
   final String? sender;
   final String? message;
+  final VoidCallback? onDismiss;
 
   const OtpAlertScreen({
     super.key,
     this.code,
     this.sender,
     this.message,
+    this.onDismiss,
   });
 
   @override
@@ -23,7 +26,11 @@ class OtpAlertScreen extends StatelessWidget {
     final rawMessage = message ?? 'Your SBI NetBanking OTP is 849201 for payment of Rs 45,000 to Unknown Beneficiary. Valid for 5 mins. Do not share with anyone.';
     final maskedMessage = OtpMaskingService.maskCodes(rawMessage);
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) onDismiss?.call();
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFFFBF8F7),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -151,28 +158,31 @@ class OtpAlertScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
 
-                    // 6-Pin Lock Block Display
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(6, (index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          width: 42,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F3F3),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE3E2E2), width: 1.5),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.circle,
-                              size: 14,
-                              color: Color(0xFFAA361F),
+                    // 6-Pin Lock Block Display (Responsive FittedBox avoids overflow on narrow screens)
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(6, (index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            width: 42,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5F3F3),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFE3E2E2), width: 1.5),
                             ),
-                          ),
-                        );
-                      }),
+                            child: const Center(
+                              child: Icon(
+                                Icons.circle,
+                                size: 14,
+                                color: Color(0xFFAA361F),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
                     ),
                     const SizedBox(height: 14),
 
@@ -357,28 +367,83 @@ class OtpAlertScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // ── ACTION 2: Alert Guardian (Family) ──
+              Builder(
+                builder: (ctx) {
+                  final primary = GuardianService.getPrimaryGuardian();
+                  final gLabel = primary != null ? 'Alert Guardian (${primary.name})' : 'Alert Family / Add Guardian';
+
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        if (primary != null) {
+                          final msg = '⚠️ SafeSenior OTP Warning: I received a suspicious OTP code from "$effectiveSender": "$rawMessage". SafeSenior protected me from sharing it.';
+                          await GuardianService.messageGuardian(msg, primary.phone);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(
+                                content: Text('Security alert SMS prepared for ${primary.name}.'),
+                                backgroundColor: const Color(0xFF006565),
+                              ),
+                            );
+                          }
+                        } else {
+                          Navigator.push(
+                            ctx,
+                            MaterialPageRoute(builder: (_) => const GuardianContactsScreen()),
+                          );
+                        }
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.shield_outlined, size: 20),
+                      label: Text(
+                        gLabel,
+                        style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF006565),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // ── ACTION 2.5: Share OTP Warning with Family (WhatsApp / Apps) ──
               SizedBox(
                 width: double.infinity,
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    GuardianService.sendEmergencyAlert();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Emergency OTP Alert sent to your Guardian (Amit Patel).'),
-                        backgroundColor: Color(0xFF006565),
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final box = context.findRenderObject() as RenderBox?;
+                    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+                    final shareMsg = '''⚠️ SafeSenior OTP Security Warning!
+
+A potentially fraudulent OTP request was intercepted on my device:
+From: $effectiveSender
+Message: "$rawMessage"
+
+SafeSenior reminded me: NEVER share OTPs with anyone claiming to be from the bank, electricity department, or police!''';
+
+                    await SharePlus.instance.share(
+                      ShareParams(
+                        text: shareMsg,
+                        subject: '⚠️ SafeSenior OTP Security Alert',
+                        sharePositionOrigin: origin,
                       ),
                     );
-                    Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.shield_outlined, size: 20),
+                  icon: const Icon(Icons.share, size: 18, color: Color(0xFF006565)),
                   label: Text(
-                    'Alert Guardian (Family Help)',
-                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 15, fontWeight: FontWeight.bold),
+                    'Share Warning with Family (WhatsApp/Apps)',
+                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 14.5, fontWeight: FontWeight.bold, color: const Color(0xFF006565)),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006565),
-                    foregroundColor: Colors.white,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF006565),
+                    side: const BorderSide(color: Color(0xFF006565), width: 1.5),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   ),
                 ),
@@ -390,7 +455,10 @@ class OtpAlertScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    onDismiss?.call();
+                    Navigator.pop(context);
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF5E706D),
                     side: const BorderSide(color: Color(0xFFBDC9C8), width: 1.2),
@@ -407,6 +475,7 @@ class OtpAlertScreen extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

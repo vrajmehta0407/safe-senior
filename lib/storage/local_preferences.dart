@@ -63,6 +63,10 @@ class LocalPreferences {
   static String? getCustomBackendUrl() => _instance.getString('custom_backend_url');
   static Future<void> setCustomBackendUrl(String url) => _instance.setString('custom_backend_url', url);
 
+  // ─── Sensor Calibration Preferences ──────────────────────────────────────────
+  static double getFallSensitivity() => _instance.getDouble('fall_sensitivity') ?? 2.5;
+  static Future<void> setFallSensitivity(double val) => _instance.setDouble('fall_sensitivity', val);
+
   // ─── Utility ───────────────────────────────────────────────────────────────
   static Future<void> clearAll() => _instance.clear();
 }

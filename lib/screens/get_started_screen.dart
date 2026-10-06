@@ -31,9 +31,11 @@ class GetStartedScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                     // Heading
                     Text(
                       'Get Started',
@@ -47,7 +49,7 @@ class GetStartedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Choose how you\'d like to create your account.',
+                      'Create your account to stay connected and safe with your loved ones.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 18,
@@ -57,60 +59,7 @@ class GetStartedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 36),
 
-                    // Card 1: Phone Number (Stitch teal container)
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterStep1Screen(isEmail: false)),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: const Color(0xFFE3E2E2)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // Icon circle (Stitch primary-container teal)
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppTheme.primaryContainer,
-                              ),
-                              child: const Center(
-                                child: Icon(Icons.phone, color: Color(0xFFE3FFFE), size: 40),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Continue with Phone Number',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1B1C1C),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Card 2: Email (Stitch secondary-container terracotta)
+                    // Card: Email (Stitch secondary-container terracotta)
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -120,7 +69,7 @@ class GetStartedScreen extends StatelessWidget {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
@@ -128,7 +77,7 @@ class GetStartedScreen extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 12,
+                              blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
                           ],
@@ -137,17 +86,17 @@ class GetStartedScreen extends StatelessWidget {
                           children: [
                             // Icon circle (Stitch secondary-container terracotta #FE7356)
                             Container(
-                              width: 80,
-                              height: 80,
+                              width: 84,
+                              height: 84,
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0xFFFE7356),
                               ),
                               child: const Center(
-                                child: Icon(Icons.mail, color: Colors.white, size: 40),
+                                child: Icon(Icons.mail, color: Colors.white, size: 42),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 18),
                             Text(
                               'Continue with Email',
                               textAlign: TextAlign.center,
@@ -157,6 +106,15 @@ class GetStartedScreen extends StatelessWidget {
                                 color: const Color(0xFF1B1C1C),
                               ),
                             ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Sign up securely with your email address',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 14,
+                                color: const Color(0xFF717171),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -164,8 +122,9 @@ class GetStartedScreen extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // Already have account
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           'I already have an account ',
@@ -196,6 +155,7 @@ class GetStartedScreen extends StatelessWidget {
                 ),
               ),
             ),
+          ),
           ],
         ),
       ),

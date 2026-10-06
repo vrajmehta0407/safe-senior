@@ -317,15 +317,18 @@ class _SafetyQuizHubScreenState extends State<SafetyQuizHubScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    'Safety Training & Quizzes',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryTeal,
+                  Expanded(
+                    child: Text(
+                      'Safety Training & Quizzes',
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryTeal,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -435,12 +438,15 @@ class _SafetyQuizHubScreenState extends State<SafetyQuizHubScreen> {
                               children: [
                                 const Icon(Icons.stars, color: Color(0xFFFFE088), size: 18),
                                 const SizedBox(width: 8),
-                                Text(
-                                  'Level 3 Guardian • 320 XP Earned',
-                                  style: GoogleFonts.atkinsonHyperlegible(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                Expanded(
+                                  child: Text(
+                                    'Level 3 Guardian • 320 XP Earned',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.atkinsonHyperlegible(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],

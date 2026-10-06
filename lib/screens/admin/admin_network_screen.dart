@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme.dart';
+import '../../models/guardian_contact.dart';
+import '../../services/guardian_service.dart';
 import 'admin_logs_screen.dart';
 import 'admin_rules_screen.dart';
 import 'admin_dashboard_screen.dart';
@@ -96,7 +98,56 @@ class AdminNetworkScreen extends StatelessWidget {
                         ],
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          final nameCtrl = TextEditingController();
+                          final phoneCtrl = TextEditingController();
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Register Network Guardian', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: nameCtrl,
+                                    decoration: const InputDecoration(labelText: 'Guardian Name', hintText: 'e.g. Ramesh Patel'),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    controller: phoneCtrl,
+                                    decoration: const InputDecoration(labelText: 'Phone Number', hintText: '+91 98250 12345'),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (nameCtrl.text.trim().isNotEmpty && phoneCtrl.text.trim().isNotEmpty) {
+                                      await GuardianService.addGuardianContact(
+                                        GuardianContact(
+                                          name: nameCtrl.text.trim(),
+                                          phone: phoneCtrl.text.trim(),
+                                          addedAt: DateTime.now(),
+                                          isActive: true,
+                                          isPrimary: false,
+                                          relationship: 'Network Guardian',
+                                        ),
+                                      );
+                                      if (ctx.mounted) Navigator.pop(ctx);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Registered guardian: ${nameCtrl.text.trim()}')),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  child: const Text('Register'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         icon: const Icon(Icons.add, size: 16),
                         label: Text('Register Guardian', style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(

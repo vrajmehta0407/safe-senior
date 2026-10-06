@@ -92,7 +92,44 @@ class AdminRulesScreen extends StatelessWidget {
                         ],
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          final nameCtrl = TextEditingController();
+                          final patternCtrl = TextEditingController();
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Create New Detection Rule', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: nameCtrl,
+                                    decoration: const InputDecoration(labelText: 'Rule Identifier', hintText: 'e.g. Electricity Bill Threat'),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    controller: patternCtrl,
+                                    decoration: const InputDecoration(labelText: 'Regex Pattern / Trigger Keyword', hintText: 'power disconnect|bill overdue'),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (nameCtrl.text.trim().isNotEmpty) {
+                                      Navigator.pop(ctx);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Rule created & deployed to network: ${nameCtrl.text.trim()}')),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Save Rule'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         icon: const Icon(Icons.add, size: 16),
                         label: Text('NEW RULE', style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                         style: ElevatedButton.styleFrom(

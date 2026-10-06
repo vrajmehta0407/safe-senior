@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
-import '../state/auth_provider.dart';
-import '../widgets/app_bottom_nav_bar.dart';
 import 'settings_screen.dart';
 import 'tip_detail_screen.dart';
 
@@ -18,8 +16,6 @@ class SecurityTipsListScreen extends ConsumerStatefulWidget {
 class _SecurityTipsListScreenState extends ConsumerState<SecurityTipsListScreen> {
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider).user;
-
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(

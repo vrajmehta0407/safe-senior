@@ -48,6 +48,7 @@ class UserStore {
 
   /// Get all users (for admin/debug purposes).
   static List<UserProfile> getAllUsers() => _instance.values.toList();
+  static List<UserProfile> get allUsers => getAllUsers();
 
   /// Delete user account.
   static Future<void> deleteUser(String email) async {

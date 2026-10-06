@@ -38,16 +38,13 @@ class PlatformCapabilities {
     try {
       final canCheck  = await _auth.canCheckBiometrics;
       final supported = await _auth.isDeviceSupported();
-      // Some Android devices report canCheckBiometrics=false even when enrolled.
-      // We consider biometric available if the device supports it at all.
-      _biometricAvailable = supported;
+      final types     = await _auth.getAvailableBiometrics();
+      _biometricAvailable = canCheck || supported || types.isNotEmpty;
 
       if (kDebugMode) {
-        final types = await _auth.getAvailableBiometrics();
         print('[PlatformCapabilities] Biometric: canCheck=$canCheck, supported=$supported, types=$types');
       }
     } catch (e) {
-      // Even on error, mark as potentially available so user can attempt login
       _biometricAvailable = true;
       if (kDebugMode) print('[PlatformCapabilities] Biometric check error (assuming supported): $e');
     }
@@ -58,15 +55,33 @@ class PlatformCapabilities {
   static Future<bool> authenticateWithBiometrics({
     String localizedReason = 'Confirm your identity to log in',
   }) async {
-    if (!_biometricAvailable) return false;
+    if (kIsWeb) return false;
     try {
-      return await _auth.authenticate(
-        localizedReason: localizedReason,
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false, // allow PIN fallback if biometric fails
-        ),
-      );
+      final canCheck = await _auth.canCheckBiometrics;
+      final isSupported = await _auth.isDeviceSupported();
+      if (!canCheck && !isSupported && !_biometricAvailable) {
+        return false;
+      }
+      try {
+        return await _auth.authenticate(
+          localizedReason: localizedReason,
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: false,
+            useErrorDialogs: true,
+          ),
+        );
+      } catch (innerError) {
+        if (kDebugMode) print('[PlatformCapabilities] Retrying with biometricOnly: true -> $innerError');
+        return await _auth.authenticate(
+          localizedReason: localizedReason,
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+            useErrorDialogs: true,
+          ),
+        );
+      }
     } catch (e) {
       if (kDebugMode) print('[PlatformCapabilities] Biometric auth error: $e');
       return false;

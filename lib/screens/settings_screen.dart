@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme.dart';
 import '../state/auth_provider.dart';
+import '../state/language_provider.dart';
 import '../storage/local_preferences.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../utils/app_translations.dart';
 import 'login_screen.dart';
 import 'help_support_screen.dart';
 import 'guardian_contacts_screen.dart';
@@ -95,6 +97,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
+    final langCode = ref.watch(languageProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
@@ -129,7 +132,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Settings & Preferences',
+                    AppTranslations.tr('Settings & Preferences', langCode),
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -176,7 +179,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     image: DecorationImage(
                                       image: user?.avatarPath != null
                                           ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                                          : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                                          : const AssetImage('assets/images/app_logo.jpg'),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -267,7 +270,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: Column(
                         children: [
                           SwitchListTile(
-                            activeColor: AppTheme.primaryTeal,
+                            activeThumbColor: AppTheme.primaryTeal,
                             secondary: const Icon(Icons.sms_outlined, color: AppTheme.primaryTeal),
                             title: Text(
                               'SMS Scam & OTP Shield',
@@ -290,7 +293,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           const Divider(height: 1, indent: 64),
                           SwitchListTile(
-                            activeColor: AppTheme.primaryTeal,
+                            activeThumbColor: AppTheme.primaryTeal,
                             secondary: const Icon(Icons.phone_in_talk_outlined, color: AppTheme.primaryTeal),
                             title: Text(
                               'In-Call Scam Detection',
@@ -313,7 +316,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           const Divider(height: 1, indent: 64),
                           SwitchListTile(
-                            activeColor: AppTheme.primaryTeal,
+                            activeThumbColor: AppTheme.primaryTeal,
                             secondary: const Icon(Icons.record_voice_over_outlined, color: AppTheme.primaryTeal),
                             title: Text(
                               'Voice Assistant Guidance',
@@ -336,7 +339,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                     // ── Core Hub Navigation (Pinterest Card Grid) ──
                     Text(
-                      'FAMILY & PROTECTION HUBS',
+                      AppTranslations.tr('FAMILY & PROTECTION HUBS', langCode),
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
@@ -356,7 +359,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       children: [
                         _hubCard(
                           icon: Icons.people_outline,
-                          title: 'Family Circle',
+                          title: AppTranslations.tr('Family Circle', langCode),
                           subtitle: 'Connected Guardians',
                           color: const Color(0xFFE0F2F2),
                           iconColor: AppTheme.primaryTeal,
@@ -364,7 +367,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         _hubCard(
                           icon: Icons.health_and_safety_outlined,
-                          title: 'Security Status',
+                          title: AppTranslations.tr('Security Status', langCode),
                           subtitle: 'Live 8-Point Check',
                           color: const Color(0xFFD7EFE6),
                           iconColor: const Color(0xFF006565),
@@ -372,7 +375,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         _hubCard(
                           icon: Icons.checklist_rtl_outlined,
-                          title: 'Safety Checklist',
+                          title: AppTranslations.tr('Safety Checklist', langCode),
                           subtitle: 'Profile Audit',
                           color: const Color(0xFFFFF3D6),
                           iconColor: const Color(0xFFB28000),
@@ -380,7 +383,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         _hubCard(
                           icon: Icons.menu_book_outlined,
-                          title: 'Scam Library',
+                          title: AppTranslations.tr('Scam Library', langCode),
                           subtitle: '50+ Real Scams',
                           color: const Color(0xFFFFE8E5),
                           iconColor: AppTheme.terracottaRed,
@@ -388,7 +391,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         _hubCard(
                           icon: Icons.insights_outlined,
-                          title: 'Weekly Report',
+                          title: AppTranslations.tr('Weekly Report', langCode),
                           subtitle: 'Scans & Threats',
                           color: const Color(0xFFEFE8FF),
                           iconColor: const Color(0xFF673AB7),
@@ -396,7 +399,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         _hubCard(
                           icon: Icons.military_tech_outlined,
-                          title: 'Achievements',
+                          title: AppTranslations.tr('Achievements', langCode),
                           subtitle: 'Milestone Badges',
                           color: const Color(0xFFFFE088),
                           iconColor: const Color(0xFF735C00),
@@ -408,7 +411,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                     // ── App & Security Preferences ──
                     Text(
-                      'APP & SECURITY',
+                      AppTranslations.tr('APP & SECURITY', langCode),
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
@@ -435,27 +438,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           _prefTile(
                             icon: Icons.language,
                             title: 'Language / भाषा / ભાષા',
-                            subtitle: '7 Indian & Global languages',
+                            subtitle: 'English, हिन्दी & ગુજરાતી',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguageScreen())),
                           ),
                           const Divider(height: 1, indent: 56),
                           _prefTile(
                             icon: Icons.pin_outlined,
-                            title: 'Reset Security PIN',
-                            subtitle: 'Update your 4-digit master PIN',
+                            title: AppTranslations.tr('Reset Security PIN', langCode),
+                            subtitle: AppTranslations.tr('Update your 4-digit master PIN', langCode),
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPinScreen())),
                           ),
                           const Divider(height: 1, indent: 56),
                           _prefTile(
                             icon: Icons.system_update_alt,
-                            title: 'App Updates & Threat Engine',
+                            title: AppTranslations.tr('App Updates & Threat Engine', langCode),
                             subtitle: 'SafeSenior v2.4 (Latest)',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
                           ),
                           const Divider(height: 1, indent: 56),
                           _prefTile(
                             icon: Icons.help_outline,
-                            title: 'Help & Emergency Support',
+                            title: AppTranslations.tr('Help & Emergency Support', langCode),
                             subtitle: '24/7 Helpline & FAQs',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
                           ),
@@ -472,7 +475,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         onPressed: _signOut,
                         icon: const Icon(Icons.logout, color: AppTheme.terracottaRed),
                         label: Text(
-                          'Sign Out',
+                          AppTranslations.tr('Sign Out', langCode),
                           style: GoogleFonts.atkinsonHyperlegible(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,

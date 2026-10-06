@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../models/guardian_contact.dart';
-import '../services/guardian_service.dart';
 import '../state/guardian_provider.dart';
 
 class FamilyInviteScreen extends ConsumerStatefulWidget {

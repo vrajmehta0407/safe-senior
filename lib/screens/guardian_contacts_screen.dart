@@ -1,18 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../models/guardian_contact.dart';
 import '../state/auth_provider.dart';
 import '../state/guardian_provider.dart';
-import '../widgets/app_bottom_nav_bar.dart';
 import '../services/permission_service.dart';
+import '../storage/local_preferences.dart';
+import '../widgets/app_bottom_nav_bar.dart';
 import 'settings_screen.dart';
 import 'guardian_profile_screen.dart';
-import 'family_circle_board_screen.dart';
-import 'family_invite_screen.dart';
-import 'emergency_verification_screen.dart';
 
 class GuardianContactsScreen extends ConsumerStatefulWidget {
   const GuardianContactsScreen({super.key});
@@ -27,136 +26,224 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
   @override
   void initState() {
     super.initState();
-    // Fetch latest guardians from backend on screen open
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      if (!LocalPreferences.isLoggedIn()) return;
       setState(() => _loading = true);
       await ref.read(guardianListProvider.notifier).fetchFromBackend();
       if (mounted) setState(() => _loading = false);
     });
   }
 
-  void _showAddContactDialog() {
-    final nameCtrl         = TextEditingController();
-    final phoneCtrl        = TextEditingController();
-    final relationshipCtrl = TextEditingController();
-    bool  isPrimary        = false;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          title: Text(
-            'Add Trusted Contact',
-            style: GoogleFonts.plusJakartaSans(
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primaryTeal,
-            ),
+  /// Directly opens the native phone contacts picker.
+  /// After picking, shows a small bottom sheet to confirm relationship & primary flag.
+  Future<void> _pickContactDirectly() async {
+    // 1. Check permission
+    final hasPermission = await PermissionService.requestContactsPermission();
+    if (!hasPermission) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Contacts permission required. Please allow in Settings → Apps → SafeSenior → Permissions.',
+            style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
           ),
-          content: Column(
+          backgroundColor: AppTheme.dangerRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    // 2. Open native contacts picker
+    final picked = await FlutterContacts.openExternalPick();
+    if (picked == null || !mounted) return;
+
+    // 3. Fetch full contact details (name + phones)
+    final full = await FlutterContacts.getContact(picked.id);
+    if (full == null || !mounted) return;
+
+    final name  = full.displayName.trim();
+    final phone = full.phones.isNotEmpty ? full.phones.first.number.trim() : '';
+
+    if (name.isEmpty || phone.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selected contact has no phone number.')),
+      );
+      return;
+    }
+
+    // 4. Show a small bottom sheet to confirm relationship & primary flag
+    String relationship = 'family';
+    bool   isPrimary    = ref.read(guardianListProvider).isEmpty; // first contact = primary by default
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: EdgeInsets.only(
+            left: 24, right: 24, top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF25D366),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 44),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
-                icon: const Icon(Icons.contacts_rounded, size: 20),
-                label: Text('Import from Phone Contacts', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-                onPressed: () async {
-                  final hasPermission = await PermissionService.requestContactsPermission();
-                  if (!hasPermission && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Contacts permission is required to select from phonebook.')),
-                    );
-                    return;
-                  }
-                  // Prefill sample contact if accessed
-                  nameCtrl.text = nameCtrl.text.isEmpty ? 'Trusted Contact' : nameCtrl.text;
-                  phoneCtrl.text = phoneCtrl.text.isEmpty ? '+91 98765 43210' : phoneCtrl.text;
-                  setDialogState(() {});
-                },
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 20),
+
+              // Contact preview
               Row(
                 children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('OR MANUAL ENTRY', style: GoogleFonts.atkinsonHyperlegible(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: AppTheme.primaryTeal.withValues(alpha: 0.15),
+                    child: Text(
+                      name[0].toUpperCase(),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryTeal,
+                      ),
+                    ),
                   ),
-                  const Expanded(child: Divider()),
+                  const SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(phone,
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 14, color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
+              const SizedBox(height: 22),
+
+              // Relationship selector
+              Text('Relationship', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
               const SizedBox(height: 10),
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name (e.g. Mom, Sarah)'),
+              Wrap(
+                spacing: 8,
+                children: ['family', 'medical', 'friend', 'neighbour', 'caregiver'].map((rel) {
+                  final selected = relationship == rel;
+                  return GestureDetector(
+                    onTap: () => setSheet(() => relationship = rel),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: selected ? AppTheme.primaryTeal : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: selected ? AppTheme.primaryTeal : Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        rel[0].toUpperCase() + rel.substring(1),
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: selected ? Colors.white : AppTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: phoneCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: relationshipCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Relationship (e.g. family, medical)',
-                  hintText: 'family',
+              const SizedBox(height: 18),
+
+              // Primary guardian toggle
+              GestureDetector(
+                onTap: () => setSheet(() => isPrimary = !isPrimary),
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 22, height: 22,
+                      decoration: BoxDecoration(
+                        color: isPrimary ? AppTheme.primaryTeal : Colors.transparent,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppTheme.primaryTeal, width: 2),
+                      ),
+                      child: isPrimary
+                          ? const Icon(Icons.check, color: Colors.white, size: 14)
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Set as Primary Guardian (receives scam alerts first)',
+                      style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: AppTheme.textSecondary),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Checkbox(
-                    value: isPrimary,
-                    activeColor: AppTheme.primaryTeal,
-                    onChanged: (v) => setDialogState(() => isPrimary = v ?? false),
+              const SizedBox(height: 24),
+
+              // Confirm button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryTeal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Set as primary guardian',
-                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF5E706D)),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ref.read(guardianListProvider.notifier).addGuardian(
+                      GuardianContact(
+                        name:         name,
+                        phone:        phone,
+                        addedAt:      DateTime.now(),
+                        isPrimary:    isPrimary,
+                        relationship: relationship,
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '✅ $name added as guardian!',
+                          style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
+                        ),
+                        backgroundColor: AppTheme.primaryTeal,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Add $name as Guardian',
+                    style: GoogleFonts.atkinsonHyperlegible(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryTeal,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () {
-                final name  = nameCtrl.text.trim();
-                final phone = phoneCtrl.text.trim();
-                final rel   = relationshipCtrl.text.trim();
-                if (name.isNotEmpty && phone.isNotEmpty) {
-                  ref.read(guardianListProvider.notifier).addGuardian(
-                    GuardianContact(
-                      name:         name,
-                      phone:        phone,
-                      addedAt:      DateTime.now(),
-                      isPrimary:    isPrimary,
-                      relationship: rel.isEmpty ? 'family' : rel,
-                    ),
-                  );
-                  Navigator.pop(ctx);
-                }
-              },
-              child: const Text('Add Contact'),
-            ),
-          ],
         ),
       ),
     );
@@ -207,10 +294,9 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
                       radius: 20,
                       backgroundColor: const Color(0xFFD6ECE8),
                       backgroundImage: user?.avatarPath != null
-                          ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                          : const NetworkImage(
-                              'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
-                      child: user?.avatarPath == null && (user?.name.isEmpty ?? true)
+                          ? FileImage(File(user!.avatarPath!))
+                          : null,
+                      child: user?.avatarPath == null
                           ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 20)
                           : null,
                     ),
@@ -265,15 +351,18 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
                                 height: 90,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
+                                  color: const Color(0xFFD6ECE8),
                                   border: Border.all(color: AppTheme.primaryTeal, width: 2.5),
-                                  image: DecorationImage(
-                                    image: user?.avatarPath != null
-                                        ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                                        : const NetworkImage(
-                                            'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  image: user?.avatarPath != null
+                                      ? DecorationImage(
+                                          image: FileImage(File(user!.avatarPath!)),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
+                                child: user?.avatarPath == null
+                                    ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 48)
+                                    : null,
                               ),
                               Positioned(
                                 bottom: -6,
@@ -319,7 +408,7 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
 
                     // ── Add Contact Button ──────────────────────────────────
                     GestureDetector(
-                      onTap: _showAddContactDialog,
+                      onTap: _pickContactDirectly,
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -574,7 +663,7 @@ class _GuardianContactsScreenState extends ConsumerState<GuardianContactsScreen>
                                         ),
                                       ],
                                     );
-                                    }).toList(),
+                                    }),
                                   ],
                                 ),
                     ),

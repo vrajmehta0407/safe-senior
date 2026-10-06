@@ -119,7 +119,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.sos, color: Colors.white, size: 28),
@@ -141,7 +141,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
                                 'Instantly notify all guardians',
                                 style: GoogleFonts.atkinsonHyperlegible(
                                   fontSize: 13,
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                 ),
                               ),
                             ],
@@ -251,7 +251,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -300,7 +300,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -333,10 +333,10 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: isPrimary ? Border.all(color: AppTheme.primaryTeal.withOpacity(0.3)) : null,
+        border: isPrimary ? Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.3)) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -348,7 +348,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: isPrimary ? AppTheme.primaryTeal.withOpacity(0.12) : AppTheme.surfaceContainer,
+              color: isPrimary ? AppTheme.primaryTeal.withValues(alpha: 0.12) : AppTheme.surfaceContainer,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -382,7 +382,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryTeal.withOpacity(0.1),
+                          color: AppTheme.primaryTeal.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Text(
@@ -427,7 +427,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 18),
@@ -446,7 +446,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            Icon(Icons.people_outline, size: 60, color: AppTheme.textSecondary.withOpacity(0.3)),
+            Icon(Icons.people_outline, size: 60, color: AppTheme.textSecondary.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text(
               'No Guardians Yet',
@@ -474,7 +474,7 @@ class FamilyCircleBoardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

@@ -114,7 +114,7 @@ class _BlockedHistoryScreenState extends ConsumerState<BlockedHistoryScreen> {
                       backgroundColor: const Color(0xFFD6ECE8),
                       backgroundImage: user?.avatarPath != null
                           ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                          : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                          : const AssetImage('assets/images/app_logo.jpg'),
                       child: user?.avatarPath == null && (user?.name.isEmpty ?? true)
                           ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 20)
                           : null,
@@ -233,7 +233,7 @@ class _BlockedHistoryScreenState extends ConsumerState<BlockedHistoryScreen> {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                     const SizedBox(height: 16),
                   ],
                 ),

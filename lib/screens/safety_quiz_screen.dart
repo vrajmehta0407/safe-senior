@@ -312,7 +312,7 @@ class _SafetyQuizScreenState extends State<SafetyQuizScreen> {
                                     ),
                                   ),
                                 ),
-                                if (badgeIcon != null) badgeIcon,
+                                ?badgeIcon,
                               ],
                             ),
                           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 import 'emergency_screen.dart';
 import 'guardian_contacts_screen.dart';
 
@@ -68,7 +70,7 @@ class UnusualLocationScreen extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.atkinsonHyperlegible(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                     ),
                   ),
                 ],
@@ -86,7 +88,7 @@ class UnusualLocationScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFFF6F00).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFFFF6F00).withValues(alpha: 0.3)),
                       ),
                       child: Stack(
                         children: [
@@ -152,7 +154,7 @@ class UnusualLocationScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 4)),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 12, offset: const Offset(0, 4)),
                         ],
                       ),
                       child: Column(
@@ -178,30 +180,78 @@ class UnusualLocationScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Guardian notification status
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF6F00).withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFFF6F00).withOpacity(0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.notifications_active, color: Color(0xFFFF6F00), size: 22),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Amit Patel (Son) has been notified about this unusual location.',
-                              style: GoogleFonts.atkinsonHyperlegible(
-                                fontSize: 14,
-                                color: const Color(0xFFFF6F00),
-                                height: 1.4,
-                              ),
-                            ),
+                    // Guardian notification status & Live Share
+                    Builder(
+                      builder: (ctx) {
+                        final primaryGuardian = GuardianService.getPrimaryGuardian();
+                        final gName = primaryGuardian != null
+                            ? '${primaryGuardian.name}${primaryGuardian.relationship != null ? ' (${primaryGuardian.relationship})' : ''}'
+                            : null;
+
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6F00).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFFF6F00).withValues(alpha: 0.2)),
                           ),
-                        ],
-                      ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.notifications_active, color: Color(0xFFFF6F00), size: 22),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      gName != null
+                                          ? '$gName is linked for location safety updates.'
+                                          : 'No guardian linked yet. Share your location with family below.',
+                                      style: GoogleFonts.atkinsonHyperlegible(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFFFF6F00),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: double.infinity,
+                                child: TextButton.icon(
+                                  onPressed: () async {
+                                    final box = ctx.findRenderObject() as RenderBox?;
+                                    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+                                    final locMsg = '📍 SafeSenior Location Notice:\nI am currently at $detectedLocation (Expected: $expectedLocation at $timeDetected).\n\nSent from SafeSenior Protection App.';
+                                    await SharePlus.instance.share(
+                                      ShareParams(
+                                        text: locMsg,
+                                        subject: 'SafeSenior Location Update',
+                                        sharePositionOrigin: origin,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.share, size: 16, color: Color(0xFFFF6F00)),
+                                  label: Text(
+                                    'Share Current Location with Family',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFFFF6F00),
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 20),
@@ -213,7 +263,7 @@ class UnusualLocationScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 4)),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 12, offset: const Offset(0, 4)),
                         ],
                       ),
                       child: Column(
@@ -302,7 +352,7 @@ class UnusualLocationScreen extends StatelessWidget {
         Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
           child: Icon(icon, color: color, size: 20),
         ),
         const SizedBox(width: 12),

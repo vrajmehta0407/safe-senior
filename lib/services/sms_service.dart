@@ -9,7 +9,6 @@ import '../storage/stats_store.dart';
 import 'api_client.dart';
 import 'notification_service.dart';
 import 'voice_service.dart';
-import 'guardian_service.dart';
 
 /// Callback invoked when a dangerous message is detected.
 typedef OnDangerMessage = void Function(ScannedMessage message);
@@ -90,44 +89,60 @@ class SmsService {
     await MessageStore.addMessage(message);
     await StatsStore.incrementScanned();
 
-    // RiskLevel enum = {safe, caution, danger} — 'caution' is the mid-tier (no 'suspicious')
     if (result.riskLevel == RiskLevel.danger || result.riskLevel == RiskLevel.caution) {
-      // BUG 5 FIX: report to backend so community patterns grow (fire-and-forget)
       final classification = result.riskLevel == RiskLevel.danger ? 'high-risk' : 'suspicious';
       _reportToBackend(sender: sender, body: body, classification: classification);
     }
 
     if (result.riskLevel == RiskLevel.danger) {
-      await StatsStore.incrementBlocked(isCall: false);
+      // 1. Immediately trigger the full-screen Red Alert UI callback
+      // This MUST fire first and never be blocked by network or external apps!
+      _onDangerCallback?.call(message);
 
-      await GuardianService.notifyGuardian(
-        sender: sender,
-        reason: result.reasons.isNotEmpty ? result.reasons.first : 'Scam detected',
-      );
-
-      // Show scam alert notification
-      await NotificationService.showScamAlert(
-        sender: sender,
-        reason: result.reasons.isNotEmpty ? result.reasons.first : 'Suspicious message detected.',
-      );
-
-      // Show separate "message blocked" notification so user knows action was taken
-      await NotificationService.showMessageBlocked(
-        sender: sender,
-        messagePreview: result.maskedBody.length > 80 ? result.maskedBody.substring(0, 80) : result.maskedBody,
-      );
-
-      await VoiceService.speakScamAlert(sender);
-
-      // Notify Riverpod stats provider to refresh live UI
+      // 2. Notify Riverpod stats provider to refresh live UI
       _onStatsChangedCallback?.call();
 
-      // Fire UI callback — pushes red OtpAlertScreen via navigatorKey
-      // This fires every time a danger message arrives (no deduplication guard)
-      _onDangerCallback?.call(message);
+      // 3. Increment blocked counter
+      await StatsStore.incrementBlocked(isCall: false);
+
+      // 4. Fire system notification tray alert (non-blocking)
+      NotificationService.showScamAlert(
+        sender: sender,
+        reason: result.reasons.isNotEmpty ? result.reasons.first : 'Suspicious message detected.',
+      ).ignore();
+
+      // 5. Fire separate message blocked confirmation notification (non-blocking)
+      NotificationService.showMessageBlocked(
+        sender: sender,
+        messagePreview: result.maskedBody.length > 80 ? result.maskedBody.substring(0, 80) : result.maskedBody,
+      ).ignore();
+
+      // 6. Voice warning (non-blocking)
+      VoiceService.speakScamAlert(sender).ignore();
     }
 
     return message;
+  }
+
+  /// Helper to simulate an incoming fake OTP message for instant verification.
+  /// Can be called multiple times without any limitation.
+  static Future<ScannedMessage> simulateFakeOtpMessage({
+    String? sender,
+    String? body,
+  }) async {
+    final s = sender ?? '+91 98210 44921 (Spoofed Bank)';
+    final b = body ?? 'Your SBI NetBanking OTP is 849201 for payment of Rs 45,000 to Unknown Beneficiary. Valid for 5 mins. Do not share with anyone.';
+    return await processMessage(sender: s, body: b);
+  }
+
+  /// Helper to simulate an incoming fake scam message for instant verification.
+  static Future<ScannedMessage> simulateFakeScamMessage({
+    String? sender,
+    String? body,
+  }) async {
+    final s = sender ?? '+91 11 2309 4712 (CBI Cyber Branch)';
+    final b = body ?? 'URGENT: CBI Cyber Crime Cell has issued a digital arrest warrant against your Aadhaar. Call immediately or pay fine to avoid jail.';
+    return await processMessage(sender: s, body: b);
   }
 
   static void _reportToBackend({

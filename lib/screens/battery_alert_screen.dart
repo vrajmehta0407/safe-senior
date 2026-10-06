@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 import 'guardian_contacts_screen.dart';
 
 class BatteryCriticalScreen extends StatelessWidget {
@@ -84,7 +85,7 @@ class BatteryCriticalScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppTheme.dangerRed.withOpacity(0.1),
+                        color: AppTheme.dangerRed.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Text(
@@ -110,7 +111,7 @@ class BatteryCriticalScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -149,29 +150,38 @@ class BatteryCriticalScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Guardian notification
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.primaryTeal.withOpacity(0.2)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: AppTheme.primaryTeal, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Your primary guardian Amit Patel has been notified about your low battery.',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 14,
-                          color: AppTheme.primaryTeal,
-                          height: 1.4,
-                        ),
-                      ),
+              Builder(
+                builder: (ctx) {
+                  final primary = GuardianService.getPrimaryGuardian();
+                  final gText = primary != null
+                      ? 'Your primary guardian ${primary.name} has been notified about your low battery.'
+                      : 'Low battery warning. Connect a charger to maintain continuous safety protection.';
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryTeal.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.2)),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: AppTheme.primaryTeal, size: 22),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            gText,
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 14,
+                              color: AppTheme.primaryTeal,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
 
               const Spacer(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
-import '../services/permission_service.dart';
 
 class WearableStatusScreen extends StatefulWidget {
   const WearableStatusScreen({super.key});
@@ -13,10 +12,10 @@ class WearableStatusScreen extends StatefulWidget {
 class _WearableStatusScreenState extends State<WearableStatusScreen> {
   bool _isConnected = true;
   bool _isScanning = false;
-  int _batteryLevel = 84;
-  int _heartRate = 72;
-  String _deviceName = 'SafeSenior SOS Smart Band';
-  String _macAddress = '7C:9E:BD:41:A2:18';
+  final int _batteryLevel = 84;
+  final int _heartRate = 72;
+  final String _deviceName = 'SafeSenior SOS Smart Band';
+  final String _macAddress = '7C:9E:BD:41:A2:18';
 
   void _startBleScan() async {
     setState(() => _isScanning = true);
@@ -112,7 +111,7 @@ class _WearableStatusScreenState extends State<WearableStatusScreen> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -177,7 +176,7 @@ class _WearableStatusScreenState extends State<WearableStatusScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10),
                   ],
                 ),
                 child: Column(
@@ -238,7 +237,7 @@ class _WearableStatusScreenState extends State<WearableStatusScreen> {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: iconColor.withOpacity(0.12), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.12), shape: BoxShape.circle),
           child: Icon(icon, color: iconColor, size: 20),
         ),
         const SizedBox(width: 12),

@@ -81,13 +81,13 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            widget.milestoneColor.withOpacity(0.3),
-                            widget.milestoneColor.withOpacity(0.0),
+                            widget.milestoneColor.withValues(alpha: 0.3),
+                            widget.milestoneColor.withValues(alpha: 0.0),
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.milestoneColor.withOpacity(0.4),
+                            color: widget.milestoneColor.withValues(alpha: 0.4),
                             blurRadius: 40,
                             spreadRadius: 10,
                           ),
@@ -98,9 +98,9 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: widget.milestoneColor.withOpacity(0.2),
+                            color: widget.milestoneColor.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
-                            border: Border.all(color: widget.milestoneColor.withOpacity(0.5), width: 2),
+                            border: Border.all(color: widget.milestoneColor.withValues(alpha: 0.5), width: 2),
                           ),
                           child: Icon(widget.milestoneIcon, color: widget.milestoneColor, size: 52),
                         ),
@@ -116,7 +116,7 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -142,7 +142,7 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                       textAlign: TextAlign.center,
                       style: GoogleFonts.atkinsonHyperlegible(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha: 0.75),
                         height: 1.5,
                       ),
                     ),
@@ -154,9 +154,9 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                     decoration: BoxDecoration(
-                      color: widget.milestoneColor.withOpacity(0.15),
+                      color: widget.milestoneColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: widget.milestoneColor.withOpacity(0.3)),
+                      border: Border.all(color: widget.milestoneColor.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -178,7 +178,7 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                               'Added to your safety score',
                               style: GoogleFonts.atkinsonHyperlegible(
                                 fontSize: 13,
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -225,7 +225,7 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
                             'Back to Home',
                             style: GoogleFonts.atkinsonHyperlegible(
                               fontSize: 15,
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ),
                         ),
@@ -254,12 +254,12 @@ class _SafetyMilestoneCelebrationScreenState extends State<SafetyMilestoneCelebr
       top: MediaQuery.of(context).size.height * positions[index][1],
       child: AnimatedBuilder(
         animation: _scaleController,
-        builder: (_, __) => Opacity(
+        builder: (_, _) => Opacity(
           opacity: _scaleController.value,
           child: Icon(
             index % 3 == 0 ? Icons.star : index % 3 == 1 ? Icons.circle : Icons.diamond,
             size: (index % 3 + 1) * 8.0,
-            color: [widget.milestoneColor, Colors.white, const Color(0xFFFFE082)][index % 3].withOpacity(0.4),
+            color: [widget.milestoneColor, Colors.white, const Color(0xFFFFE082)][index % 3].withValues(alpha: 0.4),
           ),
         ),
       ),

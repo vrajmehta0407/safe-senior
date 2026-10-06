@@ -7,7 +7,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'theme.dart';
-import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 import 'models/user_profile.dart';
 import 'models/guardian_contact.dart';
@@ -28,7 +27,7 @@ import 'services/permission_service.dart';
 import 'state/theme_provider.dart';
 import 'state/language_provider.dart';
 import 'state/protection_stats_provider.dart';
-import 'screens/otp_alert_screen.dart';
+import 'services/alert_manager.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -63,10 +62,12 @@ void main() async {
 
   await BlocklistService.init();
 
-  // ── Offline-first scam pattern cache ───────────────────────────────────────
+  // ── Offline-first scam pattern cache & real-time sync ──────────────────────
   await PatternCacheService.init();
-  // Sync in background — don't block startup if offline
+  // Sync on startup in background
   PatternCacheService.syncPatterns();
+  // Start dynamic background polling for admin scam pattern broadcasts
+  PatternCacheService.startBackgroundPolling();
   // Sync trusted senders in background (user's personal allowlist)
   TrustedSenderCache.sync();
 
@@ -77,32 +78,39 @@ void main() async {
   // ── Auto-Start SMS Monitoring & Permissions ──────────────────────────────
   PermissionService.requestPostLoginPermissions().then((_) {
     SmsService.startMonitoring();
+    CallService.startMonitoring();
   }).catchError((_) {});
 
-  // ── Auto-Popup for Fake OTPs / Scam Messages ────────────────────────────────
+  // ── Auto-Popup for Fake OTPs / Scam Messages (Unlimited, Every Time) ───────
   SmsService.setDangerCallback((msg) {
-    final nav = navigatorKey.currentState;
-    if (nav == null) return;
+    if (msg.extractedCode != null && msg.extractedCode!.isNotEmpty) {
+      AlertManager.showOtpAlert(
+        sender: msg.sender,
+        message: msg.maskedBody,
+        code: msg.extractedCode,
+      );
+    } else {
+      AlertManager.showScamMessageAlert(
+        sender: msg.sender,
+        message: msg.maskedBody,
+        reasons: msg.reasons,
+      );
+    }
+  });
 
-    // Always push a new alert screen even if one is already showing.
-    // Using push (not pushAndRemoveUntil) so the user can see each alert.
-    nav.push(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => OtpAlertScreen(
-          message: msg.maskedBody,
-          code: msg.extractedCode,
-          sender: msg.sender,
-        ),
-        // Fast fade-in so alert feels urgent
-        transitionsBuilder: (_, anim, __, child) =>
-            FadeTransition(opacity: anim, child: child),
-        transitionDuration: const Duration(milliseconds: 200),
-      ),
+  // ── Auto-Popup for Fake Calls / Scam Call Interceptions ─────────────────────
+  CallService.setDangerCallback((phoneNumber, reason) {
+    AlertManager.showCallAlert(
+      phoneNumber: phoneNumber,
+      reason: reason,
     );
   });
 
   // ── Wire stats refresh to Riverpod ──────────────────────────────────────────
   SmsService.setStatsChangedCallback(() {
+    _container?.read(protectionStatsProvider.notifier).refresh();
+  });
+  CallService.setStatsChangedCallback(() {
     _container?.read(protectionStatsProvider.notifier).refresh();
   });
 
@@ -135,11 +143,7 @@ class SafeSeniorApp extends ConsumerWidget {
       supportedLocales: const [
         Locale('en'),
         Locale('hi'),
-        Locale('es'),
         Locale('gu'),
-        Locale('ta'),
-        Locale('te'),
-        Locale('bn'),
       ],
       localizationsDelegates: const [
         AppLocalizations.delegate,

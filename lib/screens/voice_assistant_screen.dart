@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme.dart';
 import '../state/voice_settings_provider.dart';
+import '../state/language_provider.dart';
+import '../utils/app_translations.dart';
 import '../services/voice_service.dart';
-import 'home_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 
@@ -15,22 +16,10 @@ class VoiceAssistantScreen extends ConsumerStatefulWidget {
 }
 
 class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
-  int _selectedIndex = 3;
-
   // BUG 6 FIX: real STT state
   bool _isListening = false;
   String _lastTranscript = '';
   String _statusMessage = 'Tap the mic to speak';
-
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -65,13 +54,24 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
 
   Future<void> _saveSettings() async {
     await ref.read(voiceSettingsProvider.notifier).saveAll();
-    if (mounted) Navigator.pop(context);
+    final langCode = ref.read(languageProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppTranslations.tr('Voice settings saved', langCode)),
+          backgroundColor: Colors.green[700],
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final voice = ref.watch(voiceSettingsProvider);
     final notifier = ref.read(voiceSettingsProvider.notifier);
+    final langCode = ref.watch(languageProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +82,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Voice Assistant',
+          AppTranslations.tr('Voice Assistant', langCode),
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -236,12 +236,12 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Enable Voice Alerts',
+                            AppTranslations.tr('Enable Voice Alerts', langCode),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Speak critical security warnings',
+                            AppTranslations.tr('Speak critical security warnings', langCode),
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.textDark),
                           ),
                         ],
@@ -261,13 +261,11 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
 
               // Voice Type — wired
               Text(
-                'Voice Type',
+                AppTranslations.tr('Voice Type', langCode),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              _buildVoiceTypeOption(context, 'Calm Female', 'Soothing and clear', voice.voiceType, notifier, 'female'),
-              const SizedBox(height: 12),
-              _buildVoiceTypeOption(context, 'Friendly Male', 'Warm and helpful', voice.voiceType, notifier, 'male'),
+              _buildVoiceTypeOption(context, 'Calm Female', 'Soothing and clear', voice.voiceType, notifier, 'female', langCode),
               
               const SizedBox(height: 24),
 
@@ -283,7 +281,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Voice Speed (Reading Pace)',
+                      AppTranslations.tr('Voice Speed (Reading Pace)', langCode),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 24),
@@ -307,12 +305,12 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                           children: [
                             Icon(Icons.waves, size: 16, color: AppTheme.primaryDarkBlue),
                             const SizedBox(width: 4),
-                            Text('Slower', style: TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
+                            Text(AppTranslations.tr('Slower', langCode), style: const TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         Row(
                           children: [
-                            Text('Faster', style: TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
+                            Text(AppTranslations.tr('Faster', langCode), style: const TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
                             const SizedBox(width: 4),
                             Icon(Icons.fast_forward, size: 16, color: AppTheme.primaryDarkBlue),
                           ],
@@ -336,12 +334,12 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle_outline),
-                      SizedBox(width: 8),
-                      Text('Save Voice Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Icon(Icons.check_circle_outline),
+                      const SizedBox(width: 8),
+                      Text(AppTranslations.tr('Save Voice Settings', langCode), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ],
                   ),
                 ),
@@ -355,7 +353,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     );
   }
 
-  Widget _buildVoiceTypeOption(BuildContext context, String title, String subtitle, String currentVoiceType, VoiceSettingsNotifier notifier, String gender) {
+  Widget _buildVoiceTypeOption(BuildContext context, String title, String subtitle, String currentVoiceType, VoiceSettingsNotifier notifier, String gender, String langCode) {
     final bool isSelected = currentVoiceType == title;
     return GestureDetector(
       onTap: () {
@@ -385,14 +383,14 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    AppTranslations.tr(title, langCode),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    subtitle,
+                    AppTranslations.tr(subtitle, langCode),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.textDark),
                   ),
                 ],

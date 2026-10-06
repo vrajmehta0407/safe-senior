@@ -60,7 +60,7 @@ class SafeSeniorLogo extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryTeal.withOpacity(0.25),
+            color: AppTheme.primaryTeal.withValues(alpha: 0.25),
             blurRadius: 20,
             spreadRadius: 2,
             offset: const Offset(0, 6),

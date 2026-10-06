@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -90,8 +89,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         end: Alignment.bottomCenter,
                         stops: const [0.0, 0.4, 1.0],
                         colors: [
-                          const Color(0xFF143054).withOpacity(0.4),
-                          const Color(0xFF0F2A4C).withOpacity(0.85),
+                          const Color(0xFF143054).withValues(alpha: 0.4),
+                          const Color(0xFF0F2A4C).withValues(alpha: 0.85),
                           const Color(0xFF091A30),
                         ],
                       ),
@@ -121,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             page['subtitle']!,
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.85),
+                              color: Colors.white.withValues(alpha: 0.85),
                               height: 1.4,
                             ),
                           ),
@@ -139,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   borderRadius: BorderRadius.circular(28),
                                 ),
                                 elevation: 4,
-                                shadowColor: const Color(0xFF4A89DC).withOpacity(0.4),
+                                shadowColor: const Color(0xFF4A89DC).withValues(alpha: 0.4),
                               ),
                               child: Text(
                                 _currentPage == _pages.length - 1 ? 'Get Started' : 'Continue',
@@ -166,7 +165,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   shape: BoxShape.circle,
                                   color: i == _currentPage
                                       ? Colors.white
-                                      : Colors.white.withOpacity(0.35),
+                                      : Colors.white.withValues(alpha: 0.35),
                                 ),
                               ),
                             ),
@@ -195,7 +194,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Text(

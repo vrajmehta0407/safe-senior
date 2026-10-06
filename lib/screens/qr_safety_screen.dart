@@ -17,7 +17,6 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
   bool _isChecking = false;
   Map<String, dynamic>? _scanResult;
   bool _hasCameraPermission = false;
-  bool _isScanning = false;
   bool _torchOn = false;
   late AnimationController _laserAnim;
   final ImagePicker _picker = ImagePicker();
@@ -36,7 +35,6 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
     final status = await Permission.camera.status;
     setState(() {
       _hasCameraPermission = status.isGranted;
-      _isScanning = status.isGranted;
     });
   }
 
@@ -44,7 +42,6 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
     final status = await Permission.camera.request();
     setState(() {
       _hasCameraPermission = status.isGranted;
-      _isScanning = status.isGranted;
     });
 
     if (status.isPermanentlyDenied) {
@@ -156,7 +153,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                 color: const Color(0xFFFDFBF7),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -192,11 +189,11 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                       width: double.infinity,
                       height: 240,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.92),
+                        color: Colors.black.withValues(alpha: 0.92),
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -217,7 +214,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                       width: 56,
                                       height: 56,
                                       decoration: BoxDecoration(
-                                        color: AppTheme.primaryTeal.withOpacity(0.2),
+                                        color: AppTheme.primaryTeal.withValues(alpha: 0.2),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 30),
@@ -272,7 +269,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
                                                 borderRadius: BorderRadius.circular(2),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: const Color(0xFF00FFD5).withOpacity(0.8),
+                                                    color: const Color(0xFF00FFD5).withValues(alpha: 0.8),
                                                     blurRadius: 8,
                                                   ),
                                                 ],
@@ -382,7 +379,7 @@ class _QrSafetyScreenState extends State<QrSafetyScreen> with SingleTickerProvid
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withOpacity(0.4)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

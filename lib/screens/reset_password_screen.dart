@@ -14,14 +14,14 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _success = false;
 
   @override
   void dispose() {
-    _phoneCtrl.dispose();
+    _emailCtrl.dispose();
     _otpCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
@@ -31,7 +31,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final ok = await ref.read(authProvider.notifier).resetPassword(
-          _phoneCtrl.text.trim(),
+          _emailCtrl.text.trim(),
           _otpCtrl.text.trim(),
           _passCtrl.text.trim(),
         );
@@ -104,7 +104,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Enter your registered phone and OTP verification code.',
+                            'Enter your registered email and OTP verification code.',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.atkinsonHyperlegible(fontSize: 14.5, color: const Color(0xFF5E706D)),
                           ),
@@ -128,13 +128,18 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               child: Column(
                                 children: [
                                   TextFormField(
-                                    controller: _phoneCtrl,
-                                    keyboardType: TextInputType.phone,
+                                    controller: _emailCtrl,
+                                    keyboardType: TextInputType.emailAddress,
                                     decoration: InputDecoration(
-                                      labelText: 'Phone Number',
+                                      labelText: 'Email Address',
+                                      hintText: 'name@email.com',
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                                     ),
-                                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                    validator: (v) {
+                                      if (v == null || v.trim().isEmpty) return 'Please enter your email';
+                                      if (!v.contains('@')) return 'Enter a valid email';
+                                      return null;
+                                    },
                                   ),
                                   const SizedBox(height: 14),
 

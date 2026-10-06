@@ -3,11 +3,141 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../theme.dart';
 import 'admin_logs_screen.dart';
 import 'admin_network_screen.dart';
-import 'admin_rules_screen.dart';
 import 'admin_dashboard_screen.dart';
 
-class AdminScamReportsScreen extends StatelessWidget {
+class AdminScamReportsScreen extends StatefulWidget {
   const AdminScamReportsScreen({super.key});
+
+  @override
+  State<AdminScamReportsScreen> createState() => _AdminScamReportsScreenState();
+}
+
+class _AdminScamReportsScreenState extends State<AdminScamReportsScreen> {
+  final List<Map<String, dynamic>> _newReports = [
+    {
+      'tag': 'PHISHING SMS',
+      'tagColor': const Color(0xFFFBE0D8),
+      'tagTextColor': AppTheme.terracottaRed,
+      'time': '10m ago',
+      'title': 'Dadaji\'s Mobile',
+      'desc': 'Received suspicious text claiming a parcel is detained at Delhi Airport from "India Post"...',
+      'hasAlertIcon': true,
+    },
+    {
+      'tag': 'UNKNOWN CALLER',
+      'tagColor': const Color(0xFFFBE0D8),
+      'tagTextColor': AppTheme.terracottaRed,
+      'time': '45m ago',
+      'title': 'Shanti Patel\'s Phone',
+      'desc': 'Repeated spoofed calls from CBI Customs asking for immediate RTGS transfer.',
+      'hasAlertIcon': false,
+    },
+  ];
+
+  void _showManualEntryDialog() {
+    final targetCtrl = TextEditingController(text: "Dadaji's Mobile");
+    final descCtrl = TextEditingController();
+    String selectedTag = 'PHISHING SMS';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'Manual Scam Entry',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppTheme.primaryTeal),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Target Device / Senior Name', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: targetCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Grandma\'s Phone',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('Scam Vector', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedTag,
+                  items: const [
+                    DropdownMenuItem(value: 'PHISHING SMS', child: Text('PHISHING SMS')),
+                    DropdownMenuItem(value: 'UNKNOWN CALLER', child: Text('UNKNOWN CALLER')),
+                    DropdownMenuItem(value: 'DIGITAL ARREST', child: Text('DIGITAL ARREST')),
+                    DropdownMenuItem(value: 'MALICIOUS APK', child: Text('MALICIOUS APK')),
+                    DropdownMenuItem(value: 'UPI FRAUD', child: Text('UPI FRAUD')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) setDialogState(() => selectedTag = val);
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('Incident Details', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: descCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Enter suspicious message or call details...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('CANCEL', style: GoogleFonts.atkinsonHyperlegible(color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final target = targetCtrl.text.trim().isEmpty ? 'Senior Device' : targetCtrl.text.trim();
+                final desc = descCtrl.text.trim().isEmpty ? 'Manual report logged by network guardian.' : descCtrl.text.trim();
+                Navigator.pop(ctx);
+                setState(() {
+                  _newReports.insert(0, {
+                    'tag': selectedTag,
+                    'tagColor': const Color(0xFFFBE0D8),
+                    'tagTextColor': AppTheme.terracottaRed,
+                    'time': 'Just now',
+                    'title': target,
+                    'desc': desc,
+                    'hasAlertIcon': true,
+                  });
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: AppTheme.primaryTeal,
+                    content: Text('Manual scam report added to triage pipeline for $target.'),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryTeal,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text('LOG REPORT', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +155,10 @@ class AdminScamReportsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 18,
-                      backgroundImage: NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                      backgroundColor: AppTheme.primaryTeal.withValues(alpha: 0.1),
+                      child: const Icon(Icons.admin_panel_settings, size: 20, color: AppTheme.primaryTeal),
                     ),
                     const SizedBox(width: 10),
                     Column(
@@ -58,7 +189,11 @@ class AdminScamReportsScreen extends StatelessWidget {
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AdminLogsScreen()));
                 }),
                 _buildNavItem(context, icon: Icons.warning_amber_rounded, label: 'Scam Alerts', isActive: true),
-                _buildNavItem(context, icon: Icons.bolt_outlined, label: 'System Health'),
+                _buildNavItem(context, icon: Icons.bolt_outlined, label: 'System Health', onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('All Guardian background services and telemetry are active.')),
+                  );
+                }),
               ],
             ),
           ),
@@ -93,7 +228,7 @@ class AdminScamReportsScreen extends StatelessWidget {
                         ],
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: _showManualEntryDialog,
                         icon: const Icon(Icons.add, size: 16),
                         label: Text('MANUAL ENTRY', style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                         style: ElevatedButton.styleFrom(
@@ -115,27 +250,21 @@ class AdminScamReportsScreen extends StatelessWidget {
                       Expanded(
                         child: _buildKanbanColumn(
                           title: 'NEW REPORTS',
-                          count: '12',
+                          count: '${_newReports.length + 10}',
                           dotColor: AppTheme.terracottaRed,
                           cards: [
-                            _buildKanbanCard(
-                              tag: 'PHISHING SMS',
-                              tagColor: const Color(0xFFFBE0D8),
-                              tagTextColor: AppTheme.terracottaRed,
-                              time: '10m ago',
-                              title: 'Dadaji\'s Mobile',
-                              desc: 'Received suspicious text claiming a parcel is detained at Delhi Airport from "India Post"...',
-                              hasAlertIcon: true,
-                            ),
-                            const SizedBox(height: 16),
-                            _buildKanbanCard(
-                              tag: 'UNKNOWN CALLER',
-                              tagColor: const Color(0xFFFBE0D8),
-                              tagTextColor: AppTheme.terracottaRed,
-                              time: '45m ago',
-                              title: 'Shanti Patel\'s Phone',
-                              desc: 'Repeated spoofed calls from CBI Customs asking for immediate RTGS transfer.',
-                            ),
+                            for (int i = 0; i < _newReports.length; i++) ...[
+                              _buildKanbanCard(
+                                tag: _newReports[i]['tag'] as String,
+                                tagColor: _newReports[i]['tagColor'] as Color,
+                                tagTextColor: _newReports[i]['tagTextColor'] as Color,
+                                time: _newReports[i]['time'] as String,
+                                title: _newReports[i]['title'] as String,
+                                desc: _newReports[i]['desc'] as String,
+                                hasAlertIcon: _newReports[i]['hasAlertIcon'] as bool? ?? false,
+                              ),
+                              if (i < _newReports.length - 1) const SizedBox(height: 16),
+                            ],
                           ],
                         ),
                       ),

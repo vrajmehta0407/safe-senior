@@ -3,12 +3,49 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../state/protection_stats_provider.dart';
+import '../state/scanned_messages_provider.dart';
+import '../state/auth_provider.dart';
+import '../services/pdf_report_service.dart';
 
-class WeeklyReportScreen extends ConsumerWidget {
+class WeeklyReportScreen extends ConsumerStatefulWidget {
   const WeeklyReportScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WeeklyReportScreen> createState() => _WeeklyReportScreenState();
+}
+
+class _WeeklyReportScreenState extends ConsumerState<WeeklyReportScreen> {
+  bool _exporting = false;
+
+  Future<void> _exportPdf() async {
+    final messages = ref.read(scannedMessagesProvider);
+    final user     = ref.read(authProvider).user;
+    final userName = user?.name ?? 'SafeSenior User';
+
+    setState(() => _exporting = true);
+    try {
+      await PdfReportService.exportAndShare(
+        context: context,
+        messages: messages,
+        userName: userName,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF export failed: $e', style: GoogleFonts.atkinsonHyperlegible(color: Colors.white)),
+            backgroundColor: AppTheme.dangerRed,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final stats = ref.watch(protectionStatsProvider);
 
     return Scaffold(
@@ -220,39 +257,33 @@ class WeeklyReportScreen extends ConsumerWidget {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '📄 Weekly Report PDF exported and sent to your family guardian.',
-                                style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
-                              ),
-                              backgroundColor: AppTheme.primaryTeal,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          );
-                        },
+                        onPressed: _exporting ? null : _exportPdf,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryTeal,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Export PDF Report to Family',
-                              style: GoogleFonts.atkinsonHyperlegible(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                        child: _exporting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Export PDF Report to Family',
+                                    style: GoogleFonts.atkinsonHyperlegible(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -376,18 +407,23 @@ class WeeklyReportScreen extends ConsumerWidget {
                         color: AppTheme.textLight,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: severityColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        threatType,
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: severityColor,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: severityColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          threatType,
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: severityColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
