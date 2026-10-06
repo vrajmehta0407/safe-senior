@@ -10,7 +10,6 @@ import '../services/platform_capabilities.dart';
 import 'home_screen.dart';
 import 'get_started_screen.dart';
 import 'forgot_pin_screen.dart';
-import 'admin/admin_login_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -76,10 +75,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
           await UserStore.saveUser(user);
         }
-        if (user != null) {
-          await LocalPreferences.setCurrentUserEmail(user.email);
-          ref.read(authProvider.notifier).setLocalUser(user);
-        }
+        await LocalPreferences.setCurrentUserEmail(user.email);
+        ref.read(authProvider.notifier).setLocalUser(user);
       }
 
       if (!mounted) return;
@@ -434,36 +431,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-
-                      const Divider(color: Color(0xFFEFEDED), height: 1),
                       const SizedBox(height: 16),
-
-                      // ── Admin Portal link ──
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.admin_panel_settings_outlined,
-                                size: 18, color: AppTheme.primaryTeal),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Admin Management Portal',
-                              style: GoogleFonts.atkinsonHyperlegible(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.primaryTeal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
