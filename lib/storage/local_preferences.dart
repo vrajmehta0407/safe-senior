@@ -67,23 +67,47 @@ class LocalPreferences {
   static double getFallSensitivity() => _instance.getDouble('fall_sensitivity') ?? 2.5;
   static Future<void> setFallSensitivity(double val) => _instance.setDouble('fall_sensitivity', val);
 
-  // ─── Location & Geofence Preferences ─────────────────────────────────────────
-  static String getHomeLocationAddress() => _instance.getString('home_location_address') ?? 'Malviya Nagar, Delhi';
+  // ─── Location & Geofence Preferences (Ahmedabad Default) ──────────────────────
+  static String getHomeLocationAddress() {
+    final addr = _instance.getString('home_location_address');
+    if (addr == null || addr.contains('Delhi')) return 'Navrangpura, Ahmedabad';
+    return addr;
+  }
   static Future<void> setHomeLocationAddress(String val) => _instance.setString('home_location_address', val);
 
-  static double getHomeLat() => _instance.getDouble('home_lat') ?? 28.5284;
+  static double getHomeLat() {
+    final lat = _instance.getDouble('home_lat');
+    if (lat == null || (lat > 28.0 && lat < 29.0)) return 23.0365;
+    return lat;
+  }
   static Future<void> setHomeLat(double val) => _instance.setDouble('home_lat', val);
 
-  static double getHomeLng() => _instance.getDouble('home_lng') ?? 77.2065;
+  static double getHomeLng() {
+    final lng = _instance.getDouble('home_lng');
+    if (lng == null || (lng > 76.5 && lng < 77.8)) return 72.5611;
+    return lng;
+  }
   static Future<void> setHomeLng(double val) => _instance.setDouble('home_lng', val);
 
-  static String getLastKnownLocationAddress() => _instance.getString('last_known_location_address') ?? 'Connaught Place, Delhi';
+  static String getLastKnownLocationAddress() {
+    final addr = _instance.getString('last_known_location_address');
+    if (addr == null || addr.contains('Delhi')) return 'SG Highway, Ahmedabad';
+    return addr;
+  }
   static Future<void> setLastKnownLocationAddress(String val) => _instance.setString('last_known_location_address', val);
 
-  static double getLastKnownLat() => _instance.getDouble('last_known_lat') ?? 28.6315;
+  static double getLastKnownLat() {
+    final lat = _instance.getDouble('last_known_lat');
+    if (lat == null || (lat > 28.0 && lat < 29.0)) return 23.0525;
+    return lat;
+  }
   static Future<void> setLastKnownLat(double val) => _instance.setDouble('last_known_lat', val);
 
-  static double getLastKnownLng() => _instance.getDouble('last_known_lng') ?? 77.2167;
+  static double getLastKnownLng() {
+    final lng = _instance.getDouble('last_known_lng');
+    if (lng == null || (lng > 76.5 && lng < 77.8)) return 72.5120;
+    return lng;
+  }
   static Future<void> setLastKnownLng(double val) => _instance.setDouble('last_known_lng', val);
 
   static String? getLastLocationAlertTime() => _instance.getString('last_location_alert_time');

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
@@ -51,13 +52,14 @@ class _UnusualLocationScreenState extends ConsumerState<UnusualLocationScreen> {
   late String _expectedLocation;
   late String _timeDetected;
   late String _alertReason;
+  bool _isLocatingGps = false;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
 
-    // Initialize with passed values, persisted preferences, or smart defaults
+    // Default to Ahmedabad coordinates & preferences
     _homeLat = widget.homeLat ?? LocalPreferences.getHomeLat();
     _homeLng = widget.homeLng ?? LocalPreferences.getHomeLng();
     _expectedLocation = widget.expectedLocation ?? LocalPreferences.getHomeLocationAddress();
@@ -66,11 +68,105 @@ class _UnusualLocationScreenState extends ConsumerState<UnusualLocationScreen> {
     _currentLng = widget.currentLng ?? LocalPreferences.getLastKnownLng();
     _detectedLocation = widget.detectedLocation ?? LocalPreferences.getLastKnownLocationAddress();
 
+    // If still set to old Delhi coordinates, migrate immediately to Ahmedabad
+    if (_currentLat > 28.0 && _currentLat < 29.0) {
+      _currentLat = 23.0525;
+      _currentLng = 72.5120;
+      _detectedLocation = 'SG Highway, Ahmedabad';
+    }
+    if (_homeLat > 28.0 && _homeLat < 29.0) {
+      _homeLat = 23.0365;
+      _homeLng = 72.5611;
+      _expectedLocation = 'Navrangpura, Ahmedabad';
+    }
+
     _timeDetected = widget.timeDetected ??
         LocalPreferences.getLastLocationAlertTime() ??
         DateFormat('h:mm a').format(DateTime.now());
 
     _alertReason = widget.alertReason ?? 'Unusual — not your typical area';
+
+    // Auto-detect live GPS location on launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchLiveGpsLocation(silent: true);
+    });
+  }
+
+  /// Queries the device GPS sensor via Geolocator
+  Future<void> _fetchLiveGpsLocation({bool silent = false}) async {
+    if (_isLocatingGps) return;
+    setState(() => _isLocatingGps = true);
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!silent && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please enable device GPS / Location Service in settings.')),
+          );
+        }
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permission denied.')),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (!silent && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are permanently denied. Please allow in app settings.')),
+          );
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _currentLat = position.latitude;
+          _currentLng = position.longitude;
+          _detectedLocation = 'Current GPS: ${position.latitude.toStringAsFixed(4)}° N, ${position.longitude.toStringAsFixed(4)}° E (Ahmedabad)';
+          _timeDetected = DateFormat('h:mm a').format(DateTime.now());
+        });
+
+        LocalPreferences.setLastKnownLat(position.latitude);
+        LocalPreferences.setLastKnownLng(position.longitude);
+        LocalPreferences.setLastKnownLocationAddress(_detectedLocation);
+        LocalPreferences.setLastLocationAlertTime(_timeDetected);
+
+        _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
+
+        if (!silent) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('📍 Live GPS Located: ${position.latitude.toStringAsFixed(4)}°, ${position.longitude.toStringAsFixed(4)}°'),
+              backgroundColor: AppTheme.primaryTeal,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Live GPS detection error: $e');
+    } finally {
+      if (mounted) setState(() => _isLocatingGps = false);
+    }
   }
 
   double _computeDistanceKm() {
@@ -153,35 +249,77 @@ class _UnusualLocationScreenState extends ConsumerState<UnusualLocationScreen> {
       ),
       builder: (ctx) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    context.tr('Simulate / Change Location'),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('Simulate / Change Location'),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // Live GPS Detection Button
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _fetchLiveGpsLocation(silent: false);
+                    },
+                    icon: _isLocatingGps
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.my_location, size: 18),
+                    label: Text(
+                      _isLocatingGps ? 'Detecting Live GPS...' : '📍 Detect My Live GPS (Ahmedabad)',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryTeal,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _buildPresetTile('Connaught Place, Central Delhi', 28.6315, 77.2167, ctx),
-              _buildPresetTile('IGI Airport Terminal 3, Delhi', 28.5562, 77.1000, ctx),
-              _buildPresetTile('Old Delhi Railway Station', 28.6619, 77.2307, ctx),
-              _buildPresetTile('Noida Sector 18 Commercial Hub', 28.5708, 77.3259, ctx),
-              _buildPresetTile('Cyber City, Gurugram', 28.4950, 77.0895, ctx),
-            ],
+                ),
+
+                const Divider(),
+                Text(
+                  'Ahmedabad Locations:',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
+                ),
+                const SizedBox(height: 6),
+
+                _buildPresetTile('SG Highway, Ahmedabad (Sindhu Bhavan)', 23.0525, 72.5120, ctx),
+                _buildPresetTile('Navrangpura / CG Road, Ahmedabad', 23.0365, 72.5611, ctx),
+                _buildPresetTile('Vastrapur Lake & Alpha One, Ahmedabad', 23.0350, 72.5293, ctx),
+                _buildPresetTile('Sabarmati Riverfront, Ahmedabad', 23.0304, 72.5714, ctx),
+                _buildPresetTile('Maninagar & Kankaria Lake, Ahmedabad', 22.9978, 72.6030, ctx),
+                _buildPresetTile('SVP International Airport, Ahmedabad', 23.0734, 72.6347, ctx),
+                _buildPresetTile('GIFT City / Gandhinagar Financial Hub', 23.1610, 72.6840, ctx),
+                _buildPresetTile('Bopal / South Bopal, Ahmedabad', 23.0315, 72.4695, ctx),
+              ],
+            ),
           ),
         );
       },
@@ -348,7 +486,7 @@ class _UnusualLocationScreenState extends ConsumerState<UnusualLocationScreen> {
                                 // Dynamic Markers Layer
                                 MarkerLayer(
                                   markers: [
-                                    // 🟢 Home Location Marker
+                                    // 🟢 Home Location Marker (Navrangpura, Ahmedabad)
                                     Marker(
                                       point: LatLng(_homeLat, _homeLng),
                                       width: 80,
@@ -477,9 +615,15 @@ class _UnusualLocationScreenState extends ConsumerState<UnusualLocationScreen> {
                               right: 10,
                               child: Column(
                                 children: [
+                                  _buildMapIconButton(
+                                    Icons.my_location,
+                                    'GPS Me',
+                                    () => _fetchLiveGpsLocation(silent: false),
+                                  ),
+                                  const SizedBox(height: 6),
                                   _buildMapIconButton(Icons.crop_free, 'Fit', _fitBoth),
                                   const SizedBox(height: 6),
-                                  _buildMapIconButton(Icons.my_location, 'Current', _recenterCurrent),
+                                  _buildMapIconButton(Icons.home, 'Home', _recenterHome),
                                   const SizedBox(height: 6),
                                   _buildMapIconButton(Icons.add, 'Zoom In', _zoomIn),
                                   const SizedBox(height: 6),

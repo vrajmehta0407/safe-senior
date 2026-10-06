@@ -19,12 +19,12 @@ void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({
-      'home_location_address': 'Malviya Nagar, Delhi',
-      'home_lat': 28.5284,
-      'home_lng': 77.2065,
-      'last_known_location_address': 'Connaught Place, Delhi',
-      'last_known_lat': 28.6315,
-      'last_known_lng': 77.2167,
+      'home_location_address': 'Navrangpura, Ahmedabad',
+      'home_lat': 23.0365,
+      'home_lng': 72.5611,
+      'last_known_location_address': 'SG Highway, Ahmedabad',
+      'last_known_lat': 23.0525,
+      'last_known_lng': 72.5120,
     });
     await LocalPreferences.init();
 
@@ -57,13 +57,13 @@ void main() {
       const ProviderScope(
         child: MaterialApp(
           home: UnusualLocationScreen(
-            detectedLocation: 'Connaught Place, Delhi',
-            expectedLocation: 'Malviya Nagar, Delhi',
+            detectedLocation: 'SG Highway, Ahmedabad',
+            expectedLocation: 'Navrangpura, Ahmedabad',
             timeDetected: '3:47 PM',
-            currentLat: 28.6315,
-            currentLng: 77.2167,
-            homeLat: 28.5284,
-            homeLng: 77.2065,
+            currentLat: 23.0525,
+            currentLng: 72.5120,
+            homeLat: 23.0365,
+            homeLng: 72.5611,
           ),
         ),
       ),
@@ -81,9 +81,9 @@ void main() {
 
     // Verify Location info
     expect(find.text('Current Location'), findsOneWidget);
-    expect(find.text('Connaught Place, Delhi'), findsOneWidget);
+    expect(find.text('SG Highway, Ahmedabad'), findsOneWidget);
     expect(find.text('Your Home Area'), findsOneWidget);
-    expect(find.text('Malviya Nagar, Delhi'), findsOneWidget);
+    expect(find.text('Navrangpura, Ahmedabad'), findsOneWidget);
 
     // Verify Dynamic Action Buttons
     expect(find.text("I'm Safe — Went Out Intentionally"), findsOneWidget);
