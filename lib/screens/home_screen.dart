@@ -594,49 +594,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           color: const Color(0xFFAA361F),
                                         ),
                                       ),
-                                      const SizedBox(height: 14),
-                                      // Live Drill Testing Buttons (Unlimited Test Invocations)
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: ElevatedButton.icon(
-                                              onPressed: () {
-                                                SmsService.simulateFakeOtpMessage();
-                                              },
-                                              icon: const Icon(Icons.password, size: 16),
-                                              label: Text(
-                                                'Test Fake OTP',
-                                                style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, fontWeight: FontWeight.bold),
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(0xFFAA361F),
-                                                foregroundColor: Colors.white,
-                                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: ElevatedButton.icon(
-                                              onPressed: () {
-                                                CallService.simulateIncomingFakeCall();
-                                              },
-                                              icon: const Icon(Icons.phone_locked, size: 16),
-                                              label: Text(
-                                                'Test Fake Call',
-                                                style: GoogleFonts.atkinsonHyperlegible(fontSize: 12.5, fontWeight: FontWeight.bold),
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(0xFF006565),
-                                                foregroundColor: Colors.white,
-                                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                     ],
                                   ),
                                 ),
