@@ -24,30 +24,30 @@ export default function Layout({ children, admin, onLogout }) {
       title: 'Operations Center',
       items: [
         { path: '/dashboard', label: 'Command Center', icon: 'dashboard' },
-        { path: '/scam-reports', label: 'Threat Interceptions', icon: 'emergency', badge: '10' },
+        { path: '/scam-reports', label: 'Threat Interceptions', icon: 'emergency' },
         { path: '/crisis-handover', label: '1930 Crisis Handover', icon: 'support_agent' },
       ]
     },
     {
       title: 'Senior Protection Network',
       items: [
-        { path: '/users', label: 'Senior Citizens', icon: 'group' },
+        { path: '/users', label: 'Senior Citizens', icon: 'elderly' },
         { path: '/guardians', label: 'Guardian Safety Circle', icon: 'family_restroom' },
-        { path: '/geofencing', label: 'Geofence Safe Zones', icon: 'pin_drop' },
       ]
     },
     {
-      title: 'Scam Defense & Gamification',
+      title: 'Threat Intel & Rules',
       items: [
         { path: '/patterns', label: 'Threat Rules Engine', icon: 'rule' },
+        { path: '/rules-sandbox', label: 'Rule Testing Sandbox', icon: 'science' },
         { path: '/badges', label: '12 Defense Badges', icon: 'military_tech' },
       ]
     },
     {
-      title: 'SecOps & Governance',
+      title: 'SecOps Governance',
       items: [
         { path: '/audit-log', label: 'Security Audit Trail', icon: 'shield' },
-        { path: '/security-settings', label: '2FA & System Policies', icon: 'security' },
+        { path: '/admins', label: 'SecOps Admin Team', icon: 'admin_panel_settings' },
       ]
     }
   ]
@@ -155,8 +155,8 @@ export default function Layout({ children, admin, onLogout }) {
               <div className="absolute right-0 top-full mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 p-4 space-y-3 text-xs">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                   <span className="font-bold text-white text-sm">Critical Notifications</span>
-                  <button onClick={() => navigate('/alerts')} className="text-[11px] text-emerald-400 font-bold hover:underline">
-                    Alert Center &rarr;
+                  <button onClick={() => navigate('/scam-reports')} className="text-[11px] text-emerald-400 font-bold hover:underline">
+                    Threat Interceptions &rarr;
                   </button>
                 </div>
                 <ul className="space-y-2">
@@ -165,7 +165,7 @@ export default function Layout({ children, admin, onLogout }) {
                       key={n.id}
                       onClick={() => {
                         setShowNotifs(false)
-                        navigate('/alerts')
+                        navigate('/scam-reports')
                       }}
                       className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer space-y-1 transition-all"
                     >
@@ -237,7 +237,7 @@ export default function Layout({ children, admin, onLogout }) {
 
           <button
             onClick={() => {
-              navigate('/rules-wizard')
+              navigate('/patterns?create=true')
               setMobileOpen(false)
             }}
             className="mt-4 w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all active:scale-[0.99]"

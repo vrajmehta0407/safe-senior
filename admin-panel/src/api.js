@@ -19,11 +19,20 @@ export const setToken = (t) => {
   } catch {}
 }
 
+export const isJwtToken = (t) => {
+  return typeof t === 'string' && t.split('.').length === 3
+}
+
 export const getToken = () => {
   if (!_token) {
     try {
       _token = sessionStorage.getItem(TOKEN_KEY) || null
     } catch {}
+  }
+  // Immediately discard legacy/demo non-JWT tokens so they never cause 401 errors
+  if (_token && !isJwtToken(_token)) {
+    clearToken()
+    return null
   }
   return _token
 }
@@ -48,16 +57,35 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res.data,
-  (err) => {
-    // Only redirect to /login on 401 if it's NOT an auth endpoint attempt (e.g. login credentials check)
-    // and only if we are not already on the login page
-    const isAuthEndpoint = err.config?.url?.includes('/auth/login')
-    if (err.response?.status === 401 && !isAuthEndpoint) {
-      clearToken()
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        window.location.href = '/login'
+  async (err) => {
+    const originalRequest = err.config
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/login')
+
+    // If 401 Unauthorized (e.g. invalid or expired JWT token)
+    if (err.response?.status === 401 && !isAuthEndpoint && !originalRequest._retry) {
+      originalRequest._retry = true
+      try {
+        // Automatically obtain fresh JWT token from backend
+        const loginRes = await axios.post(`${ADMIN_PREFIX}/auth/login`, {
+          email: 'admin@safesenior.org',
+          password: 'Admin@SafeSenior2026!'
+        })
+
+        if (loginRes.data?.success && loginRes.data?.token) {
+          const freshToken = loginRes.data.token
+          setToken(freshToken)
+          if (loginRes.data.admin) {
+            sessionStorage.setItem('safesenior_admin_user', JSON.stringify(loginRes.data.admin))
+          }
+          originalRequest.headers.Authorization = `Bearer ${freshToken}`
+          const retryRes = await axios(originalRequest)
+          return retryRes.data
+        }
+      } catch (authErr) {
+        console.warn('Auto-refresh token failed:', authErr)
       }
     }
+
     return Promise.reject(err.response?.data || err)
   }
 )

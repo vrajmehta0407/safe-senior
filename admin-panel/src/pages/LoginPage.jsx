@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShieldCheck, UserCheck, Key, Lock, ArrowRight, Shield } from 'lucide-react'
+import { ShieldCheck, UserCheck, Key, Lock, Shield } from 'lucide-react'
 import api from '../api'
 
 export default function LoginPage({ onLogin }) {
@@ -21,71 +21,35 @@ export default function LoginPage({ onLogin }) {
     setLoading(true)
     try {
       if (requires2FA) {
-        try {
-          const data = await api.post('/auth/login/2fa', { preAuthToken, totpCode })
-          if (data.success) {
+        const data = await api.post('/auth/login/2fa', { preAuthToken, totpCode })
+        if (data.success) {
+          onLogin(data.token, data.admin)
+          navigate('/dashboard')
+          return
+        } else {
+          setError(data.message || 'Invalid 2FA code.')
+        }
+      } else {
+        const data = await api.post('/auth/login', { email, password })
+        if (data.success) {
+          if (data.requires2FA) {
+            setRequires2FA(true)
+            setPreAuthToken(data.preAuthToken)
+            return
+          } else {
             onLogin(data.token, data.admin)
             navigate('/dashboard')
             return
           }
-        } catch (apiErr) {
-          console.warn('2FA endpoint fallback to local session demo:', apiErr)
-          // Demo fallback
-          onLogin('demo-session-token-2026', {
-            id: 'admin-001',
-            name: 'Vraj Mehta (Security Lead)',
-            email: email || 'admin@safesenior.org',
-            role: 'superadmin'
-          })
-          navigate('/dashboard')
-          return
-        }
-      } else {
-        try {
-          const data = await api.post('/auth/login', { email, password })
-          if (data.success) {
-            if (data.requires2FA) {
-              setRequires2FA(true)
-              setPreAuthToken(data.preAuthToken)
-              return
-            } else {
-              onLogin(data.token, data.admin)
-              navigate('/dashboard')
-              return
-            }
-          }
-        } catch (apiErr) {
-          if (apiErr.response?.data?.message) {
-            setError(apiErr.response.data.message)
-            return
-          }
-          // Only if backend is completely down (offline dev)
-          console.warn('Backend unavailable, initiating local administrative session:', apiErr)
-          onLogin('demo-session-token-2026', {
-            id: 'admin-001',
-            name: 'Vraj Mehta (Security Lead)',
-            email: email || 'admin@safesenior.org',
-            role: 'superadmin'
-          })
-          navigate('/dashboard')
-          return
+        } else {
+          setError(data.message || 'Authentication failed.')
         }
       }
     } catch (err) {
-      setError(err?.message || 'Invalid Admin credentials.')
+      setError(err?.message || err?.response?.data?.message || 'Invalid administrator email or password.')
     } finally {
       setLoading(false)
     }
-  }
-
-  function handleQuickDemo() {
-    onLogin('demo-session-token-2026', {
-      id: 'admin-001',
-      name: 'Vraj Mehta (Lead SecOps)',
-      email: 'admin@safesenior.org',
-      role: 'superadmin'
-    })
-    navigate('/dashboard')
   }
 
   return (
@@ -177,15 +141,6 @@ export default function LoginPage({ onLogin }) {
             className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-900/40 transition-all duration-200 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? 'Authenticating...' : 'Sign In to Operations Console'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleQuickDemo}
-            className="w-full bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-semibold text-xs py-3 px-4 rounded-xl border border-slate-700/60 transition-all flex items-center justify-center gap-2 group"
-          >
-            <span>Quick Demo Access (Skip Login)</span>
-            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 

@@ -1,251 +1,243 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { mockUsers } from '../mockData'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts'
-
-const riskHistory = [
-  { day: 'Day 1', score: 42 },
-  { day: 'Day 5', score: 45 },
-  { day: 'Day 10', score: 51 },
-  { day: 'Day 15', score: 68 },
-  { day: 'Day 20', score: 62 },
-  { day: 'Day 25', score: 74 },
-  { day: 'Day 30', score: 78 }
-]
+import api from '../api'
 
 export default function UserProtectionDetail() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const userId = searchParams.get('id') || 'u1'
-  const user = mockUsers.find(u => u.id === userId) || mockUsers[0]
+  const userId = searchParams.get('id')
 
-  const [txMonitoring, setTxMonitoring] = useState(true)
-  const [filterLevel, setFilterLevel] = useState('High')
-  const [historyRange, setHistoryRange] = useState('Last 30 Days')
+  const [loading, setLoading] = useState(true)
+  const [userData, setUserData] = useState(null)
+  const [guardians, setGuardians] = useState([])
+  const [scamReports, setScamReports] = useState([])
+  const [errorMessage, setErrorMessage] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
+
+  useEffect(() => {
+    async function loadUser() {
+      if (!userId) {
+        setErrorMessage('No user ID specified.')
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+      try {
+        const res = await api.get(`/users/${userId}`)
+        if (res && res.success) {
+          setUserData(res.user)
+          setGuardians(res.guardians || [])
+          setScamReports(res.scamReports || [])
+        } else {
+          setErrorMessage(res?.message || 'User not found in database.')
+        }
+      } catch (err) {
+        setErrorMessage(err.message || 'Failed to load user profile.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUser()
+  }, [userId])
+
+  const handleToggleSuspend = async () => {
+    if (!userData) return
+    setActionLoading(true)
+    try {
+      const targetState = !userData.is_suspended
+      await api.patch(`/users/${userData.id}`, { is_suspended: targetState })
+      setUserData(prev => ({ ...prev, is_suspended: targetState }))
+    } catch (e) {
+      alert(`Failed to update status: ${e.message}`)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-24 text-slate-400 space-y-3">
+        <span className="material-symbols-outlined text-4xl animate-spin text-teal-400">sync</span>
+        <p className="text-sm font-semibold text-slate-300">Loading senior citizen profile from database...</p>
+      </div>
+    )
+  }
+
+  if (errorMessage || !userData) {
+    return (
+      <div className="bg-slate-900/80 p-12 rounded-3xl border border-slate-800 text-center space-y-4">
+        <span className="material-symbols-outlined text-red-400 text-5xl">error</span>
+        <h3 className="text-xl font-bold text-white">Profile Unavailable</h3>
+        <p className="text-sm text-slate-400">{errorMessage || 'Senior record does not exist.'}</p>
+        <button
+          onClick={() => navigate('/users')}
+          className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700"
+        >
+          Back to Users Directory
+        </button>
+      </div>
+    )
+  }
+
+  const initials = (userData.name || 'S')
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase()
 
   return (
-    <div className="space-y-8">
-      {/* ── Profile Header (Stitch Screen 73) ── */}
-      <div className="bg-surface rounded-3xl p-6 shadow-sm border border-surface-container-high">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fadeIn">
+      {/* ── Back Navigation & Action Bar ── */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate('/users')}
+          className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+        >
+          <span className="material-symbols-outlined text-base">arrow_back</span>
+          <span>Back to Senior Citizens Directory</span>
+        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            disabled={actionLoading}
+            onClick={handleToggleSuspend}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+              userData.is_suspended
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-red-600 hover:bg-red-500 text-white'
+            }`}
+          >
+            {actionLoading ? 'Processing...' : userData.is_suspended ? 'Reactivate Account' : 'Quarantine / Suspend'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Profile Summary Card ── */}
+      <div className="bg-slate-900/80 rounded-3xl p-6 border border-slate-800/80 shadow-xl backdrop-blur-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
-            />
+            <div className="w-16 h-16 rounded-2xl bg-teal-500/15 text-teal-300 border border-teal-500/20 flex items-center justify-center font-bold text-xl shadow-inner shrink-0">
+              {initials}
+            </div>
             <div>
-              <h1 className="font-headline-lg text-2xl md:text-3xl font-bold text-on-surface">{user.name}</h1>
-              <p className="font-body-lg text-sm text-on-surface-variant mt-0.5">
-                User ID: #{user.id.toUpperCase()}-8842 • Age: {user.age} • Device: {user.device}
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-white">{userData.name}</h1>
+                <span
+                  className={`px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wider ${
+                    userData.is_suspended
+                      ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}
+                >
+                  {userData.is_suspended ? 'Suspended' : 'Active Protected'}
+                </span>
+              </div>
+              <p className="text-xs font-mono text-slate-400 mt-1">
+                Database ID: #{userData.id} • Registered:{' '}
+                {new Date(userData.created_at).toLocaleDateString()}
               </p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => alert(`Suspending active sessions for ${user.name}...`)}
-              className="h-[44px] px-5 rounded-xl border border-outline text-on-surface font-label-md text-sm hover:bg-surface-container-high transition-colors flex items-center gap-2 font-bold"
-            >
-              <span className="material-symbols-outlined text-[18px]">pause</span> Suspend
-            </button>
-            <button
-              onClick={() => navigate(`/geofencing?id=${user.id}`)}
-              className="h-[44px] px-5 rounded-xl bg-primary text-on-primary font-label-md text-sm hover:bg-primary-container transition-colors flex items-center gap-2 font-bold shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">pin_drop</span> Safe Zones
-            </button>
-          </div>
-        </div>
 
-        <div className="flex flex-wrap gap-3 mt-6">
-          <div className="bg-surface-container-low px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold text-on-surface border border-surface-container-high">
-            <span className="material-symbols-outlined text-primary text-[16px]">home</span>
-            <span>{user.location}</span>
-          </div>
-          <div className="bg-surface-container-low px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold text-on-surface border border-surface-container-high">
-            <span className="material-symbols-outlined text-primary text-[16px]">phone</span>
-            <span>{user.phone || '+91 98250 14820'}</span>
-          </div>
-          <div className="bg-error-container text-on-error-container px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold border border-error/20">
-            <span className="material-symbols-outlined text-[16px]">health_and_safety</span>
-            <span>Risk Score: {user.riskScore}/100 ({user.riskScore > 70 ? 'High' : 'Protected'})</span>
+          <div className="flex flex-wrap gap-3">
+            <div className="px-4 py-2.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+              <div className="text-[10px] text-slate-500 uppercase font-bold">Contact Phone</div>
+              <div className="font-mono text-sm text-teal-300 font-bold mt-0.5">{userData.phone_number || 'N/A'}</div>
+            </div>
+            <div className="px-4 py-2.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+              <div className="text-[10px] text-slate-500 uppercase font-bold">Registered Email</div>
+              <div className="font-mono text-sm text-slate-200 font-bold mt-0.5">{userData.email || 'N/A'}</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Bento Grid Layout (8 cols left / 4 cols right) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Risk & Protection (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col gap-8">
-          {/* Risk Score History (Chart Area) */}
-          <section className="bg-surface rounded-3xl p-6 shadow-sm border border-surface-container-high">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">monitoring</span>
-                Risk Score History
+      {/* ── Two Column Grid: Linked Guardians & Intercepted Threats ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Linked Guardians (5 cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="bg-slate-900/80 rounded-3xl p-6 border border-slate-800/80 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span className="material-symbols-outlined text-teal-400">family_restroom</span>
+                Linked Family Guardians ({guardians.length})
               </h3>
-              <select
-                value={historyRange}
-                onChange={(e) => setHistoryRange(e.target.value)}
-                className="h-[40px] bg-surface-container-low border border-outline-variant rounded-xl font-label-md text-xs text-on-surface-variant focus:ring-2 focus:ring-primary px-3 pr-8 outline-none"
-              >
-                <option>Last 30 Days</option>
-                <option>Last 3 Months</option>
-                <option>Last Year</option>
-              </select>
             </div>
 
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={riskHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="riskScoreGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#aa361f" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#aa361f" stopOpacity={0.02}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#efeded" />
-                  <XAxis dataKey="day" stroke="#6e7979" fontSize={11} />
-                  <YAxis domain={[0, 100]} stroke="#6e7979" fontSize={11} />
-                  <Tooltip contentStyle={{ background: '#ffffff', borderRadius: 12, border: '1px solid #bdc9c8', fontSize: 12 }} />
-                  <Area type="monotone" dataKey="score" name="Risk Score (0-100)" stroke="#aa361f" strokeWidth={2.5} fillOpacity={1} fill="url(#riskScoreGrad)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-
-          {/* Protection Sensitivity Controls */}
-          <section className="bg-surface rounded-3xl p-6 shadow-sm border border-surface-container-high">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">tune</span>
-              Protection Sensitivity
-            </h3>
-            <div className="space-y-4">
-              <div className="bg-surface-container-low p-4 rounded-2xl flex items-center justify-between border border-surface-container-high">
-                <div>
-                  <h4 className="font-label-lg font-bold text-sm text-on-surface">Financial Transaction Monitoring</h4>
-                  <p className="font-body-md text-xs text-on-surface-variant mt-0.5">Alerts guardians immediately for unusual wire or gift card charges.</p>
-                </div>
-                <button
-                  onClick={() => setTxMonitoring(!txMonitoring)}
-                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                    txMonitoring ? 'bg-primary' : 'bg-outline-variant'
-                  }`}
-                >
+            {guardians.length === 0 ? (
+              <div className="p-6 bg-slate-950/60 rounded-2xl border border-slate-800 text-center text-slate-500 text-xs">
+                No guardians currently linked to this senior in PostgreSQL.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {guardians.map((g) => (
                   <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                      txMonitoring ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
+                    key={g.id}
+                    className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-bold text-white text-sm">{g.name}</div>
+                      <div className="text-xs text-teal-400 font-mono mt-0.5">{g.phone_number}</div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-teal-300 border border-slate-700">
+                      {g.relationship || 'Guardian'}
+                    </span>
+                  </div>
+                ))}
               </div>
-
-              <div className="bg-surface-container-low p-4 rounded-2xl border border-surface-container-high">
-                <h4 className="font-label-lg font-bold text-sm text-on-surface">Communication Filter Level</h4>
-                <p className="font-body-md text-xs text-on-surface-variant mt-0.5 mb-3">Determines strictness of unknown caller and link screening.</p>
-                <div className="flex gap-2">
-                  {['Low', 'Medium', 'High (Strict)'].map((lvl) => {
-                    const active = (filterLevel === 'High' && lvl.startsWith('High')) || filterLevel === lvl
-                    return (
-                      <button
-                        key={lvl}
-                        onClick={() => setFilterLevel(lvl.startsWith('High') ? 'High' : lvl)}
-                        className={`flex-1 py-2.5 rounded-xl font-label-md text-xs font-bold transition-all ${
-                          active
-                            ? 'bg-primary text-on-primary shadow-sm'
-                            : 'bg-surface text-on-surface border border-outline hover:bg-surface-container-high'
-                        }`}
-                      >
-                        {lvl}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </section>
+            )}
+          </div>
         </div>
 
-        {/* Right Column: People & Alerts (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col gap-8">
-          {/* Connected Guardians */}
-          <section className="bg-surface rounded-3xl p-6 shadow-sm border border-surface-container-high">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">family_restroom</span>
-                Connected Guardians
+        {/* Right Column: Intercepted Threats History (7 cols) */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="bg-slate-900/80 rounded-3xl p-6 border border-slate-800/80 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span className="material-symbols-outlined text-red-400">emergency</span>
+                Intercepted Threat History ({scamReports.length})
               </h3>
-              <button
-                onClick={() => navigate('/guardian-dashboard')}
-                className="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors"
-                title="Add Guardian"
-              >
-                <span className="material-symbols-outlined text-[20px]">add_circle</span>
-              </button>
             </div>
-            <div className="space-y-3">
-              {user.guardians.map((g, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl border border-surface-container-high">
-                  <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
-                    {g.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-label-lg font-bold text-sm text-on-surface">{g.name}</h4>
-                    <p className="font-body-md text-xs text-on-surface-variant">{g.relation} • {g.phone}</p>
-                  </div>
-                  <button className="text-on-surface-variant hover:text-primary transition-colors p-1">
-                    <span className="material-symbols-outlined text-[18px]">phone</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
 
-          {/* Recent Alerts Timeline */}
-          <section className="bg-surface rounded-3xl p-6 shadow-sm border border-surface-container-high flex-1">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">warning</span>
-              Recent Threat Timeline
-            </h3>
-            <div className="space-y-4 relative before:absolute before:inset-y-0 before:left-[19px] before:w-px before:bg-outline-variant">
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center border-4 border-surface shadow-sm z-10">
-                  <span className="material-symbols-outlined text-sm">credit_card_off</span>
-                </div>
-                <div className="bg-surface-container-low p-4 rounded-2xl border border-secondary-container/30">
-                  <span className="text-[11px] font-bold text-secondary mb-1 block">2 hours ago</span>
-                  <h4 className="font-label-md font-bold text-xs text-on-surface">Blocked UPI Transfer Attempt</h4>
-                  <p className="font-body-md text-xs text-on-surface-variant mt-1">₹15,000 unverified transfer to "Quick-Tech-Support" blocked by SafeSenior Shield.</p>
-                </div>
+            {scamReports.length === 0 ? (
+              <div className="p-8 bg-slate-950/60 rounded-2xl border border-slate-800 text-center text-slate-400 text-xs">
+                <span className="material-symbols-outlined text-3xl text-emerald-400 mb-1">verified_user</span>
+                <p className="font-semibold text-slate-300">Clean Defense Record</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">No scam calls or phishing messages recorded for this user.</p>
               </div>
+            ) : (
+              <div className="space-y-3">
+                {scamReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-white text-xs">{report.sender}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-500/20 text-red-300 border border-red-500/30">
+                          {report.classification}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-slate-300">
+                          {report.type}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-500">
+                        {new Date(report.timestamp).toLocaleDateString()}
+                      </span>
+                    </div>
 
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center border-4 border-surface shadow-sm z-10">
-                  <span className="material-symbols-outlined text-sm">phone_missed</span>
-                </div>
-                <div className="bg-surface-container-low p-4 rounded-2xl border border-surface-container-high">
-                  <span className="text-[11px] font-bold text-on-surface-variant mb-1 block">Yesterday, 4:30 PM</span>
-                  <h4 className="font-label-md font-bold text-xs text-on-surface">MSEDCL Electricity Spoof Blocked</h4>
-                  <p className="font-body-md text-xs text-on-surface-variant mt-1">Number flagged as power cut phishing SMS by community database.</p>
-                </div>
+                    <p className="text-xs text-slate-300 font-mono bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 leading-relaxed">
+                      {report.body_preview}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </div>
-
-            <button
-              onClick={() => navigate('/alerts')}
-              className="w-full mt-6 py-2.5 text-primary font-label-md text-xs font-bold hover:bg-primary-container/10 rounded-xl transition-colors border border-primary/20"
-            >
-              View Full Incident History
-            </button>
-          </section>
+            )}
+          </div>
         </div>
       </div>
     </div>

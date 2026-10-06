@@ -276,6 +276,17 @@ router.get('/audit-log', async (req, res, next) => {
   }
 });
 
+// ─── GET /admins — list all admins ───────────────────────────────────────────
+
+router.get('/admins', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT id, name, email, role, created_at FROM admins ORDER BY id ASC');
+    return res.status(200).json({ success: true, admins: result.rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── POST /admins — create another admin (superadmin only) ───────────────────
 
 router.post('/admins', requireSuperAdmin, async (req, res, next) => {

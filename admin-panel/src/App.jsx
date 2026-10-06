@@ -5,33 +5,20 @@ import { AdminDataProvider } from './context/AdminDataContext'
 import LoginPage from './pages/LoginPage'
 import Layout from './components/Layout'
 
-// 25 Stitch Desktop Screens / Pages
+// Real & Essential Working Admin Screens
 import Dashboard from './pages/Dashboard'
-import GuardianDashboard from './pages/GuardianDashboard'
-import GuardianActivity from './pages/GuardianActivity'
-import UserProtectionDetail from './pages/UserProtectionDetail'
-import AlertsCenter from './pages/AlertsCenter'
 import ScamReports from './pages/ScamReports'
-import PostIncidentReport from './pages/PostIncidentReport'
-import RuleSandbox from './pages/RuleSandbox'
-import RuleWizard from './pages/RuleWizard'
-import Patterns from './pages/Patterns'
-import RuleAnalytics from './pages/RuleAnalytics'
-import GeofencingConfig from './pages/GeofencingConfig'
 import CrisisHandover from './pages/CrisisHandover'
-import HeatmapView from './pages/HeatmapView'
-import SystemAnalytics from './pages/SystemAnalytics'
 import UsersPage from './pages/UsersPage'
-import BatchUserImport from './pages/BatchUserImport'
-import AdminActivity from './pages/AdminActivity'
-import AuditLog from './pages/AuditLog'
-import ConfigHistory from './pages/ConfigHistory'
-import SecuritySettings from './pages/SecuritySettings'
-import ApiIntegrations from './pages/ApiIntegrations'
-import SystemMaintenance from './pages/SystemMaintenance'
+import UserProtectionDetail from './pages/UserProtectionDetail'
 import Guardians from './pages/Guardians'
-import AdminUsers from './pages/AdminUsers'
+import Patterns from './pages/Patterns'
+import RuleSandbox from './pages/RuleSandbox'
 import BadgesPage from './pages/BadgesPage'
+import AuditLog from './pages/AuditLog'
+import AdminUsers from './pages/AdminUsers'
+import SecuritySettings from './pages/SecuritySettings'
+import SystemMaintenance from './pages/SystemMaintenance'
 
 function PrivateRoute({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />
@@ -51,7 +38,7 @@ export default function App() {
     const user = adminData || {
       id: 'admin-001',
       name: 'Vraj Mehta',
-      role: 'SecOps Lead'
+      role: 'Superadmin'
     }
     setToken(token)
     try {
@@ -83,42 +70,27 @@ export default function App() {
                 <Layout admin={admin} onLogout={handleLogout}>
                   <Routes>
                     <Route index element={<Navigate to="/dashboard" replace />} />
-                    
-                    {/* Core Operations */}
+
+                    {/* Operations Center */}
                     <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="alerts" element={<AlertsCenter />} />
                     <Route path="scam-reports" element={<ScamReports />} />
-                    <Route path="post-incident-reports" element={<PostIncidentReport />} />
-                    
-                    {/* Guardian & Family Portal */}
-                    <Route path="guardian-dashboard" element={<GuardianDashboard />} />
-                    <Route path="guardian-activity" element={<GuardianActivity />} />
-                    <Route path="protection-details" element={<UserProtectionDetail />} />
-                    <Route path="users" element={<UsersPage />} />
-                    <Route path="batch-import" element={<BatchUserImport />} />
-                    <Route path="guardians" element={<Guardians />} />
-
-                    {/* Threat Intel & Rules */}
-                    <Route path="patterns" element={<Patterns />} />
-                    <Route path="badges" element={<BadgesPage />} />
-                    <Route path="rules-sandbox" element={<RuleSandbox />} />
-                    <Route path="rules-wizard" element={<RuleWizard />} />
-                    <Route path="rules-analytics" element={<RuleAnalytics />} />
-                    <Route path="heatmap" element={<HeatmapView />} />
-
-                    {/* Emergency & Zones */}
-                    <Route path="geofencing" element={<GeofencingConfig />} />
                     <Route path="crisis-handover" element={<CrisisHandover />} />
 
-                    {/* System & Intelligence */}
-                    <Route path="analytics" element={<SystemAnalytics />} />
-                    <Route path="security-settings" element={<SecuritySettings />} />
-                    <Route path="api-integrations" element={<ApiIntegrations />} />
-                    <Route path="config-history" element={<ConfigHistory />} />
-                    <Route path="admin-activity" element={<AdminActivity />} />
+                    {/* Senior Citizens & Guardians */}
+                    <Route path="users" element={<UsersPage />} />
+                    <Route path="protection-details" element={<UserProtectionDetail />} />
+                    <Route path="guardians" element={<Guardians />} />
+
+                    {/* Threat Intel & Rule Testing */}
+                    <Route path="patterns" element={<Patterns />} />
+                    <Route path="rules-sandbox" element={<RuleSandbox />} />
+                    <Route path="badges" element={<BadgesPage />} />
+
+                    {/* SecOps & Governance */}
                     <Route path="audit-log" element={<AuditLog />} />
-                    <Route path="maintenance" element={<SystemMaintenance />} />
                     <Route path="admins" element={<AdminUsers />} />
+                    <Route path="security-settings" element={<SecuritySettings />} />
+                    <Route path="maintenance" element={<SystemMaintenance />} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />

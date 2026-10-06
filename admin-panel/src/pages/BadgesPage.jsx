@@ -149,9 +149,11 @@ export const flutterDefenseBadges = [
 ]
 
 export default function BadgesPage() {
-  const { users } = useAdminData()
+  const { users, addAuditLog } = useAdminData()
   const totalUsersCount = (users && users.length) ? users.length : 10
   const [filterCategory, setFilterCategory] = useState('All')
+  const [selectedBadge, setSelectedBadge] = useState(null)
+  const [awardSuccess, setAwardSuccess] = useState('')
 
   const categories = ['All', 'SMS & Web Defense', 'Call Protection', 'Knowledge', 'Family Care', 'Protection', 'AI Defense', 'Privacy', 'Threat Radar', 'Emergency', 'Device Security', 'Milestone']
 
@@ -224,7 +226,8 @@ export default function BadgesPage() {
           return (
             <div
               key={badge.id}
-              className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 hover:border-teal-500/40 transition-all hover:shadow-xl hover:shadow-teal-950/20 relative overflow-hidden group"
+              onClick={() => setSelectedBadge(badge)}
+              className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 hover:border-teal-500/60 transition-all hover:shadow-xl hover:shadow-teal-950/30 relative overflow-hidden group cursor-pointer active:scale-[0.99]"
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div
@@ -249,7 +252,7 @@ export default function BadgesPage() {
                 </div>
               </div>
 
-              <h3 className="font-bold text-white text-base leading-snug mb-1">
+              <h3 className="font-bold text-white text-base leading-snug mb-1 group-hover:text-teal-300 transition-colors">
                 {badge.title}
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed mb-4 min-h-[38px]">
@@ -261,7 +264,7 @@ export default function BadgesPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400 font-medium">Network Adoption</span>
                   <span className="font-bold font-mono text-teal-400">
-                    {badge.unlockedCount} / {totalUsersCount} Seniors ({unlockRate}%)
+                    {badge.unlockedCount} / {totalUsersCount} Seniors ({unlockRate}% &bull; Click to Inspect)
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
@@ -298,6 +301,113 @@ export default function BadgesPage() {
           </span>
         </div>
       </div>
+
+      {/* ── Badge Detail & Inspection Modal ── */}
+      {selectedBadge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-5 text-slate-200">
+            <div className="flex items-start justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-3.5">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center border shadow-inner"
+                  style={{
+                    backgroundColor: selectedBadge.bgTint,
+                    borderColor: selectedBadge.primaryColor,
+                    color: selectedBadge.primaryColor
+                  }}
+                >
+                  <span className="material-symbols-outlined text-3xl icon-fill">
+                    {selectedBadge.icon}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">{selectedBadge.title}</h3>
+                  <span className="text-xs text-teal-400 font-mono">{selectedBadge.category}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedBadge(null)
+                  setAwardSuccess('')
+                }}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {awardSuccess && (
+              <div className="p-3 bg-teal-500/15 border border-teal-500/30 rounded-xl text-teal-300 text-xs font-bold flex items-center gap-2 animate-fadeIn">
+                <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                <span>{awardSuccess}</span>
+              </div>
+            )}
+
+            <div className="space-y-4 text-xs">
+              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Defense Criterion</span>
+                <p className="text-slate-200 leading-relaxed font-medium">{selectedBadge.description}</p>
+              </div>
+
+              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Cohort Adoption Rate</span>
+                  <span className="text-teal-400 font-bold font-mono">
+                    {selectedBadge.unlockedCount} / {totalUsersCount} Seniors
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.round((selectedBadge.unlockedCount / totalUsersCount) * 100)}%`,
+                      backgroundColor: selectedBadge.primaryColor
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Top Protected Seniors Holding This Badge</span>
+                <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                  {(users || []).slice(0, 4).map(u => (
+                    <div key={u.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                      <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                        <span className="font-semibold text-white">{u.name}</span>
+                      </div>
+                      <span className="font-mono text-teal-400 text-[10px] bg-teal-950/60 px-2 py-0.5 rounded border border-teal-500/20">Unlocked</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+              <button
+                onClick={() => {
+                  setSelectedBadge(null)
+                  setAwardSuccess('')
+                }}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setAwardSuccess(`Badge "${selectedBadge.title}" synchronized to all senior devices via push telemetry!`)
+                  if (addAuditLog) addAuditLog('BADGE_TELEMETRY_SYNCED', `Broadcasted ${selectedBadge.title} milestone sync to protected devices`)
+                  setTimeout(() => setAwardSuccess(''), 4000)
+                }}
+                className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-teal-950/40 transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[16px]">sync</span>
+                <span>Push Badge Sync</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -5,12 +5,30 @@ import api from '../api'
 
 export default function ScamReports() {
   const navigate = useNavigate()
-  const { scamReports, users, addAuditLog } = useAdminData()
+  const { scamReports, users, addAuditLog, refreshData, loading } = useAdminData()
 
   const [activeTab, setActiveTab] = useState('all') // 'all' | 'call' | 'sms' | 'high-risk'
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedReport, setSelectedReport] = useState(null)
   const [dispatchStatus, setDispatchStatus] = useState('')
+
+  const handleExportCSV = () => {
+    const header = 'ID,User ID,Type,Sender,Classification,Body Preview,Timestamp\n'
+    const rows = filteredReports
+      .map(
+        (r) =>
+          `"${r.id}","${r.user_id || ''}","${r.type || ''}","${r.sender || ''}","${r.classification || ''}","${(
+            r.body_preview || ''
+          ).replace(/"/g, '""')}","${r.timestamp || ''}"`
+      )
+      .join('\n')
+    const blob = new Blob([header + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `SafeSenior_Real_Scam_Reports_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+  }
 
   // Filter reports
   const filteredReports = (scamReports || []).filter(r => {
@@ -49,7 +67,7 @@ export default function ScamReports() {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* ── Page Header matching Flutter SafeSenior Theme ── */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-xl shadow-xl">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-900/80 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-xl shadow-xl">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></span>
@@ -66,19 +84,36 @@ export default function ScamReports() {
           </p>
         </div>
 
-        {/* Telemetry Stats */}
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
-            <div className="text-xl font-bold text-white">{(scamReports || []).length}</div>
-            <div className="text-[10px] text-slate-400 font-semibold uppercase">Total Threats</div>
+        {/* Telemetry Stats & Actions */}
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap shrink-0 overflow-x-auto pb-1 xl:pb-0">
+          <button
+            onClick={refreshData}
+            className="h-10 px-3.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
+          >
+            <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin text-teal-400' : ''}`}>
+              refresh
+            </span>
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="h-10 px-3.5 rounded-xl border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
+          >
+            <span className="material-symbols-outlined text-[18px]">download</span>
+            <span>Export CSV</span>
+          </button>
+
+          <div className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-center whitespace-nowrap shrink-0 min-w-[80px]">
+            <div className="text-lg font-bold text-white leading-tight">{(scamReports || []).length}</div>
+            <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Total Threats</div>
           </div>
-          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
-            <div className="text-xl font-bold text-red-400">{highRiskCount}</div>
-            <div className="text-[10px] text-slate-400 font-semibold uppercase">High Risk</div>
+          <div className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-center whitespace-nowrap shrink-0 min-w-[76px]">
+            <div className="text-lg font-bold text-red-400 leading-tight">{highRiskCount}</div>
+            <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">High Risk</div>
           </div>
-          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
-            <div className="text-xl font-bold text-teal-400">{callsCount}</div>
-            <div className="text-[10px] text-slate-400 font-semibold uppercase">Calls Blocked</div>
+          <div className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-center whitespace-nowrap shrink-0 min-w-[86px]">
+            <div className="text-lg font-bold text-teal-400 leading-tight">{callsCount}</div>
+            <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Calls Blocked</div>
           </div>
         </div>
       </header>
