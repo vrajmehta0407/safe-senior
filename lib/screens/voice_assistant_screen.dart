@@ -293,21 +293,25 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                     const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
-                      height: 46,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryTeal,
                           foregroundColor: Colors.white,
                           elevation: 0,
+                          minimumSize: const Size.fromHeight(50),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                         onPressed: _playVoiceTest,
                         icon: Icon(_isPlayingTest ? Icons.stop : Icons.play_arrow, size: 20),
-                        label: Text(
-                          _isPlayingTest ? 'Playing Sample Voice...' : 'Listen to Voice Sample ▶',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _isPlayingTest ? 'Playing Sample Voice...' : 'Listen to Voice Sample ▶',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
@@ -498,21 +502,25 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
               // ── 5. Save Voice Settings Action Button ──
               SizedBox(
                 width: double.infinity,
-                height: 52,
                 child: ElevatedButton.icon(
                   onPressed: _saveSettings,
                   icon: const Icon(Icons.check_circle_outline, size: 20),
-                  label: Text(
-                    AppTranslations.tr('Save Voice Settings', langCode),
-                    style: GoogleFonts.atkinsonHyperlegible(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                  label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      AppTranslations.tr('Save Voice Settings', langCode),
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryTeal,
                     foregroundColor: Colors.white,
                     elevation: 0,
+                    minimumSize: const Size.fromHeight(52),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),

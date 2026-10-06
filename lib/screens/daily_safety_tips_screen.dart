@@ -226,7 +226,6 @@ class _DailySafetyTipsScreenState extends ConsumerState<DailySafetyTipsScreen> {
                           const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
-                            height: 48,
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.push(
@@ -237,9 +236,14 @@ class _DailySafetyTipsScreenState extends ConsumerState<DailySafetyTipsScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryTeal,
                                 foregroundColor: Colors.white,
+                                minimumSize: const Size.fromHeight(48),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                               ),
-                              child: Text('Run Diagnostic', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold)),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Run Diagnostic', style: GoogleFonts.atkinsonHyperlegible(fontWeight: FontWeight.bold)),
+                              ),
                             ),
                           ),
                         ],

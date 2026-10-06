@@ -14,6 +14,7 @@ import 'settings_screen.dart';
 import 'warning_alert_screen.dart';
 import 'safety_quiz_hub_screen.dart';
 import 'achievements_screen.dart';
+import 'badge_detail_screen.dart';
 import 'scam_library_screen.dart';
 import 'weekly_report_screen.dart';
 import 'account_health_screen.dart';
@@ -382,6 +383,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // ── BADGES VIEW: 100% full-page options & working actions ──
   // ─────────────────────────────────────────────────────────────
   List<Widget> _buildBadgesView(String langCode) {
+    final earnedBadges = kSampleBadges.where((b) => b.isUnlocked).toList();
+    final nextGoals = kSampleBadges.where((b) => !b.isUnlocked).take(2).toList();
     return [
       // 1. 7-Day Streak & Senior Defense XP Card
       Container(
@@ -602,6 +605,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       // 3. Earned Senior Badges Gallery Card
       Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -616,7 +620,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -639,7 +643,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    '4 Unlocked',
+                    '${earnedBadges.length} Unlocked',
                     style: GoogleFonts.atkinsonHyperlegible(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -650,41 +654,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            _buildBadgeRow(
-              icon: Icons.shield,
-              color: AppTheme.primaryTeal,
-              bg: const Color(0xFFE0F2F2),
-              title: 'Phishing Sentinel (Level 2)',
-              subtitle: '10+ spoofed bank SMS inspected and avoided',
-              status: 'Active ✓',
-            ),
-            const Divider(color: Color(0xFFEFEDED), height: 18),
-            _buildBadgeRow(
-              icon: Icons.phone_callback,
-              color: const Color(0xFFFE7356),
-              bg: const Color(0xFFFFDAD3),
-              title: 'Spam Neutralizer (Level 3)',
-              subtitle: '15+ scam robocalls screened and auto-blocked',
-              status: 'Active ✓',
-            ),
-            const Divider(color: Color(0xFFEFEDED), height: 18),
-            _buildBadgeRow(
-              icon: Icons.school,
-              color: const Color(0xFFCCA830),
-              bg: const Color(0xFFFFE088),
-              title: 'Quiz Champion (Level 1)',
-              subtitle: '100% accuracy on senior fraud scenario drills',
-              status: 'Active ✓',
-            ),
-            const Divider(color: Color(0xFFEFEDED), height: 18),
-            _buildBadgeRow(
-              icon: Icons.people,
-              color: const Color(0xFF006565),
-              bg: const Color(0xFF93F2F2),
-              title: 'Family Protector (Level 1)',
-              subtitle: 'Primary guardian linked and SOS verified',
-              status: 'Active ✓',
-            ),
+            for (int i = 0; i < earnedBadges.length; i++) ...[
+              if (i > 0) const Divider(color: Color(0xFFEFEDED), height: 18),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BadgeDetailScreen(badge: earnedBadges[i])),
+                  );
+                },
+                child: _buildBadgeRow(
+                  icon: earnedBadges[i].icon,
+                  color: earnedBadges[i].primaryColor,
+                  bg: earnedBadges[i].bgTint,
+                  title: earnedBadges[i].title,
+                  subtitle: earnedBadges[i].description,
+                  status: 'Active ✓',
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -692,6 +680,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       // 4. Upcoming Badges to Unlock Card
       Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -706,7 +695,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -723,75 +712,94 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9F9F9),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE8E8E8)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '🧠 Cyber Scholar',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textDark,
-                        ),
-                      ),
-                      Text(
-                        '3 / 5 Quizzes',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryTeal,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Complete 2 more interactive fraud scenario drills.',
-                    style: GoogleFonts.atkinsonHyperlegible(
-                      fontSize: 12.5,
-                      color: AppTheme.textLight,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        backgroundColor: const Color(0xFF735C00),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SafetyQuizScreen(topic: kSafetyQuizTopics[1]),
+            for (final goal in nextGoals)
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE8E8E8)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(goal.icon, size: 18, color: goal.primaryColor),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  goal.title,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 14.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textDark,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      child: Text(
-                        'Take Next Quiz (+60 XP) →',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                        ),
+                        Text(
+                          '${goal.currentProgress} / ${goal.targetProgress} ${goal.id == "cyber_scholar" ? "Quizzes" : (goal.id == "zero_leak" ? "Days" : "Steps")}',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryTeal,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      goal.description,
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        color: AppTheme.textLight,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          backgroundColor: goal.primaryColor,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onPressed: () {
+                          if (goal.id == 'cyber_scholar') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SafetyQuizScreen(topic: kSafetyQuizTopics[1]),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => BadgeDetailScreen(badge: goal)),
+                            );
+                          }
+                        },
+                        child: Text(
+                          goal.id == 'cyber_scholar' ? 'Take Next Quiz (+60 XP) →' : 'View Goal Details →',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -1886,21 +1894,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    height: 42,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFAA361F),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        minimumSize: const Size.fromHeight(50),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       onPressed: () => _makePhoneCall('1930'),
-                      icon: const Icon(Icons.call, size: 18),
-                      label: Text(
-                        'Call 1930 Cyber Helpline Now',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
+                      icon: const Icon(Icons.call, size: 20),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Call 1930 Cyber Helpline',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
@@ -1963,21 +1975,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    height: 42,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryTeal,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        minimumSize: const Size.fromHeight(50),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       onPressed: () => _makePhoneCall('14567'),
-                      icon: const Icon(Icons.call, size: 18),
-                      label: Text(
-                        'Call 14567 Elder Line Now',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
+                      icon: const Icon(Icons.call, size: 20),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Call 14567 Elder Line',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
