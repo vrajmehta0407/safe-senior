@@ -53,6 +53,9 @@ async function sendEmailOtp(email, otp, purpose) {
     host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
     port:   parseInt(process.env.SMTP_PORT || '587', 10),
     secure: process.env.SMTP_PORT   === '465',
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 8000,
     auth: {
       user: smtpUser,
       pass: process.env.SMTP_PASS,

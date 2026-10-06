@@ -116,13 +116,10 @@ router.post('/email-otp/request', otpRateLimiter, async (req, res, next) => {
 
     console.log(`[email-otp/request] Generated OTP for ${cleanEmail}`);
 
-    try {
-      await sendEmailOtp(cleanEmail, otp, 'verification');
-      console.log(`[email-otp/request] Email OTP dispatched to ${cleanEmail}`);
-    } catch (emailErr) {
-      console.error('[email-otp/request] Email dispatch error:', emailErr.message);
-      // Still respond success — OTP is in DB; user can resend
-    }
+    // Dispatch email in background (non-blocking so mobile app gets instant response)
+    sendEmailOtp(cleanEmail, otp, 'verification')
+      .then(() => console.log(`[email-otp/request] Email OTP dispatched to ${cleanEmail}`))
+      .catch((emailErr) => console.error('[email-otp/request] Email dispatch error:', emailErr.message));
 
     return res.status(200).json({
       success: true,
