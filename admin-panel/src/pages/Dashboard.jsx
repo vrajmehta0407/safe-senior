@@ -121,6 +121,63 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ── Mobile-Synchronized Emergency Helplines Action Bar (1930 & 14567) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 1930 Cyber Fraud Helpline Card */}
+        <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-900 border border-red-500/40 rounded-3xl p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/30 shadow-inner">
+              <span className="material-symbols-outlined text-3xl">emergency</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-white tracking-tight">1930 Cyber Helpline</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/30">
+                  National LE Gateway
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Citizen Financial Cyber Fraud Reporting System. 1-click police handover.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/crisis-handover')}
+            className="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-950/50 flex items-center justify-center gap-2 whitespace-nowrap active:scale-[0.99]"
+          >
+            <span className="material-symbols-outlined text-[18px]">support_agent</span>
+            Dispatch 1930 Docket
+          </button>
+        </div>
+
+        {/* 14567 Senior Citizen Helpline Card */}
+        <div className="bg-gradient-to-r from-teal-950/80 via-slate-900 to-slate-900 border border-teal-500/40 rounded-3xl p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center border border-teal-500/30 shadow-inner">
+              <span className="material-symbols-outlined text-3xl">elderly</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-white tracking-tight">14567 Elderline</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                  Senior Citizen Care
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Ministry of Social Justice & Empowerment. Emergency family care dispatch.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/guardians')}
+            className="px-4 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-teal-950/50 flex items-center justify-center gap-2 whitespace-nowrap active:scale-[0.99]"
+          >
+            <span className="material-symbols-outlined text-[18px]">family_restroom</span>
+            Guardian Safety Circle
+          </button>
+        </div>
+      </div>
+
       {/* ── Masonry Grid of Metric Cards ── */}
       <div className="masonry-grid">
         {/* Metric Card 1: System Status */}

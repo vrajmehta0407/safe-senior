@@ -31,6 +31,7 @@ import ApiIntegrations from './pages/ApiIntegrations'
 import SystemMaintenance from './pages/SystemMaintenance'
 import Guardians from './pages/Guardians'
 import AdminUsers from './pages/AdminUsers'
+import BadgesPage from './pages/BadgesPage'
 
 function PrivateRoute({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />
@@ -99,6 +100,7 @@ export default function App() {
 
                     {/* Threat Intel & Rules */}
                     <Route path="patterns" element={<Patterns />} />
+                    <Route path="badges" element={<BadgesPage />} />
                     <Route path="rules-sandbox" element={<RuleSandbox />} />
                     <Route path="rules-wizard" element={<RuleWizard />} />
                     <Route path="rules-analytics" element={<RuleAnalytics />} />

@@ -113,7 +113,8 @@ export default function UsersPage() {
                       />
                       <div>
                         <div className="font-bold text-sm text-on-surface">{u.name} ({u.age})</div>
-                        <div className="text-[11px] text-on-surface-variant">{u.device}</div>
+                        <div className="text-[11px] font-mono text-teal-400 font-semibold">{u.phone}</div>
+                        <div className="text-[10px] text-on-surface-variant">{u.device}</div>
                       </div>
                     </div>
                   </td>

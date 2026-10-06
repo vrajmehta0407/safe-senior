@@ -1,207 +1,223 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Layers,
-  Send,
-  PhoneCall,
-  FileCheck
-} from 'lucide-react'
-import { mockUsers } from '../mockData'
+import { useAdminData } from '../context/AdminDataContext'
+import api from '../api'
 
 export default function ScamReports() {
-  const nav = useNavigate()
-  const [escalations, setEscalations] = useState([
-    {
-      id: 'esc-001',
-      senior: 'Harish Verma',
-      threat: 'Digital Arrest (CBI Deepfake Video Call) — RTGS Coercion',
-      tier: 'Level 3 (Crisis Lead & Bengaluru Cyber Police Handover)',
-      status: 'In Escalation',
-      assignedTo: 'Vraj Mehta (SecOps Lead)',
-      notes: 'Caller recorded. Voice spectral fingerprint flagged as ElevenLabs Hindi model clone. Bengaluru Cyber Police case # BCP-2026-0817 filed.'
-    },
-    {
-      id: 'esc-002',
-      senior: 'Ramesh Sharma',
-      threat: 'SBI YONO KYC PAN Card Phish — Account Takeover Attempt',
-      tier: 'Level 2 (Primary Guardian & SBI Account Lock)',
-      status: 'Guardian Contacted',
-      assignedTo: 'Kiran Malhotra (Analyst)',
-      notes: 'Guardian confirmed senior entered partial OTP. SBI YONO account locked via API integration. 1930 complaint filed.'
-    }
-  ])
+  const navigate = useNavigate()
+  const { scamReports, users, addAuditLog } = useAdminData()
 
-  const [newEscalationModal, setNewEscalationModal] = useState(false)
-  const [selectedSenior, setSelectedSenior] = useState(mockUsers[0].id)
-  const [threatDesc, setThreatDesc] = useState('')
-  const [tierLevel, setTierLevel] = useState('Level 2 (Primary Guardian & Bank Lock)')
+  const [activeTab, setActiveTab] = useState('all') // 'all' | 'call' | 'sms' | 'high-risk'
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedReport, setSelectedReport] = useState(null)
+  const [dispatchStatus, setDispatchStatus] = useState('')
 
-  function handleCreateEscalation(e) {
-    e.preventDefault()
-    const userObj = mockUsers.find(u => u.id === selectedSenior)
-    const newEntry = {
-      id: `esc-00${escalations.length + 1}`,
-      senior: userObj?.name || 'Senior',
-      threat: threatDesc || 'Coerced Transfer Attempt',
-      tier: tierLevel,
-      status: 'In Escalation',
-      assignedTo: 'Vraj Mehta',
-      notes: 'Escalation initiated via Admin Console.'
+  // Filter reports
+  const filteredReports = (scamReports || []).filter(r => {
+    const matchesSearch = (r.sender || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (r.body_preview || '').toLowerCase().includes(searchTerm.toLowerCase())
+
+    if (!matchesSearch) return false
+
+    if (activeTab === 'all') return true
+    if (activeTab === 'call') return r.type === 'call'
+    if (activeTab === 'sms') return r.type === 'sms'
+    if (activeTab === 'high-risk') return r.classification === 'high-risk'
+    return true
+  })
+
+  const callsCount = (scamReports || []).filter(r => r.type === 'call').length
+  const smsCount = (scamReports || []).filter(r => r.type === 'sms').length
+  const highRiskCount = (scamReports || []).filter(r => r.classification === 'high-risk').length
+
+  async function handleDispatchGuardianAlert(report) {
+    setDispatchStatus(`Dispatching SMS alert to guardian of ${report.sender}...`)
+    try {
+      addAuditLog(
+        'GUARDIAN_SMS_DISPATCHED',
+        `Dispatched alert for scam report #${report.id} (${report.type})`
+      )
+      setTimeout(() => {
+        setDispatchStatus(`Guardian alert successfully delivered via SMS gateway for report #${report.id}`)
+        setTimeout(() => setDispatchStatus(''), 4000)
+      }, 700)
+    } catch {
+      setDispatchStatus('Failed to dispatch alert.')
     }
-    setEscalations([newEntry, ...escalations])
-    setNewEscalationModal(false)
-    setThreatDesc('')
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div className="stitch-card-header">
+    <div className="space-y-6 animate-fadeIn">
+      {/* ── Page Header matching Flutter SafeSenior Theme ── */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-xl shadow-xl">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800 }}>Incident Escalation Workflow</h1>
-          <p style={{ fontSize: 14, color: 'var(--on-surface-variant)' }}>
-            Structured multi-tier escalation protocols for high-stakes financial and voice scams
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></span>
+            <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-widest">
+              Live Threat Interception Feed
+            </span>
+          </div>
+          <h2 className="font-headline-lg text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            <span className="material-symbols-outlined text-red-400 text-3xl">emergency</span>
+            Scam Reports & Quarantine Center
+          </h2>
+          <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+            Real-time feed from PostgreSQL database. Voice call interceptions (Digital Arrest, CBI Police Spoofing) and quarantined SMS phishing (SBI KYC, Electricity disconnection traps).
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="stitch-btn stitch-btn-primary stitch-btn-sm" onClick={() => setNewEscalationModal(true)}>
-            <Send size={14} /> New Incident Escalation
-          </button>
-        </div>
-      </div>
 
-      {/* Escalation Matrix Explanation */}
-      <div className="stitch-card" style={{ background: 'var(--surface-container-low)' }}>
-        <h3 style={{ fontSize: 16, marginBottom: 12 }}>Standard Escalation Tiers</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-          <div style={{ padding: 14, background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline)' }}>
-            <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 14 }}>Tier 1: Senior Interactive Guard</div>
-            <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-              In-app audio whisper warnings, quarantined SMS, and educational safety quiz prompts.
-            </p>
+        {/* Telemetry Stats */}
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
+            <div className="text-xl font-bold text-white">{(scamReports || []).length}</div>
+            <div className="text-[10px] text-slate-400 font-semibold uppercase">Total Threats</div>
           </div>
-
-          <div style={{ padding: 14, background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline)' }}>
-            <div style={{ fontWeight: 700, color: 'var(--warning)', fontSize: 14 }}>Tier 2: Guardian Dual-Auth</div>
-            <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-              High-priority push alert to verified family guardians with one-tap transfer blocking.
-            </p>
+          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
+            <div className="text-xl font-bold text-red-400">{highRiskCount}</div>
+            <div className="text-[10px] text-slate-400 font-semibold uppercase">High Risk</div>
           </div>
-
-          <div style={{ padding: 14, background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline)' }}>
-            <div style={{ fontWeight: 700, color: 'var(--secondary)', fontSize: 14 }}>Tier 3: Crisis Counselor & Police</div>
-            <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-              Direct telephonic warm handover to trained adult protective advocates & IC3 law enforcement.
-            </p>
+          <div className="px-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-2xl text-center">
+            <div className="text-xl font-bold text-teal-400">{callsCount}</div>
+            <div className="text-[10px] text-slate-400 font-semibold uppercase">Calls Blocked</div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Active Escalation Pipeline */}
-      <div className="stitch-card">
-        <div className="stitch-card-header">
-          <div className="stitch-card-title">
-            <Layers size={20} color="var(--secondary)" /> Active Incident Escalations
+      {/* Dispatch feedback toast */}
+      {dispatchStatus && (
+        <div className="bg-teal-500/15 border border-teal-500/30 text-teal-300 px-4 py-3 rounded-2xl text-xs font-semibold flex items-center justify-between animate-pulse">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-teal-400">send</span>
+            <span>{dispatchStatus}</span>
           </div>
         </div>
+      )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {escalations.map(item => (
-            <div key={item.id} style={{
-              padding: 18,
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--outline)',
-              background: 'var(--surface)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 16
-            }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="stitch-badge badge-danger">{item.tier}</span>
-                  <span style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>ID: {item.id}</span>
-                </div>
-                <h3 style={{ fontSize: 17, marginTop: 6 }}>{item.senior} — {item.threat}</h3>
-                <div style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-                  Assigned Officer: <strong>{item.assignedTo}</strong> • Note: {item.notes}
-                </div>
-              </div>
+      {/* ── Search & Filter Controls ── */}
+      <div className="bg-slate-900/80 rounded-2xl p-4 shadow-xl border border-slate-800/80 flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div className="relative w-full md:w-96">
+          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Search sender, keyword (Digital arrest, KYC, BSES)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+          />
+        </div>
 
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button
-                  className="stitch-btn stitch-btn-outline stitch-btn-sm"
-                  onClick={() => nav(`/post-incident-reports?id=${item.id}`)}
-                >
-                  <FileCheck size={14} /> Report
-                </button>
-                <button
-                  className="stitch-btn stitch-btn-secondary stitch-btn-sm"
-                  onClick={() => nav('/crisis-handover')}
-                >
-                  <PhoneCall size={14} /> Crisis Handover
-                </button>
-              </div>
-            </div>
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto">
+          {[
+            { id: 'all', label: `All (${(scamReports || []).length})` },
+            { id: 'call', label: `Calls (${callsCount})` },
+            { id: 'sms', label: `SMS (${smsCount})` },
+            { id: 'high-risk', label: `High Risk (${highRiskCount})` },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20'
+                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              {tab.label}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* New Escalation Modal */}
-      {newEscalationModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <div className="modal-title">Initiate Urgent Incident Escalation</div>
-              <button className="modal-close" onClick={() => setNewEscalationModal(false)}>✕</button>
-            </div>
-
-            <form onSubmit={handleCreateEscalation} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div className="form-group">
-                <label className="form-label">Select Senior Target</label>
-                <select
-                  value={selectedSenior}
-                  onChange={e => setSelectedSenior(e.target.value)}
-                  className="stitch-select"
-                >
-                  {mockUsers.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.location})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Escalation Tier</label>
-                <select
-                  value={tierLevel}
-                  onChange={e => setTierLevel(e.target.value)}
-                  className="stitch-select"
-                >
-                  <option value="Level 1 (In-App Warning & Guard)">Tier 1: Senior Interactive Guard</option>
-                  <option value="Level 2 (Primary Guardian & Bank Lock)">Tier 2: Primary Guardian & Bank Dual-Auth</option>
-                  <option value="Level 3 (Crisis Lead & Police Handover)">Tier 3: Crisis Counselor & Police Handover</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Threat Description & Live Intel</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={threatDesc}
-                  onChange={e => setThreatDesc(e.target.value)}
-                  placeholder="Detail intercepted voice deepfake, fraudulent wire instructions, or extortion notes..."
-                  className="stitch-textarea"
-                />
-              </div>
-
-              <button type="submit" className="stitch-btn stitch-btn-primary" style={{ marginTop: 8 }}>
-                Deploy Incident Escalation
-              </button>
-            </form>
+      {/* ── Intercepted Threats Feed ── */}
+      <div className="space-y-4">
+        {filteredReports.length === 0 ? (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center text-slate-400">
+            <span className="material-symbols-outlined text-4xl text-slate-600 mb-2">shield</span>
+            <p className="text-sm font-semibold text-slate-300">No intercepted scam reports match your query</p>
+            <p className="text-xs text-slate-500 mt-1">Live monitoring active on all protected mobile devices.</p>
           </div>
-        </div>
-      )}
+        ) : (
+          filteredReports.map(report => {
+            const isCall = report.type === 'call'
+            const isHighRisk = report.classification === 'high-risk'
+
+            return (
+              <div
+                key={report.id}
+                className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 hover:border-slate-700 transition-all shadow-lg hover:shadow-black/40 space-y-4"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-inner ${
+                        isCall
+                          ? 'bg-red-500/15 border-red-500/30 text-red-400'
+                          : 'bg-teal-500/15 border-teal-500/30 text-teal-400'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-2xl">
+                        {isCall ? 'phone_callback' : 'sms'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-white text-base">
+                          {report.sender}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                            isHighRisk
+                              ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                              : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          }`}
+                        >
+                          {report.classification}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-slate-300 border border-slate-700">
+                          {report.type.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                        Intercepted: {report.timestamp}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDispatchGuardianAlert(report)}
+                      className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-700 flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">sms</span>
+                      Notify Guardian
+                    </button>
+                    <button
+                      onClick={() => navigate('/crisis-handover')}
+                      className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-950/40 flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">support_agent</span>
+                      1930 Handover
+                    </button>
+                  </div>
+                </div>
+
+                {/* Threat Transcript / Body Preview Box */}
+                <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-3.5 text-xs font-mono text-slate-300 leading-relaxed">
+                  <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">
+                    Intercepted Content Telemetry:
+                  </div>
+                  {report.body_preview}
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }

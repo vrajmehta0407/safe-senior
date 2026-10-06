@@ -21,46 +21,33 @@ export default function Layout({ children, admin, onLogout }) {
 
   const navGroups = [
     {
-      title: 'Core Operations',
+      title: 'Operations Center',
       items: [
-        { path: '/dashboard', label: 'System Health', icon: 'dashboard' },
-        { path: '/alerts', label: 'Alerts Center', icon: 'emergency', badge: '12' },
-        { path: '/heatmap', label: 'Scam Heatmap', icon: 'map' },
-        { path: '/crisis-handover', label: 'Crisis & LE Handover', icon: 'support_agent' },
+        { path: '/dashboard', label: 'Command Center', icon: 'dashboard' },
+        { path: '/scam-reports', label: 'Threat Interceptions', icon: 'emergency', badge: '10' },
+        { path: '/crisis-handover', label: '1930 Crisis Handover', icon: 'support_agent' },
       ]
     },
     {
-      title: 'Scam Intelligence',
+      title: 'Senior Protection Network',
       items: [
-        { path: '/patterns', label: 'Pattern Management', icon: 'rule' },
-        { path: '/rules-wizard', label: 'New Rule Wizard', icon: 'add_circle' },
-        { path: '/rules-sandbox', label: 'Rule Sandbox', icon: 'science' },
-        { path: '/rules-analytics', label: 'Rule Analytics', icon: 'analytics' },
-        { path: '/scam-reports', label: 'Incident Escalations', icon: 'report_problem' },
-        { path: '/post-incident-reports', label: 'Post-Incident Dossier', icon: 'assignment' },
-      ]
-    },
-    {
-      title: 'User & Guardian Network',
-      items: [
-        { path: '/users', label: 'User Management', icon: 'group' },
-        { path: '/protection-details', label: 'Protection Details', icon: 'shield_person' },
-        { path: '/guardian-dashboard', label: 'Guardian Portal', icon: 'family_restroom' },
-        { path: '/guardian-activity', label: 'Guardian Activity', icon: 'history_toggle_off' },
+        { path: '/users', label: 'Senior Citizens', icon: 'group' },
+        { path: '/guardians', label: 'Guardian Safety Circle', icon: 'family_restroom' },
         { path: '/geofencing', label: 'Geofence Safe Zones', icon: 'pin_drop' },
-        { path: '/batch-import', label: 'Batch User Import', icon: 'upload_file' },
       ]
     },
     {
-      title: 'System & Governance',
+      title: 'Scam Defense & Gamification',
       items: [
-        { path: '/analytics', label: 'Analytics Reports', icon: 'bar_chart' },
-        { path: '/security-settings', label: 'Security & Auth (2FA)', icon: 'security' },
-        { path: '/api-integrations', label: 'API Integrations', icon: 'api' },
-        { path: '/config-history', label: 'Config Version History', icon: 'update' },
-        { path: '/admin-activity', label: 'Admin Activity Log', icon: 'receipt_long' },
-        { path: '/audit-log', label: 'System Audit Logs', icon: 'shield' },
-        { path: '/maintenance', label: 'System Maintenance', icon: 'build' },
+        { path: '/patterns', label: 'Threat Rules Engine', icon: 'rule' },
+        { path: '/badges', label: '12 Defense Badges', icon: 'military_tech' },
+      ]
+    },
+    {
+      title: 'SecOps & Governance',
+      items: [
+        { path: '/audit-log', label: 'Security Audit Trail', icon: 'shield' },
+        { path: '/security-settings', label: '2FA & System Policies', icon: 'security' },
       ]
     }
   ]
