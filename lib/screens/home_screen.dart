@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../storage/local_preferences.dart';
 import '../state/guardian_provider.dart';
 import '../state/language_provider.dart';
 import '../utils/app_translations.dart';
@@ -1054,7 +1055,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const UnusualLocationScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => UnusualLocationScreen(
+                                detectedLocation: LocalPreferences.getLastKnownLocationAddress(),
+                                expectedLocation: LocalPreferences.getHomeLocationAddress(),
+                                currentLat: LocalPreferences.getLastKnownLat(),
+                                currentLng: LocalPreferences.getLastKnownLng(),
+                                homeLat: LocalPreferences.getHomeLat(),
+                                homeLng: LocalPreferences.getHomeLng(),
+                              ),
+                            ),
                           );
                         },
                         child: Container(
@@ -1092,7 +1102,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Unusual Location Alert',
+                                              context.tr('Unusual Location Alert'),
                                               style: GoogleFonts.plusJakartaSans(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
@@ -1100,7 +1110,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               ),
                                             ),
                                             Text(
-                                              'Connaught Place, Delhi (Unusual area)',
+                                              '${LocalPreferences.getLastKnownLocationAddress()} (${context.tr('Unusual — not your typical area')})',
                                               style: GoogleFonts.atkinsonHyperlegible(
                                                 fontSize: 13,
                                                 color: AppTheme.textLight,

@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../services/guardian_service.dart';
+import '../services/auth_service.dart';
+import '../utils/app_translations.dart';
 
 class SimSwapAlertScreen extends StatelessWidget {
   final String carrierName;
-  final String phoneNumber;
+  final String? phoneNumber;
 
   const SimSwapAlertScreen({
     super.key,
     this.carrierName = 'Jio Telecom',
-    this.phoneNumber = '+91 98250 14820',
+    this.phoneNumber,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectivePhone = phoneNumber ?? AuthService.getCurrentUser()?.phone ?? '+91 98250 14820';
+    final primary = GuardianService.getPrimaryGuardian();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
@@ -38,7 +43,7 @@ class SimSwapAlertScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               Text(
-                'SIM-Swap Warning Detected!',
+                context.tr('SIM-Swap Warning Detected!'),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 26,
@@ -49,7 +54,7 @@ class SimSwapAlertScreen extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                'A request to transfer your phone number to a new SIM card or eSIM has been initiated with $carrierName.',
+                'A request to transfer your phone number to a new SIM card or eSIM has been initiated with $carrierName ($effectivePhone).',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.atkinsonHyperlegible(
                   fontSize: 15.5,
@@ -101,13 +106,15 @@ class SimSwapAlertScreen extends StatelessWidget {
                   onPressed: () async {
                     await GuardianService.notifyGuardian(
                       sender: carrierName,
-                      reason: 'CRITICAL: Unauthorized SIM Swap detected on senior line ($phoneNumber).',
+                      reason: 'CRITICAL: Unauthorized SIM Swap detected on senior line ($effectivePhone).',
                     );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            '🚨 Emergency SIM Alert transmitted to primary guardian!',
+                            primary != null
+                                ? '🚨 Emergency SIM Alert transmitted to ${primary.name}!'
+                                : '🚨 Emergency SIM Alert transmitted to guardian!',
                             style: GoogleFonts.atkinsonHyperlegible(color: Colors.white),
                           ),
                           backgroundColor: const Color(0xFFAA361F),
@@ -127,7 +134,7 @@ class SimSwapAlertScreen extends StatelessWidget {
                       const Icon(Icons.emergency, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Alert Family Guardian Now',
+                        primary != null ? 'Alert ${primary.name.split(' ').first} Now' : 'Alert Family Guardian Now',
                         style: GoogleFonts.atkinsonHyperlegible(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,

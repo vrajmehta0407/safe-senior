@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/guardian_service.dart';
+import '../utils/app_translations.dart';
 import 'guardian_contacts_screen.dart';
 
 class BatteryCriticalScreen extends StatelessWidget {
@@ -201,7 +203,7 @@ class BatteryCriticalScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    'OK, I\'ll Charge Now',
+                    context.tr("OK, I'll Charge Now"),
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -212,31 +214,46 @@ class BatteryCriticalScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const GuardianContactsScreen()),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppTheme.primaryTeal),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
+              Builder(
+                builder: (ctx) {
+                  final primary = GuardianService.getPrimaryGuardian();
+                  return SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        if (primary != null && primary.phone.isNotEmpty) {
+                          final cleanPhone = primary.phone.replaceAll(RegExp(r'[^\d+]'), '');
+                          final callUri = Uri.parse('tel:$cleanPhone');
+                          if (await canLaunchUrl(callUri)) {
+                            await launchUrl(callUri);
+                            return;
+                          }
+                        }
+                        if (ctx.mounted) {
+                          Navigator.push(
+                            ctx,
+                            MaterialPageRoute(builder: (_) => const GuardianContactsScreen()),
+                          );
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.primaryTeal),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text(
+                        primary != null ? 'Call ${primary.name}' : context.tr('Call Guardian'),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryTeal,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Call a Guardian',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryTeal,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),

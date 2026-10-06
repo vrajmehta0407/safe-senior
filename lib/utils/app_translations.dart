@@ -142,6 +142,42 @@ class AppTranslations {
     'FAMILY & PROTECTION HUBS': {'hi': 'परिवार और सुरक्षा केंद्र', 'gu': 'પરિવાર અને સુરક્ષા કેન્દ્રો'},
     'Reset Security PIN': {'hi': 'सुरक्षा पिन रीसेट करें', 'gu': 'સુરક્ષા પિન રીસેટ કરો'},
     'Update your 4-digit master PIN': {'hi': 'अपना 4-अंकीय मास्टर पिन अपडेट करें', 'gu': 'તમારો 4-અંકનો માસ્ટર પિન અપડેટ કરો'},
+
+    // ── Location Alert & Leaflet Map ──
+    'LOCATION ALERT': {'hi': 'लोकेशन अलर्ट', 'gu': 'લોકેશન એલર્ટ'},
+    '⚠️ LOCATION ALERT': {'hi': '⚠️ लोकेशन अलर्ट', 'gu': '⚠️ લોકેશન એલર્ટ'},
+    'Unusual Location Pattern': {'hi': 'असामान्य स्थान पैटर्न', 'gu': 'અસામાન્ય લોકેશન પેટર્ન'},
+    'Unusual Location Alert': {'hi': 'असामान्य स्थान चेतावनी', 'gu': 'અસામાન્ય લોકેશન ચેતવણી'},
+    'Detected at': {'hi': 'समय', 'gu': 'શોધાયેલ સમય'},
+    'Current Location': {'hi': 'वर्तमान स्थान', 'gu': 'વર્તમાન સ્થળ'},
+    'Your Home Area': {'hi': 'आपका घर क्षेत्र', 'gu': 'તમારો ઘરનો વિસ્તાર'},
+    'Unusual — not your typical area': {'hi': 'असामान्य — आपका सामान्य क्षेत्र नहीं', 'gu': 'અસામાન્ય — તમારો સામાન્ય વિસ્તાર નથી'},
+    'Your usual location': {'hi': 'आपका सामान्य निवास स्थान', 'gu': 'તમારું સામાન્ય રહેઠાણ'},
+    'Location Map': {'hi': 'स्थान मानचित्र', 'gu': 'સ્થળ નકશો'},
+    'Current': {'hi': 'वर्तमान', 'gu': 'વર્તમાન'},
+    'Home': {'hi': 'घर', 'gu': 'ઘર'},
+    "I'm Safe — Went Out Intentionally": {'hi': 'मैं सुरक्षित हूँ — खुद बाहर गया था', 'gu': 'હું સુરક્ષિત છું — જાણીજોઈને બહાર ગયો હતો'},
+    'Call Guardian': {'hi': 'अभिभावक को कॉल करें', 'gu': 'ગાર્ડિયનને કૉલ કરો'},
+    'SOS': {'hi': 'एसओएस', 'gu': 'કટોકટી SOS'},
+    'Share Current Location with Family': {'hi': 'परिवार के साथ वर्तमान लोकेशन साझा करें', 'gu': 'પરિવાર સાથે વર્તમાન સ્થળ શેર કરો'},
+    'What should you do?': {'hi': 'आपको क्या करना चाहिए?', 'gu': 'તમારે શું કરવું જોઈએ?'},
+    "If you went out intentionally, you're safe. Just confirm below.": {
+      'hi': 'यदि आप जानबूझकर बाहर गए हैं, तो आप सुरक्षित हैं। बस नीचे पुष्टि करें।',
+      'gu': 'જો તમે જાણીજોઈને બહાર ગયા હોવ, તો તમે સુરક્ષિત છો. ફક્ત નીચે પુષ્ટિ કરો.',
+    },
+    "If you're confused or feel unsafe, call a guardian immediately.": {
+      'hi': 'यदि आप भ्रमित हैं या असुरक्षित महसूस कर रहे हैं, तो तुरंत अभिभावक को कॉल करें।',
+      'gu': 'જો તમે મૂંઝવણમાં હોવ અથવા અસુરક્ષિત અનુભવતા હોવ, તો તરત જ ગાર્ડિયનને કૉલ કરો.',
+    },
+    'If someone forced you to go somewhere, press the SOS button.': {
+      'hi': 'यदि किसी ने आपको जबरन कहीं ले जाने की कोशिश की, तो SOS बटन दबाएं।',
+      'gu': 'જો કોઈએ તમને ક્યાંય જવાની ફરજ પાડી હોય, તો તરત જ SOS બટન દબાવો.',
+    },
+    'Fit Both': {'hi': 'दोनों देखें', 'gu': 'બંને જુઓ'},
+    'Open in Maps': {'hi': 'मैप में खोलें', 'gu': 'નકશામાં ખોલો'},
+    'Distance from home': {'hi': 'घर से दूरी', 'gu': 'ઘરથી અંતર'},
+    'SafeSenior Location Notice': {'hi': 'SafeSenior लोकेशन सूचना', 'gu': 'SafeSenior લોકેશન નોટિસ'},
+    'Simulate / Change Location': {'hi': 'स्थान बदलें / सिमुलेट करें', 'gu': 'સ્થળ બદલો / સિમ્યુલેટ કરો'},
   };
 
   /// Translate a string given the language code ('en', 'hi', 'gu')
@@ -167,8 +203,12 @@ class AppTranslations {
 /// Extension for easy translation anywhere in BuildContext
 extension TranslationContextExt on BuildContext {
   String tr(String text) {
-    final code = Localizations.localeOf(this).languageCode;
-    return AppTranslations.tr(text, code);
+    try {
+      final code = Localizations.localeOf(this).languageCode;
+      return AppTranslations.tr(text, code);
+    } catch (_) {
+      return text;
+    }
   }
 }
 
