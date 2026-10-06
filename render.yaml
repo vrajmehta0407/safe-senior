@@ -37,4 +37,4 @@ databases:
   - name: safesenior-db
     plan: free
     databaseName: safesenior
-    user: postgres
+    user: safesenior
