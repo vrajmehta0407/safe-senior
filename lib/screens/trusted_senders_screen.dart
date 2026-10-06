@@ -91,7 +91,7 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
               controller: _labelCtrl,
               decoration: InputDecoration(
                 labelText: 'Name (optional)',
-                hintText: 'e.g. Amit Patel, State Bank of India',
+                hintText: 'e.g. Family Contact, State Bank of India',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
@@ -160,7 +160,7 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
                       backgroundColor: const Color(0xFFD6ECE8),
                       backgroundImage: user?.avatarPath != null
                           ? FileImage(File(user!.avatarPath!)) as ImageProvider
-                          : const NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+                          : const AssetImage('assets/images/app_logo.jpg'),
                       child: user?.avatarPath == null && (user?.name.isEmpty ?? true)
                           ? const Icon(Icons.person, color: AppTheme.primaryTeal, size: 20)
                           : null,
@@ -254,7 +254,7 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                     ),
@@ -306,6 +306,7 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          if (_loading) const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Center(child: CircularProgressIndicator(color: AppTheme.primaryTeal, strokeWidth: 2))),
 
                           ...guardians.map((g) {
                             return Padding(
@@ -340,7 +341,7 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
 
                           ..._senders.map((s) {
                             return Padding(
@@ -375,11 +376,12 @@ class _TrustedSendersScreenState extends ConsumerState<TrustedSendersScreen> {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
+                          if (_loading) const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Center(child: CircularProgressIndicator(color: AppTheme.primaryTeal, strokeWidth: 2))),
                   ],
                 ),
               ),

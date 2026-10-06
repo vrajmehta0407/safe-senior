@@ -20,7 +20,7 @@ class RegisterStep2Screen extends ConsumerStatefulWidget {
     required this.name,
     required this.phone,
     this.email = '',
-    this.isEmail = false,
+    this.isEmail = true,
   });
 
   @override
@@ -228,6 +228,7 @@ class _RegisterStep2ScreenState extends ConsumerState<RegisterStep2Screen> {
                           hint: 'Enter 4 or 6-digit PIN',
                           prefixIcon: Icons.dialpad,
                           suffixIcon: IconButton(
+                            tooltip: _obscurePin ? 'Show PIN' : 'Hide PIN',
                             icon: Icon(_obscurePin ? Icons.visibility_off : Icons.visibility, color: AppTheme.textLight),
                             onPressed: () => setState(() => _obscurePin = !_obscurePin),
                           ),
@@ -254,6 +255,7 @@ class _RegisterStep2ScreenState extends ConsumerState<RegisterStep2Screen> {
                           hint: 'Re-enter your PIN',
                           prefixIcon: Icons.lock_outline,
                           suffixIcon: IconButton(
+                            tooltip: _obscureConfirm ? 'Show PIN' : 'Hide PIN',
                             icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility, color: AppTheme.textLight),
                             onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
                           ),
@@ -300,7 +302,7 @@ class _RegisterStep2ScreenState extends ConsumerState<RegisterStep2Screen> {
                         controller: _guardianNameCtrl,
                         style: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: AppTheme.textDark),
                         decoration: _inputDecoration(
-                          hint: 'e.g. Amit Patel',
+                          hint: 'e.g. Family Contact Name',
                           prefixIcon: Icons.person_outline,
                         ),
                         validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter guardian\'s name' : null,
@@ -315,7 +317,7 @@ class _RegisterStep2ScreenState extends ConsumerState<RegisterStep2Screen> {
                         keyboardType: TextInputType.phone,
                         style: GoogleFonts.atkinsonHyperlegible(fontSize: 18, color: AppTheme.textDark),
                         decoration: _inputDecoration(
-                          hint: '+91 98250 14820',
+                          hint: '+91 98765 43210',
                           prefixIcon: Icons.phone_outlined,
                         ),
                         validator: (v) {

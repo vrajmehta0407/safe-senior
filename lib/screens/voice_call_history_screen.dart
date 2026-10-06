@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 
 class VoiceCallHistoryScreen extends StatelessWidget {
   const VoiceCallHistoryScreen({super.key});
@@ -81,14 +82,22 @@ class VoiceCallHistoryScreen extends StatelessWidget {
                     icon: Icons.record_voice_over,
                   ),
                   const SizedBox(height: 12),
-                  _buildCallItem(
-                    caller: 'Amit Patel (Son)',
-                    label: 'Verified Family Contact',
-                    time: 'Aug 16, 9:20 AM',
-                    duration: '4m 15s',
-                    status: 'SAFE',
-                    isDanger: false,
-                    icon: Icons.phone_in_talk,
+                  Builder(
+                    builder: (context) {
+                      final primary = GuardianService.getPrimaryGuardian();
+                      final callerName = primary != null
+                          ? '${primary.name} (${primary.relationship ?? "Family"})'
+                          : 'Family Contact';
+                      return _buildCallItem(
+                        caller: callerName,
+                        label: 'Verified Family Contact',
+                        time: 'Aug 16, 9:20 AM',
+                        duration: '4m 15s',
+                        status: 'SAFE',
+                        isDanger: false,
+                        icon: Icons.phone_in_talk,
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   _buildCallItem(
@@ -125,7 +134,7 @@ class VoiceCallHistoryScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -137,7 +146,7 @@ class VoiceCallHistoryScreen extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: isDanger ? AppTheme.dangerRed.withOpacity(0.1) : AppTheme.primaryTeal.withOpacity(0.1),
+              color: isDanger ? AppTheme.dangerRed.withValues(alpha: 0.1) : AppTheme.primaryTeal.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: isDanger ? AppTheme.dangerRed : AppTheme.primaryTeal, size: 22),
@@ -166,7 +175,7 @@ class VoiceCallHistoryScreen extends StatelessWidget {
                   '$time • $duration',
                   style: GoogleFonts.atkinsonHyperlegible(
                     fontSize: 12,
-                    color: AppTheme.textSecondary.withOpacity(0.8),
+                    color: AppTheme.textSecondary.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -175,7 +184,7 @@ class VoiceCallHistoryScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: isDanger ? AppTheme.dangerRed.withOpacity(0.1) : AppTheme.primaryTeal.withOpacity(0.1),
+              color: isDanger ? AppTheme.dangerRed.withValues(alpha: 0.1) : AppTheme.primaryTeal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

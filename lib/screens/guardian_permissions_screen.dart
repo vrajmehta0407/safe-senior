@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../models/guardian_contact.dart';
+import '../services/guardian_service.dart';
 
 class GuardianPermissionsScreen extends StatefulWidget {
   final GuardianContact? guardian;
@@ -26,6 +27,7 @@ class _GuardianPermissionsScreenState extends State<GuardianPermissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveGuardian = widget.guardian ?? GuardianService.getPrimaryGuardian();
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
@@ -98,7 +100,7 @@ class _GuardianPermissionsScreenState extends State<GuardianPermissionsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.guardian?.name ?? 'Amit Patel',
+                                  effectiveGuardian?.name ?? 'No Guardian Selected',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -107,7 +109,9 @@ class _GuardianPermissionsScreenState extends State<GuardianPermissionsScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${widget.guardian?.relationship ?? "Family"} • ${widget.guardian?.phone ?? "+91 98250 14820"}',
+                                  effectiveGuardian != null
+                                      ? '${effectiveGuardian.relationship ?? "Family"} • ${effectiveGuardian.phone}'
+                                      : 'Connect a guardian to configure permissions',
                                   style: GoogleFonts.atkinsonHyperlegible(
                                     fontSize: 14,
                                     color: AppTheme.textLight,
@@ -142,6 +146,12 @@ class _GuardianPermissionsScreenState extends State<GuardianPermissionsScreen> {
                       subtitle: 'Transmit GPS location & emergency SMS when you press the 1-tap SOS panic button.',
                       value: _notifySosCalls,
                       onChanged: (v) => setState(() => _notifySosCalls = v),
+                    ),
+                    _permTile(
+                      title: 'Allow Remote Live Location',
+                      subtitle: 'Allow ${widget.guardian?.name ?? "Guardian"} to view real-time location during active SOS alerts.',
+                      value: _allowRemoteLocation,
+                      onChanged: (v) => setState(() => _allowRemoteLocation = v),
                     ),
                     _permTile(
                       title: 'High-Value Spending Alert (>₹15,000)',

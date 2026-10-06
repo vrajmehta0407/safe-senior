@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../services/guardian_service.dart';
 import '../state/guardian_provider.dart';
 import 'sos_notifying_screen.dart';
+import 'guardian_contacts_screen.dart';
 
 class EmergencyScreen extends ConsumerStatefulWidget {
   const EmergencyScreen({super.key});
@@ -45,7 +46,8 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F5F3),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             children: [
@@ -67,7 +69,7 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
                   color: const Color(0xFF5E706D),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // Giant Red Circular SOS Button
               GestureDetector(
@@ -113,7 +115,7 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
                 ),
               ),
 
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // Quick Connect Label
               Align(
@@ -240,9 +242,18 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
               ),
               const SizedBox(height: 14),
 
-              // Emergency Option 3: Primary Guardian (Amit Patel)
+              // Emergency Option 3: Primary Guardian
               GestureDetector(
-                onTap: () => _callPhone(primaryGuardian?.phone ?? '+91 98250 14820'),
+                onTap: () {
+                  if (primaryGuardian != null && primaryGuardian.phone.isNotEmpty) {
+                    _callPhone(primaryGuardian.phone);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const GuardianContactsScreen()),
+                    );
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -273,7 +284,7 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              primaryGuardian != null ? 'Call ${primaryGuardian.name}' : 'Guardian (Amit Patel)',
+                              primaryGuardian != null ? 'Call ${primaryGuardian.name}' : 'Add Family Guardian',
                               style: GoogleFonts.atkinsonHyperlegible(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -282,7 +293,9 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              primaryGuardian?.phone ?? '+91 98250 14820 (Family Response)',
+                              primaryGuardian != null
+                                  ? '${primaryGuardian.phone} (${primaryGuardian.relationship ?? "Family"})'
+                                  : 'Tap to connect your emergency contact',
                               style: GoogleFonts.atkinsonHyperlegible(fontSize: 13, color: const Color(0xFF6B7B78)),
                             ),
                           ],

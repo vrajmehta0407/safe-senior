@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 
 class EmergencyVerificationScreen extends StatefulWidget {
   const EmergencyVerificationScreen({super.key});
@@ -81,7 +82,7 @@ class _EmergencyVerificationScreenState extends State<EmergencyVerificationScree
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -104,25 +105,34 @@ class _EmergencyVerificationScreenState extends State<EmergencyVerificationScree
                         ),
                         const SizedBox(width: 14),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Amit Patel (Son)',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              Text(
-                                '+91 98250 14820 • Primary Guardian',
-                                style: GoogleFonts.atkinsonHyperlegible(
-                                  fontSize: 13.5,
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ),
-                            ],
+                          child: Builder(
+                            builder: (context) {
+                              final primary = GuardianService.getPrimaryGuardian();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    primary != null
+                                        ? '${primary.name} ${primary.relationship != null && primary.relationship!.isNotEmpty ? "(${primary.relationship})" : ""}'
+                                        : 'No Primary Guardian',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                  Text(
+                                    primary != null
+                                        ? '${primary.phone} • Primary Guardian'
+                                        : 'Please add a guardian in Guardian Settings',
+                                    style: GoogleFonts.atkinsonHyperlegible(
+                                      fontSize: 13.5,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -166,10 +176,12 @@ class _EmergencyVerificationScreenState extends State<EmergencyVerificationScree
                 height: 54,
                 child: ElevatedButton(
                   onPressed: () {
+                    final primary = GuardianService.getPrimaryGuardian();
+                    final guardianName = primary?.name ?? 'Guardian';
                     setState(() => _verified = true);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Test ping sent successfully to Amit Patel!'),
+                      SnackBar(
+                        content: Text('Test ping sent successfully to $guardianName!'),
                         backgroundColor: AppTheme.primaryTeal,
                       ),
                     );

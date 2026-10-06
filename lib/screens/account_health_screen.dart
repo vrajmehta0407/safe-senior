@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 import 'guardian_contacts_screen.dart';
 
 class AccountHealthScreen extends StatefulWidget {
@@ -283,25 +284,32 @@ class _AccountHealthScreenState extends State<AccountHealthScreen> {
                           const Icon(Icons.people, color: AppTheme.primaryTeal, size: 28),
                           const SizedBox(width: 14),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Family Guardian Connected',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.primaryTeal,
-                                  ),
-                                ),
-                                Text(
-                                  'Amit Patel is linked as your primary emergency backup.',
-                                  style: GoogleFonts.atkinsonHyperlegible(
-                                    fontSize: 13.5,
-                                    color: AppTheme.primaryTeal,
-                                  ),
-                                ),
-                              ],
+                            child: Builder(
+                              builder: (context) {
+                                final primaryGuardian = GuardianService.getPrimaryGuardian();
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      primaryGuardian != null ? 'Family Guardian Connected' : 'No Guardian Linked',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.primaryTeal,
+                                      ),
+                                    ),
+                                    Text(
+                                      primaryGuardian != null
+                                          ? '${primaryGuardian.name} is linked as your primary emergency backup.'
+                                          : 'Connect a family guardian for automatic emergency alerts.',
+                                      style: GoogleFonts.atkinsonHyperlegible(
+                                        fontSize: 13.5,
+                                        color: AppTheme.primaryTeal,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
                           IconButton(

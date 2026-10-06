@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/guardian_service.dart';
 
 class ProfileChecklistScreen extends StatelessWidget {
   const ProfileChecklistScreen({super.key});
@@ -108,10 +109,18 @@ class ProfileChecklistScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildCheckItem(
-                title: 'Primary Guardian Linked',
-                subtitle: 'Amit Patel (+91 98250 14820)',
-                done: true,
+              Builder(
+                builder: (context) {
+                  final primaryGuardian = GuardianService.getPrimaryGuardian();
+                  final hasGuardian = primaryGuardian != null;
+                  return _buildCheckItem(
+                    title: hasGuardian ? 'Primary Guardian Linked' : 'Add Primary Guardian',
+                    subtitle: hasGuardian
+                        ? '${primaryGuardian.name} (${primaryGuardian.phone})'
+                        : 'Connect a family guardian for automatic emergency alerts',
+                    done: hasGuardian,
+                  );
+                },
               ),
               const SizedBox(height: 10),
               _buildCheckItem(
@@ -180,7 +189,7 @@ class ProfileChecklistScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
