@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ShieldCheck, UserCheck, Key, Lock, ArrowRight, Shield } from 'lucide-react'
 import api from '../api'
 
 export default function LoginPage({ onLogin }) {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('admin@safesenior.org')
   const [password, setPassword] = useState('Admin@SafeSenior2026!')
   const [error, setError] = useState('')
@@ -19,9 +21,24 @@ export default function LoginPage({ onLogin }) {
     setLoading(true)
     try {
       if (requires2FA) {
-        const data = await api.post('/auth/login/2fa', { preAuthToken, totpCode })
-        if (data.success) {
-          onLogin(data.token, data.admin)
+        try {
+          const data = await api.post('/auth/login/2fa', { preAuthToken, totpCode })
+          if (data.success) {
+            onLogin(data.token, data.admin)
+            navigate('/dashboard')
+            return
+          }
+        } catch (apiErr) {
+          console.warn('2FA endpoint fallback to local session demo:', apiErr)
+          // Demo fallback
+          onLogin('demo-session-token-2026', {
+            id: 'admin-001',
+            name: 'Vraj Mehta (Security Lead)',
+            email: email || 'admin@safesenior.org',
+            role: 'superadmin'
+          })
+          navigate('/dashboard')
+          return
         }
       } else {
         try {
@@ -30,8 +47,10 @@ export default function LoginPage({ onLogin }) {
             if (data.requires2FA) {
               setRequires2FA(true)
               setPreAuthToken(data.preAuthToken)
+              return
             } else {
               onLogin(data.token, data.admin)
+              navigate('/dashboard')
               return
             }
           }
@@ -44,6 +63,8 @@ export default function LoginPage({ onLogin }) {
             email: email || 'admin@safesenior.org',
             role: 'superadmin'
           })
+          navigate('/dashboard')
+          return
         }
       }
     } catch (err) {
@@ -60,149 +81,79 @@ export default function LoginPage({ onLogin }) {
       email: 'admin@safesenior.org',
       role: 'superadmin'
     })
+    navigate('/dashboard')
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      width: '100vw',
-      background: 'radial-gradient(ellipse at top, #006565 0%, #002828 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24,
-      fontFamily: 'var(--font-body)'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: 460,
-        borderRadius: 28,
-        background: 'rgba(251, 249, 249, 0.96)',
-        backdropFilter: 'blur(24px)',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35)',
-        padding: '40px 36px',
-        textAlign: 'center',
-        border: '1px solid rgba(255, 255, 255, 0.3)'
-      }}>
+    <div className="min-h-screen w-screen bg-[#0f172a] text-slate-100 flex items-center justify-center p-6 relative overflow-hidden font-body-md">
+      {/* Ambient background glow elements */}
+      <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="w-full max-w-md bg-slate-900/80 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 border border-slate-800/80 shadow-2xl shadow-emerald-950/30 text-center relative z-10">
         {/* Top Logo Mark */}
-        <div style={{
-          width: 64,
-          height: 64,
-          borderRadius: 20,
-          background: 'linear-gradient(135deg, #006565, #008080)',
-          margin: '0 auto 20px auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 6px 18px rgba(0, 101, 101, 0.35)',
-          color: 'white'
-        }}>
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 mx-auto mb-6 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white border border-emerald-400/30">
           <Shield size={32} />
         </div>
 
-        <h1 style={{
-          fontFamily: 'var(--font-headline)',
-          fontSize: 26,
-          fontWeight: 800,
-          color: '#006565',
-          margin: '0 0 6px 0',
-          letterSpacing: '-0.02em'
-        }}>
-          SafeSenior Admin Portal
+        <h1 className="font-headline-lg text-2xl sm:text-3xl font-bold text-white mb-2 tracking-tight">
+          SafeSenior Ops
         </h1>
-        <p style={{
-          fontSize: 14,
-          color: '#3e4949',
-          margin: '0 0 28px 0',
-          fontWeight: 500
-        }}>
-          Serene Protection Suite & Intelligence Console
+        <p className="text-sm text-slate-400 mb-8 font-medium">
+          Senior Safety Intelligence & Crisis Control Center
         </p>
 
         {error && (
-          <div style={{
-            background: '#fdeee9',
-            color: '#aa361f',
-            padding: '12px 16px',
-            borderRadius: 12,
-            fontSize: 13,
-            fontWeight: 700,
-            marginBottom: 20,
-            border: '1px solid rgba(170, 54, 31, 0.2)',
-            textAlign: 'left'
-          }}>
+          <div className="bg-rose-500/10 text-rose-400 p-3.5 rounded-xl text-xs font-bold mb-6 border border-rose-500/20 text-left flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
+        <form onSubmit={handleSubmit} className="text-left space-y-5">
           {!requires2FA ? (
             <>
-              <div style={{ marginBottom: 18 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#1b1c1c',
-                  marginBottom: 8,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em'
-                }}>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
                   Security ID / Email
                 </label>
-                <div className="search-input-wrapper">
-                  <UserCheck size={18} style={{ left: 14 }} />
+                <div className="relative">
+                  <UserCheck size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="admin@safesenior.org"
-                    className="stitch-input"
-                    style={{ paddingLeft: 42 }}
+                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
                   />
                 </div>
               </div>
 
-              <div style={{ marginBottom: 24 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#1b1c1c',
-                  marginBottom: 8,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em'
-                }}>
-                  Access Passphrase / Key
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
+                  Access Key / Passphrase
                 </label>
-                <div className="search-input-wrapper">
-                  <Key size={18} style={{ left: 14 }} />
+                <div className="relative">
+                  <Key size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="stitch-input"
-                    style={{ paddingLeft: 42 }}
+                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
                   />
                 </div>
               </div>
             </>
           ) : (
-            <div style={{ marginBottom: 24 }}>
-              <label style={{
-                display: 'block',
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#1b1c1c',
-                marginBottom: 8
-              }}>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
                 2FA Verification Code
               </label>
-              <div className="search-input-wrapper">
-                <Lock size={18} style={{ left: 14 }} />
+              <div className="relative">
+                <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   required
@@ -210,8 +161,7 @@ export default function LoginPage({ onLogin }) {
                   value={totpCode}
                   onChange={e => setTotpCode(e.target.value)}
                   placeholder="000 000"
-                  className="stitch-input"
-                  style={{ textAlign: 'center', letterSpacing: 6, fontSize: 18, fontWeight: 700 }}
+                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-center tracking-[0.3em] font-mono text-lg text-emerald-400 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
                 />
               </div>
             </div>
@@ -220,45 +170,23 @@ export default function LoginPage({ onLogin }) {
           <button
             type="submit"
             disabled={loading}
-            className="stitch-btn stitch-btn-primary"
-            style={{
-              width: '100%',
-              fontSize: 16,
-              padding: '14px',
-              borderRadius: 9999,
-              marginBottom: 12
-            }}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-900/40 transition-all duration-200 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? 'Verifying Credentials...' : 'Secure Administrator Sign In'}
+            {loading ? 'Authenticating...' : 'Sign In to Operations Console'}
           </button>
 
           <button
             type="button"
             onClick={handleQuickDemo}
-            className="stitch-btn stitch-btn-outline"
-            style={{
-              width: '100%',
-              fontSize: 14,
-              padding: '10px'
-            }}
+            className="w-full bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-semibold text-xs py-3 px-4 rounded-xl border border-slate-700/60 transition-all flex items-center justify-center gap-2 group"
           >
-            Instant Demo Access <ArrowRight size={16} />
+            <span>Quick Demo Access (Skip Login)</span>
+            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
-        <div style={{
-          marginTop: 24,
-          fontSize: 11,
-          fontWeight: 700,
-          color: '#6e7979',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6
-        }}>
-          <ShieldCheck size={14} color="#006565" /> FedRAMP & HIPAA Compliant Senior Shield System
+        <div className="mt-8 pt-6 border-t border-slate-800/80 text-[11px] font-semibold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
+          <ShieldCheck size={14} className="text-emerald-400" />
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, ShieldAlert, AlertTriangle, Ban, CheckCircle, User, Phone, Calendar, Radio } from 'lucide-react'
+import { X, ShieldAlert, AlertTriangle, Ban } from 'lucide-react'
 
 export default function ReportDetailModal({ report, onClose, onResolve }) {
   const [notes, setNotes] = useState('')

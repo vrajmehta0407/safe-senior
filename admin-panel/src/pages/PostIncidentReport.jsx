@@ -1,17 +1,10 @@
-import { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
-  FileText,
   ShieldCheck,
-  Download,
   Printer,
   CheckCircle,
   Share2,
-  Lock,
-  ArrowLeft,
-  User,
-  Calendar,
-  AlertOctagon
+  ArrowLeft
 } from 'lucide-react'
 
 export default function PostIncidentReport() {

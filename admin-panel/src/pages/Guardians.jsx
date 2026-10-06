@@ -2,11 +2,7 @@ import { useState } from 'react'
 import {
   Heart,
   Search,
-  CheckCircle,
-  Phone,
-  ShieldCheck,
-  UserPlus,
-  Mail
+  ShieldCheck
 } from 'lucide-react'
 import { mockUsers } from '../mockData'
 

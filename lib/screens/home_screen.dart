@@ -312,7 +312,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // ── Filter Pills (Stitch Horizontal Scroll) ──
                     SingleChildScrollView(
@@ -723,74 +723,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9F9F9),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE8E8E8)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '🔒 Device Fortifier',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textDark,
-                        ),
-                      ),
-                      Text(
-                        '2 / 3 Steps',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryTeal,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Run health audit & enable biometric app locking.',
-                    style: GoogleFonts.atkinsonHyperlegible(
-                      fontSize: 12.5,
-                      color: AppTheme.textLight,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        backgroundColor: AppTheme.primaryTeal,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const AccountHealthScreen()),
-                        );
-                      },
-                      child: Text(
-                        'Complete in Health Audit →',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -1843,6 +1775,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       // 4. Emergency & Cyber Helplines Card
       Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -1857,7 +1790,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -1898,130 +1831,154 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppTheme.textLight,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             // Helpline 1: 1930 Cyber Fraud
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(0xFFFAF9F6),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFEFEDED)),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFDAD6),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.security, color: Color(0xFFAA361F), size: 20),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '1930 — National Cyber Crime',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark,
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFDAD6),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Text(
-                          'Instant freeze for scam bank/UPI transfers',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 12,
-                            color: AppTheme.textLight,
-                          ),
+                        child: const Center(
+                          child: Icon(Icons.security, color: Color(0xFFAA361F), size: 22),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '1930 — National Cyber Crime',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Instant freeze for scam bank & UPI transfers',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 12,
+                                color: AppTheme.textLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFAA361F),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () => _makePhoneCall('1930'),
-                    child: Text(
-                      'Call 1930',
-                      style: GoogleFonts.atkinsonHyperlegible(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFAA361F),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () => _makePhoneCall('1930'),
+                      icon: const Icon(Icons.call, size: 18),
+                      label: Text(
+                        'Call 1930 Cyber Helpline Now',
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             // Helpline 2: 14567 Elder Line
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(0xFFFAF9F6),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFEFEDED)),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2F2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.volunteer_activism_outlined, color: AppTheme.primaryTeal, size: 20),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '14567 — Elder Line',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark,
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2F2),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Text(
-                          'Senior citizen guidance & support',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 12,
-                            color: AppTheme.textLight,
-                          ),
+                        child: const Center(
+                          child: Icon(Icons.volunteer_activism_outlined, color: AppTheme.primaryTeal, size: 22),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '14567 — Elder Line',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Senior citizen guidance, healthcare & emergency support',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 12,
+                                color: AppTheme.textLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryTeal,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () => _makePhoneCall('14567'),
-                    child: Text(
-                      'Call 14567',
-                      style: GoogleFonts.atkinsonHyperlegible(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryTeal,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () => _makePhoneCall('14567'),
+                      icon: const Icon(Icons.call, size: 18),
+                      label: Text(
+                        'Call 14567 Elder Line Now',
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

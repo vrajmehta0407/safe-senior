@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useAdminData } from '../context/AdminDataContext'
 
 const counselors = [
   {
@@ -38,7 +38,7 @@ const counselors = [
 ]
 
 export default function CrisisHandover() {
-  const navigate = useNavigate()
+  const { addAuditLog } = useAdminData()
   const [activeTab, setActiveTab] = useState('crisis')
   const [operatorNotes, setOperatorNotes] = useState(
     'Harish ji is currently on the line, hyperventilating after receiving a fake CBI Digital Arrest video call demanding ₹3,50,000 via RTGS. I have calmed him down, confirmed he is safe inside his Jayanagar residence, and his son Vikram has been patched in.'
@@ -46,10 +46,24 @@ export default function CrisisHandover() {
   const [callActive, setCallActive] = useState(false)
   const [activeCounselor, setActiveCounselor] = useState(null)
   const [filterTag, setFilterTag] = useState('All Available')
+  const [dispatchStatus, setDispatchStatus] = useState('')
 
   const startThreeWayCall = (c) => {
     setActiveCounselor(c)
     setCallActive(true)
+    if (addAuditLog) addAuditLog('3-Way Crisis Call Started', `Connected operator & senior Harish Verma to ${c.name}`)
+  }
+
+  const handleGenerateDossier = () => {
+    setDispatchStatus('Sealed MHA 1930 Cybercrime Dossier (SHA-256 Encrypted PDF) generated & saved to downloads.')
+    if (addAuditLog) addAuditLog('Generated 1930 Dossier', 'Sealed PDF generated for Harish Verma Digital Arrest case')
+    setTimeout(() => setDispatchStatus(''), 5000)
+  }
+
+  const handleEmergencyDispatch = () => {
+    setDispatchStatus('Emergency Dispatch Sent! Bengaluru Cyber Police Control Room acknowledged packet #BLR-CY-9021.')
+    if (addAuditLog) addAuditLog('Emergency Police Dispatch', 'Sent live telemetry & IP origin data to Bengaluru Cyber Police')
+    setTimeout(() => setDispatchStatus(''), 5000)
   }
 
   return (
@@ -268,17 +282,29 @@ export default function CrisisHandover() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          {dispatchStatus && (
+            <div className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 p-4 rounded-2xl flex items-center justify-between text-xs font-bold animate-pulse">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px] text-emerald-400">check_circle</span>
+                <span>{dispatchStatus}</span>
+              </div>
+              <button onClick={() => setDispatchStatus('')} className="text-slate-400 hover:text-white">
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3">
             <button
-              onClick={() => alert('Generating Sealed 1930 Cybercrime Dossier (PDF)...')}
-              className="h-[44px] px-5 bg-primary text-on-primary rounded-xl font-label-md text-xs font-bold flex items-center gap-2 hover:bg-primary-container transition-colors shadow-sm"
+              onClick={handleGenerateDossier}
+              className="h-[44px] px-5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-950/40"
             >
               <span className="material-symbols-outlined text-[18px]">download</span>
               Download Sealed Case PDF (1930 Portal)
             </button>
             <button
-              onClick={() => alert('Dispatching telemetry packet to Bengaluru Cyber Police Control Room...')}
-              className="h-[44px] px-5 bg-error text-on-error rounded-xl font-label-md text-xs font-bold flex items-center gap-2 hover:bg-error/90 transition-colors shadow-sm"
+              onClick={handleEmergencyDispatch}
+              className="h-[44px] px-5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-rose-950/40"
             >
               <span className="material-symbols-outlined text-[18px]">local_police</span>
               Emergency Cyber Police Dispatch

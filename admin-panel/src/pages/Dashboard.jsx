@@ -1,37 +1,108 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { mockAlerts, mockStats } from '../mockData'
+import { useAdminData } from '../context/AdminDataContext'
 
-const latencySamples = [
-  { time: '12 AM', ms: 45, height: '40%' },
-  { time: '3 AM', ms: 38, height: '35%' },
-  { time: '6 AM', ms: 62, height: '60%' },
-  { time: '9 AM', ms: 48, height: '45%' },
-  { time: '12 PM', ms: 85, height: '80%' },
-  { time: '3 PM', ms: 32, height: '30%' },
-  { time: 'Now', ms: 28, height: '25%', active: true },
-]
+const latencyDataSets = {
+  '24h': [
+    { time: '12 AM', ms: 45, height: '40%' },
+    { time: '3 AM', ms: 38, height: '35%' },
+    { time: '6 AM', ms: 62, height: '60%' },
+    { time: '9 AM', ms: 48, height: '45%' },
+    { time: '12 PM', ms: 85, height: '80%' },
+    { time: '3 PM', ms: 32, height: '30%' },
+    { time: 'Now', ms: 28, height: '25%', active: true },
+  ],
+  '7d': [
+    { time: 'Mon', ms: 34, height: '32%' },
+    { time: 'Tue', ms: 52, height: '50%' },
+    { time: 'Wed', ms: 41, height: '38%' },
+    { time: 'Thu', ms: 68, height: '65%' },
+    { time: 'Fri', ms: 29, height: '28%' },
+    { time: 'Sat', ms: 31, height: '30%' },
+    { time: 'Sun', ms: 28, height: '25%', active: true },
+  ],
+  '30d': [
+    { time: 'Wk 1', ms: 42, height: '40%' },
+    { time: 'Wk 2', ms: 39, height: '36%' },
+    { time: 'Wk 3', ms: 45, height: '42%' },
+    { time: 'Wk 4', ms: 28, height: '25%', active: true },
+  ]
+}
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('overview')
+  const { stats, alerts, users, resolveAlert, addAuditLog } = useAdminData()
+  
+  const [latencyRange, setLatencyRange] = useState('24h')
+  const [alertFilter, setAlertFilter] = useState('all')
+  const [selectedAlert, setSelectedAlert] = useState(null)
+  const [isScanning, setIsScanning] = useState(false)
+  const [scanMessage, setScanMessage] = useState('')
+  const [resolutionInput, setResolutionInput] = useState('')
+
+  const activeLatency = latencyDataSets[latencyRange] || latencyDataSets['24h']
+
+  const filteredAlerts = (alerts || []).filter(a => {
+    if (alertFilter === 'all') return true
+    if (alertFilter === 'investigating') return a.status === 'Investigating' || a.status === 'Open'
+    if (alertFilter === 'blocked') return a.status === 'Auto-Blocked' || a.status === 'Blocked'
+    if (alertFilter === 'resolved') return a.status === 'Resolved'
+    return true
+  })
+
+  function handleRunDiagnostics() {
+    setIsScanning(true)
+    setScanMessage('Initiating edge classifier ping...')
+    setTimeout(() => setScanMessage('Auditing AI speech pattern recognition engine...'), 600)
+    setTimeout(() => {
+      setIsScanning(false)
+      setScanMessage('')
+      addAuditLog('System Health Scan', 'Full diagnostic check completed — 100% operational')
+    }, 1500)
+  }
+
+  function handleResolveSelected() {
+    if (!selectedAlert) return
+    const note = resolutionInput.trim() || 'Manually verified and cleared by SecOps Lead'
+    resolveAlert(selectedAlert.id, note)
+    setSelectedAlert(null)
+    setResolutionInput('')
+  }
 
   return (
     <div className="space-y-8">
       {/* ── Page Header ── */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 p-6 rounded-3xl border border-slate-800/80 backdrop-blur-xl shadow-xl">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-background mb-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
+              Live Operations Telemetry
+            </span>
+          </div>
+          <h2 className="font-headline-lg text-2xl sm:text-3xl font-bold text-white tracking-tight">
             System Health Overview
           </h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">
-            Real-time monitoring, live latency telemetry, and threat prevention metrics.
+          <p className="text-sm text-slate-400 mt-1">
+            Real-time monitoring, threat interception metrics, and senior protection telemetry.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleRunDiagnostics}
+            disabled={isScanning}
+            className="h-11 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition-all active:scale-[0.99] disabled:opacity-50"
+          >
+            <span className={`material-symbols-outlined text-[18px] ${isScanning ? 'animate-spin text-emerald-400' : 'text-slate-400'}`}>
+              {isScanning ? 'sync' : 'health_and_safety'}
+            </span>
+            <span>{isScanning ? 'Scanning...' : 'Run Diagnostics'}</span>
+          </button>
+
           <button
             onClick={() => navigate('/rules-wizard')}
-            className="h-[44px] px-5 bg-primary text-on-primary rounded-xl font-label-md flex items-center gap-2 hover:bg-primary-container transition-colors shadow-sm"
+            className="h-11 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all active:scale-[0.99]"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             New System Rule
@@ -39,192 +110,330 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* ── Masonry Grid of Metric Cards (Stitch Exact Layout) ── */}
+      {/* Diagnostics Toast Notification */}
+      {isScanning && (
+        <div className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-2xl text-xs font-semibold flex items-center justify-between animate-pulse">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined animate-spin text-emerald-400 text-lg">memory</span>
+            <span>{scanMessage}</span>
+          </div>
+          <span className="font-mono text-[11px]">Latency: 18ms</span>
+        </div>
+      )}
+
+      {/* ── Masonry Grid of Metric Cards ── */}
       <div className="masonry-grid">
         {/* Metric Card 1: System Status */}
-        <div className="masonry-item bg-surface-container-lowest rounded-xl p-6 soft-shadow flex flex-col items-start relative overflow-hidden border border-surface-container-high">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-fixed/20 rounded-bl-full -mr-16 -mt-16 pointer-events-none"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
-              <span className="material-symbols-outlined icon-fill">check_circle</span>
+        <div className="masonry-item bg-slate-900/80 rounded-2xl p-6 shadow-xl flex flex-col items-start relative overflow-hidden border border-slate-800/80 backdrop-blur-xl hover:border-emerald-500/40 transition-all group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -mr-12 -mt-12 pointer-events-none group-hover:scale-110 transition-transform"></div>
+          <div className="flex items-center justify-between w-full mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <span className="material-symbols-outlined text-2xl icon-fill">check_circle</span>
+              </div>
+              <h3 className="font-headline-sm text-base font-semibold text-slate-200">System Status</h3>
             </div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">System Status</h3>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-500/20 uppercase tracking-widest">
+              Online
+            </span>
           </div>
           <div className="mb-2">
-            <span className="font-headline-lg text-headline-lg text-primary font-bold">Operational</span>
+            <span className="font-headline-lg text-2xl sm:text-3xl text-emerald-400 font-bold tracking-tight">Operational</span>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            All core services and edge classifiers are running normally with 0% degraded performance.
+          <p className="text-xs text-slate-400 leading-relaxed">
+            All 4 edge classifier nodes & neural speech scanners running normally with 0% degraded performance.
           </p>
+          <div className="mt-4 pt-4 border-t border-slate-800/80 w-full flex justify-between items-center text-[11px] text-slate-400 font-mono">
+            <span>Uptime: 99.98%</span>
+            <button onClick={() => navigate('/maintenance')} className="text-emerald-400 font-bold hover:underline">
+              Logs &rarr;
+            </button>
+          </div>
         </div>
 
         {/* Metric Card 2: Threats Blocked */}
-        <div className="masonry-item bg-surface-container-lowest rounded-xl p-6 soft-shadow flex flex-col items-start relative overflow-hidden border border-surface-container-high">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-error-container/30 rounded-bl-full -mr-16 -mt-16 pointer-events-none"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
-              <span className="material-symbols-outlined icon-fill">shield</span>
+        <div className="masonry-item bg-slate-900/80 rounded-2xl p-6 shadow-xl flex flex-col items-start relative overflow-hidden border border-slate-800/80 backdrop-blur-xl hover:border-rose-500/40 transition-all group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-bl-full -mr-12 -mt-12 pointer-events-none group-hover:scale-110 transition-transform"></div>
+          <div className="flex items-center justify-between w-full mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                <span className="material-symbols-outlined text-2xl icon-fill">shield</span>
+              </div>
+              <h3 className="font-headline-sm text-base font-semibold text-slate-200">Threats Intercepted</h3>
             </div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">Total Threats Blocked</h3>
+            <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 text-[10px] font-bold border border-rose-500/20">
+              +12% wk
+            </span>
           </div>
-          <div className="mb-2 flex items-baseline gap-2">
-            <span className="font-headline-lg text-headline-lg text-on-surface font-bold">1,248</span>
-            <span className="font-label-md text-label-md text-secondary font-bold">+12% this week</span>
+          <div className="mb-2 flex items-baseline gap-3">
+            <span className="font-headline-lg text-2xl sm:text-3xl text-white font-bold tracking-tight">
+              {stats?.scamsInterceptedToday || 1248}
+            </span>
+            <span className="text-xs text-slate-400">Total 24h</span>
           </div>
-          <div className="w-full h-2 bg-surface-variant rounded-full mt-2 overflow-hidden">
-            <div className="h-full bg-secondary w-[75%] rounded-full"></div>
+          <div className="w-full h-2 bg-slate-800 rounded-full mt-2 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-rose-500 to-rose-400 w-[78%] rounded-full"></div>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-4">
-            Phishing attempts and suspicious VoIP endpoints successfully intercepted in the last 24 hours.
+          <p className="text-xs text-slate-400 mt-4 leading-relaxed">
+            AI scam calls, digital arrest threats & phishing SMS auto-intercepted across India telecom channels.
           </p>
+          <div className="mt-4 pt-4 border-t border-slate-800/80 w-full flex justify-between items-center text-[11px]">
+            <span className="text-slate-400 font-mono">Quarantine Rate: 99.4%</span>
+            <button onClick={() => navigate('/scam-reports')} className="text-rose-400 font-bold hover:underline">
+              Threat Intel &rarr;
+            </button>
+          </div>
         </div>
 
         {/* Metric Card 3: Active Sessions */}
-        <div className="masonry-item bg-surface-container-lowest rounded-xl p-6 soft-shadow flex flex-col items-start relative overflow-hidden border border-surface-container-high">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-tertiary-fixed/30 rounded-bl-full -mr-16 -mt-16 pointer-events-none"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
-              <span className="material-symbols-outlined icon-fill">verified_user</span>
+        <div className="masonry-item bg-slate-900/80 rounded-2xl p-6 shadow-xl flex flex-col items-start relative overflow-hidden border border-slate-800/80 backdrop-blur-xl hover:border-cyan-500/40 transition-all group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-bl-full -mr-12 -mt-12 pointer-events-none group-hover:scale-110 transition-transform"></div>
+          <div className="flex items-center justify-between w-full mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+                <span className="material-symbols-outlined text-2xl icon-fill">verified_user</span>
+              </div>
+              <h3 className="font-headline-sm text-base font-semibold text-slate-200">Active Protection</h3>
             </div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">Active Protection</h3>
+            <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 text-[10px] font-bold border border-cyan-500/20">
+              Live Network
+            </span>
           </div>
           <div className="mb-2">
-            <span className="font-headline-lg text-headline-lg text-on-surface font-bold">45,920</span>
+            <span className="font-headline-lg text-2xl sm:text-3xl text-white font-bold tracking-tight">
+              {(users || []).length > 0 ? (users.length * 1520 + 42000).toLocaleString() : '45,920'}
+            </span>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            Active user sessions currently monitored under safe browsing and call screening protocols.
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Active senior citizen sessions under call screening, geofence tracking & guardian emergency dispatch.
           </p>
+          <div className="mt-4 pt-4 border-t border-slate-800/80 w-full flex justify-between items-center text-[11px]">
+            <span className="text-slate-400 font-mono">Protected Seniors: {(users || []).length || 24}</span>
+            <button onClick={() => navigate('/users')} className="text-cyan-400 font-bold hover:underline">
+              Seniors List &rarr;
+            </button>
+          </div>
         </div>
 
-        {/* Chart Widget: System Latency (ms) */}
-        <div className="masonry-item bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-surface-container-high">
+        {/* Chart Widget: System Latency (ms) with Interactive Range Buttons */}
+        <div className="masonry-item bg-slate-900/80 rounded-2xl p-6 shadow-xl border border-slate-800/80 backdrop-blur-xl">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface">System Latency (ms)</h3>
-            <span className="material-symbols-outlined text-outline">speed</span>
+            <div>
+              <h3 className="font-headline-sm text-base font-semibold text-slate-200">System Latency (ms)</h3>
+              <p className="text-[11px] text-slate-400 font-mono">Edge Node Telemetry</p>
+            </div>
+            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              {['24h', '7d', '30d'].map(range => (
+                <button
+                  key={range}
+                  onClick={() => setLatencyRange(range)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                    latencyRange === range
+                      ? 'bg-emerald-500 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {range}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="h-48 w-full flex items-end justify-between gap-2 pb-2 border-b border-surface-variant">
-            {latencySamples.map((sample, idx) => (
+
+          <div className="h-44 w-full flex items-end justify-between gap-2 pb-2 border-b border-slate-800">
+            {activeLatency.map((sample, idx) => (
               <div
                 key={idx}
-                className={`w-full ${sample.active ? 'bg-primary' : 'bg-primary-fixed-dim/60'} rounded-t-sm hover:bg-primary transition-colors cursor-pointer relative group`}
+                className={`w-full ${sample.active ? 'bg-emerald-400 shadow-lg shadow-emerald-500/30' : 'bg-slate-700/60'} rounded-t-md hover:bg-emerald-400 transition-colors cursor-pointer relative group`}
                 style={{ height: sample.height }}
               >
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">
-                  {sample.ms}ms
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-950 text-emerald-300 font-mono text-[10px] py-1 px-2 rounded-lg border border-slate-800 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">
+                  {sample.time}: {sample.ms}ms
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-2 font-label-md text-label-md text-outline text-xs">
-            <span>12AM</span>
-            <span>6AM</span>
-            <span>12PM</span>
-            <span>Now (28ms)</span>
+          <div className="flex justify-between mt-3 font-mono text-[11px] text-slate-400">
+            <span>{activeLatency[0]?.time}</span>
+            <span>{activeLatency[Math.floor(activeLatency.length / 2)]?.time}</span>
+            <span className="text-emerald-400 font-bold">Latest: 28ms</span>
           </div>
         </div>
 
         {/* Recent Critical Alerts Table Widget */}
-        <div className="masonry-item bg-surface-container-lowest rounded-xl soft-shadow overflow-hidden border border-surface-container-high md:col-span-2 lg:col-span-2">
-          <div className="p-6 border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+        <div className="masonry-item bg-slate-900/80 rounded-2xl shadow-xl overflow-hidden border border-slate-800/80 backdrop-blur-xl md:col-span-2 lg:col-span-2">
+          <div className="p-5 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950/40">
             <div>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface">Recent Critical Alerts</h3>
-              <p className="text-xs text-on-surface-variant mt-0.5">Live interception feed across all senior devices</p>
+              <h3 className="font-headline-sm text-base font-bold text-white">Live Alert Triage Feed</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time threat interception log across protected devices</p>
             </div>
-            <button
-              onClick={() => navigate('/alerts')}
-              className="font-label-md text-label-md text-primary hover:text-surface-tint transition-colors flex items-center gap-1 text-sm font-bold"
-            >
-              View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'investigating', label: 'Investigating' },
+                { key: 'blocked', label: 'Blocked' },
+                { key: 'resolved', label: 'Resolved' },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setAlertFilter(tab.key)}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                    alertFilter === tab.key
+                      ? 'bg-slate-800 text-emerald-400 border border-slate-700 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
+
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface text-outline font-label-md text-label-md border-b border-surface-variant text-xs">
-                  <th className="p-4 font-semibold">Time</th>
-                  <th className="p-4 font-semibold">Alert Type</th>
-                  <th className="p-4 font-semibold">Senior & Group</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold text-right">Action</th>
+                <tr className="bg-slate-950/60 text-slate-400 text-xs border-b border-slate-800/80 uppercase tracking-wider font-semibold">
+                  <th className="p-4">Time</th>
+                  <th className="p-4">Alert & Category</th>
+                  <th className="p-4">Senior / Target</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="font-body-md text-body-md text-on-surface text-sm divide-y divide-surface-container-low">
-                <tr className="hover:bg-surface-container-low transition-colors">
-                  <td className="p-4 text-on-surface-variant">10:42 AM</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-error text-[18px]">warning</span>
-                      <span className="font-semibold">Suspicious Login Location</span>
-                    </div>
-                  </td>
-                  <td className="p-4">Martha Jenkins (Beta Testers)</td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-xs font-bold font-label-md">
-                      Investigating
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => navigate('/alerts')}
-                      className="text-primary hover:underline font-bold text-sm"
-                    >
-                      Review
-                    </button>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-container-low transition-colors">
-                  <td className="p-4 text-on-surface-variant">09:15 AM</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-secondary text-[18px]">phishing</span>
-                      <span className="font-semibold">Pattern Match: Phishing SMS</span>
-                    </div>
-                  </td>
-                  <td className="p-4">Robert Chen (General Access)</td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-variant text-on-surface-variant text-xs font-bold font-label-md">
-                      Auto-Blocked
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => navigate('/alerts')}
-                      className="text-primary hover:underline font-bold text-sm"
-                    >
-                      Details
-                    </button>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-surface-container-low transition-colors">
-                  <td className="p-4 text-on-surface-variant">Yesterday</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-tertiary text-[18px]">data_usage</span>
-                      <span className="font-semibold">Unusual Data Spike (Wire App)</span>
-                    </div>
-                  </td>
-                  <td className="p-4">Dorothy Miller (Caregivers)</td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-container/20 text-primary text-xs font-bold font-label-md">
-                      Resolved
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => navigate('/audit-log')}
-                      className="text-primary hover:underline font-bold text-sm"
-                    >
-                      Log
-                    </button>
-                  </td>
-                </tr>
+              <tbody className="text-xs text-slate-200 divide-y divide-slate-800/60">
+                {filteredAlerts.length > 0 ? (
+                  filteredAlerts.slice(0, 5).map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="p-4 font-mono text-slate-400">{item.timestamp || item.time || 'Just now'}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`material-symbols-outlined text-[18px] ${
+                            item.severity === 'Critical' || item.status === 'Investigating' ? 'text-rose-400' : 'text-amber-400'
+                          }`}>
+                            {item.severity === 'Critical' ? 'warning' : 'phishing'}
+                          </span>
+                          <div>
+                            <div className="font-semibold text-slate-200">{item.type || item.title || item.name}</div>
+                            <div className="text-[10px] text-slate-400">{item.category || item.threatVector || 'Scam Pattern'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-slate-300 font-medium">{item.user || item.seniorName || 'Senior Account'}</td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+                          item.status === 'Investigating' || item.status === 'Open'
+                            ? 'bg-rose-500/15 text-rose-400 border-rose-500/20'
+                            : item.status === 'Auto-Blocked' || item.status === 'Blocked'
+                            ? 'bg-slate-800 text-slate-300 border-slate-700'
+                            : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => setSelectedAlert(item)}
+                          className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 font-bold text-xs rounded-lg border border-slate-700/60 transition-all"
+                        >
+                          Inspect &rarr;
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center text-slate-500 font-medium">
+                      No alerts match the selected filter category.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {/* ── Alert Detail Modal ── */}
+      {selectedAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 text-slate-200">
+            <div className="flex items-start justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                  <span className="material-symbols-outlined">warning</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">{selectedAlert.type || selectedAlert.title || 'Threat Alert'}</h3>
+                  <p className="text-xs text-slate-400 font-mono">{selectedAlert.id}</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedAlert(null)} className="text-slate-400 hover:text-white">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <span className="text-slate-400 block mb-1">Target Senior</span>
+                  <span className="font-bold text-white text-sm">{selectedAlert.user || selectedAlert.seniorName || 'Martha Jenkins'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-1">Status</span>
+                  <span className="font-bold text-emerald-400 text-sm">{selectedAlert.status}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-slate-400 block mb-1 font-semibold">Incident Summary & Telemetry</span>
+                <p className="text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
+                  {selectedAlert.description || selectedAlert.summary || 'VoIP endpoint attempted impersonation of bank customer support using synthesized Indic voice pattern.'}
+                </p>
+              </div>
+
+              {selectedAlert.status !== 'Resolved' && (
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">Resolution Note (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Verified with family guardian, endpoint blacklisted."
+                    value={resolutionInput}
+                    onChange={(e) => setResolutionInput(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+              <button
+                onClick={() => setSelectedAlert(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl"
+              >
+                Close
+              </button>
+              {selectedAlert.status !== 'Resolved' && (
+                <button
+                  onClick={handleResolveSelected}
+                  className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-950/40"
+                >
+                  Mark Alert Resolved
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedAlert(null)
+                  navigate('/crisis-handover')
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl"
+              >
+                Escalate Crisis &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

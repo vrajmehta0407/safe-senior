@@ -171,6 +171,17 @@ export default function UsersPage() {
                       >
                         {u.isSuspended ? 'Reactivate' : 'Suspend'}
                       </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to permanently remove ${u.name}?`)) {
+                            deleteUser(u.id)
+                          }
+                        }}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                        title="Delete senior account"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
                     </div>
                   </td>
                 </tr>

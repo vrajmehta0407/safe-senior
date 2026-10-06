@@ -9,11 +9,16 @@ export default function BatchUserImport() {
     `Name,Age,Phone,Location,RiskScore\n"Shanti Patel",76,"+91 98250 14820","Ahmedabad, GJ",42\n"Ramesh Sharma",82,"+91 98110 59281","New Delhi NCR",78\n"Anandi Deshmukh",74,"+91 90289 44210","Mumbai, MH",55`
   )
   const [importedCount, setImportedCount] = useState(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleImport = () => {
+    setErrorMessage('')
     try {
       const lines = csvText.trim().split('\n')
-      if (lines.length <= 1) return alert('Please enter at least one user record.')
+      if (lines.length <= 1) {
+        setErrorMessage('Please enter at least one valid senior user record.')
+        return
+      }
       
       const newUsers = lines.slice(1).map((line, idx) => {
         const parts = line.split(',').map(s => s.trim().replace(/^"|"$/g, ''))
@@ -21,24 +26,26 @@ export default function BatchUserImport() {
           id: `batch-${Date.now()}-${idx}`,
           name: parts[0] || `Imported Senior #${idx + 1}`,
           age: parseInt(parts[1], 10) || 72,
-          phone: parts[2] || '(555) 000-0000',
-          location: parts[3] || 'Portland, OR',
+          phone: parts[2] || '+91 98000 00000',
+          location: parts[3] || 'Ahmedabad, GJ',
           device: 'Standard Endpoint',
-          guardians: [{ name: 'Assigned Caregiver', relation: 'Family', phone: '(555) 999-8888' }],
+          guardians: [{ name: 'Assigned Caregiver', relation: 'Family', phone: '+91 98000 99999' }],
           geofenceStatus: 'Inside Safe Zone',
           riskScore: parseInt(parts[4], 10) || 30,
-          avatar: `https://images.unsplash.com/photo-1544005313?w=150&auto=format&fit=crop&q=80`,
+          avatar: `https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80`,
           isSuspended: false
         }
       })
 
-      importBatchUsers(newUsers)
+      if (importBatchUsers) {
+        importBatchUsers(newUsers)
+      }
       setImportedCount(newUsers.length)
       setTimeout(() => {
         navigate('/users')
       }, 1500)
-    } catch (e) {
-      alert('Error parsing CSV. Please check formatting.')
+    } catch {
+      setErrorMessage('Error parsing CSV. Please verify column formatting.')
     }
   }
 
@@ -55,9 +62,21 @@ export default function BatchUserImport() {
       </div>
 
       {importedCount && (
-        <div className="bg-primary text-on-primary p-4 rounded-2xl flex items-center gap-3 shadow-md text-xs font-bold animate-pulse">
-          <span className="material-symbols-outlined text-[20px]">check_circle</span>
+        <div className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 p-4 rounded-2xl flex items-center gap-3 shadow-md text-xs font-bold animate-pulse">
+          <span className="material-symbols-outlined text-[20px] text-emerald-400">check_circle</span>
           Successfully provisioned {importedCount} new senior accounts. Redirecting to directory...
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="bg-rose-500/15 border border-rose-500/30 text-rose-300 p-4 rounded-2xl flex items-center justify-between shadow-md text-xs font-bold">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px] text-rose-400">error</span>
+            <span>{errorMessage}</span>
+          </div>
+          <button onClick={() => setErrorMessage('')} className="text-slate-400 hover:text-white">
+            <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
         </div>
       )}
 

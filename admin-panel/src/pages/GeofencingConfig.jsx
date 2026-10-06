@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { mockUsers } from '../mockData'
 
+import { useAdminData } from '../context/AdminDataContext'
+
 export default function GeofencingConfig() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { addAuditLog, users } = useAdminData()
   const userId = searchParams.get('id') || 'u1'
-  const user = mockUsers.find(u => u.id === userId) || mockUsers[0]
+  const user = (users && users.find(u => u.id === userId)) || mockUsers[0]
 
   const [zones, setZones] = useState([
     { id: 'z1', name: 'Home Safe Perimeter', condition: 'Alert on Leave (Night)', enabled: true, icon: 'home', radius: 150 },
@@ -19,11 +22,15 @@ export default function GeofencingConfig() {
   const [alertType, setAlertType] = useState('On Leave')
   const [startTime, setStartTime] = useState('22:00')
   const [endTime, setEndTime] = useState('06:00')
+  const [drawMode, setDrawMode] = useState('circle') // 'circle' | 'polygon'
   const [savedSuccess, setSavedSuccess] = useState(false)
 
   const handleSave = () => {
     setSavedSuccess(true)
-    setTimeout(() => setSavedSuccess(false), 3000)
+    if (addAuditLog) {
+      addAuditLog('Geofence Updated', `Updated safe perimeter (${radius}m, mode: ${drawMode}) for ${user.name}`)
+    }
+    setTimeout(() => setSavedSuccess(false), 3500)
   }
 
   return (
@@ -58,11 +65,25 @@ export default function GeofencingConfig() {
         <div className="flex-1 bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-container-high overflow-hidden relative flex flex-col min-h-[400px]">
           {/* Overlay Buttons */}
           <div className="absolute top-4 left-4 z-10 flex gap-2">
-            <button className="bg-surface text-on-surface px-4 py-2 rounded-full shadow-sm border border-surface-container-high font-label-md text-xs font-bold flex items-center gap-2 hover:bg-surface-container transition-colors">
+            <button
+              onClick={() => setDrawMode('polygon')}
+              className={`px-4 py-2 rounded-full shadow-sm border font-label-md text-xs font-bold flex items-center gap-2 transition-all ${
+                drawMode === 'polygon'
+                  ? 'bg-emerald-500 text-white border-emerald-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:bg-slate-800'
+              }`}
+            >
               <span className="material-symbols-outlined text-[18px]">draw</span>
               Draw Polygon
             </button>
-            <button className="bg-surface text-on-surface px-4 py-2 rounded-full shadow-sm border border-surface-container-high font-label-md text-xs font-bold flex items-center gap-2 hover:bg-surface-container transition-colors">
+            <button
+              onClick={() => setDrawMode('circle')}
+              className={`px-4 py-2 rounded-full shadow-sm border font-label-md text-xs font-bold flex items-center gap-2 transition-all ${
+                drawMode === 'circle'
+                  ? 'bg-emerald-500 text-white border-emerald-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:bg-slate-800'
+              }`}
+            >
               <span className="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
               Draw Circle
             </button>

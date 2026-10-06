@@ -37,23 +37,33 @@ function PrivateRoute({ children }) {
 }
 
 export default function App() {
-  const [admin, setAdmin] = useState({
-    id: 'admin-001',
-    name: 'Vraj Mehta',
-    role: 'SecOps Lead'
+  const [admin, setAdmin] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('safesenior_admin_user')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
   })
 
-  if (!getToken()) {
-    setToken('initial-dev-session-token')
-  }
-
   function handleLogin(token, adminData) {
+    const user = adminData || {
+      id: 'admin-001',
+      name: 'Vraj Mehta',
+      role: 'SecOps Lead'
+    }
     setToken(token)
-    setAdmin(adminData)
+    try {
+      sessionStorage.setItem('safesenior_admin_user', JSON.stringify(user))
+    } catch {}
+    setAdmin(user)
   }
 
   function handleLogout() {
     clearToken()
+    try {
+      sessionStorage.removeItem('safesenior_admin_user')
+    } catch {}
     setAdmin(null)
   }
 
@@ -61,7 +71,10 @@ export default function App() {
     <AdminDataProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route
+            path="/login"
+            element={getToken() ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={handleLogin} />}
+          />
           <Route
             path="/*"
             element={

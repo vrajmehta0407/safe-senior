@@ -8,8 +8,6 @@ import 'guardian_contacts_screen.dart';
 import 'scanned_email_feed_screen.dart';
 import 'voice_call_history_screen.dart';
 import 'blocked_site_history_screen.dart';
-import 'wearable_status_screen.dart';
-import 'sensor_calibration_screen.dart';
 import 'deepfake_warning_screen.dart';
 import 'sim_swap_alert_screen.dart';
 
@@ -683,109 +681,7 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-
-                    // Diagnostic Row 4: Wearable Status & Sensor Calibration
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const WearableStatusScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE3E2E2)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFE0F2F2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.watch, color: AppTheme.primaryTeal, size: 20),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Smart Band',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.textDark,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Fall detection',
-                                    style: GoogleFonts.atkinsonHyperlegible(
-                                      fontSize: 12.5,
-                                      color: AppTheme.textLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const SensorCalibrationScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE3E2E2)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFE0F2F2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.tune, color: AppTheme.primaryTeal, size: 20),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Calibration',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.textDark,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Hardware sensors',
-                                    style: GoogleFonts.atkinsonHyperlegible(
-                                      fontSize: 12.5,
-                                      color: AppTheme.textLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+                     const SizedBox(height: 20),
 
                     // Trigger Full Security Scan Button (Stitch 56px CTA)
                     SizedBox(

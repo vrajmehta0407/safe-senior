@@ -1,59 +1,59 @@
-@charset "UTF-8";
-
-/* ── Serene Safe Haven Design Tokens (Stitch Design DNA) ── */
+/* ── Safe Senior UI/UX Pro Max Design Tokens (Glassmorphic Operations Theme) ── */
 :root {
-  --primary: #006565;
-  --primary-hover: #004f4f;
-  --primary-container: #008080;
-  --primary-light: #e0f2f2;
-  --primary-fixed: #93f2f2;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-container: #064e3b;
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --primary-fixed: #34d399;
   --on-primary: #ffffff;
-  --on-primary-container: #e3fffe;
+  --on-primary-container: #a7f3d0;
 
-  --secondary: #aa361f;
-  --secondary-hover: #891e08;
-  --secondary-container: #fe7356;
-  --secondary-light: #fdeee9;
+  --secondary: #f43f5e;
+  --secondary-hover: #e11d48;
+  --secondary-container: #881337;
+  --secondary-light: rgba(244, 63, 94, 0.15);
   --on-secondary: #ffffff;
 
-  --tertiary: #735c00;
-  --tertiary-container: #cca830;
-  --tertiary-light: #fef8e7;
+  --tertiary: #f59e0b;
+  --tertiary-container: #78350f;
+  --tertiary-light: rgba(245, 158, 11, 0.15);
   --on-tertiary: #ffffff;
 
-  --success: #167d48;
-  --success-light: #e6f6ee;
-  --warning: #b26a00;
-  --warning-light: #fff5e5;
-  --info: #026aa7;
-  --info-light: #e0f2fe;
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;
+  --warning-light: rgba(245, 158, 11, 0.15);
+  --info: #3b82f6;
+  --info-light: rgba(59, 130, 246, 0.15);
 
-  --background: #fbf9f9;
-  --surface: #ffffff;
-  --surface-container-low: #f5f3f3;
-  --surface-container: #efeded;
-  --surface-container-high: #e9e8e7;
-  --surface-container-highest: #e3e2e2;
-  --surface-dim: #dbdad9;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --surface-container-low: #192234;
+  --surface-container: #27354a;
+  --surface-container-high: #334155;
+  --surface-container-highest: #475569;
+  --surface-dim: #0f172a;
+  --surface-bright: #1e293b;
 
-  --on-surface: #1b1c1c;
-  --on-surface-variant: #3e4949;
-  --outline: #bdc9c8;
-  --outline-strong: #6e7979;
+  --on-surface: #f8fafc;
+  --on-surface-variant: #94a3b8;
+  --outline: #334155;
+  --outline-strong: #475569;
 
   --font-headline: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Fira Code', monospace;
 
-  --radius-sm: 6px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
-  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.04);
-  --shadow-modal: 0 16px 36px rgba(0, 0, 0, 0.16);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+  --shadow-hover: 0 20px 40px -15px rgba(16, 185, 129, 0.25), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);

@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  LineChart,
   Line,
   PieChart,
   Pie,
@@ -14,8 +11,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from 'recharts'
 
 const scamTrendData = [

@@ -2,17 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Layers,
-  ShieldAlert,
-  Search,
-  CheckCircle,
-  ArrowRight,
   Send,
   PhoneCall,
-  UserCheck,
-  AlertTriangle,
   FileCheck
 } from 'lucide-react'
-import { mockAlerts, mockUsers } from '../mockData'
+import { mockUsers } from '../mockData'
 
 export default function ScamReports() {
   const nav = useNavigate()

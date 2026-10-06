@@ -87,7 +87,20 @@ export default function HeatmapView() {
 
             {/* Map Container (Interactive Visual with India stylized outline) */}
             <div className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-surface-container-low overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-0 bg-[#eef5f5] flex items-center justify-center p-6">
+              {selectedHotspot && (
+                <div className="absolute top-4 left-4 z-30 bg-slate-900/90 backdrop-blur-md border border-slate-750 text-slate-200 text-xs py-2 px-3.5 rounded-xl shadow-lg flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                  <span className="font-bold">{selectedHotspot}</span>
+                  <button onClick={() => setSelectedHotspot(null)} className="ml-2 text-slate-400 hover:text-white">
+                    <span className="material-symbols-outlined text-[14px]">close</span>
+                  </button>
+                </div>
+              )}
+
+              <div
+                className="absolute inset-0 bg-[#eef5f5] flex items-center justify-center p-6 origin-center transition-transform duration-300"
+                style={{ transform: `scale(${zoomLevel})` }}
+              >
                 <svg viewBox="0 0 800 600" className="w-full h-full text-[#c8dede] filter drop-shadow-sm">
                   {/* Stylized India Geography Outline */}
                   <path
@@ -108,7 +121,7 @@ export default function HeatmapView() {
 
               {/* Hotspot 1: Delhi NCR */}
               <div
-                className="absolute top-[26%] left-[46%] cursor-pointer group"
+                className="absolute top-[26%] left-[46%] cursor-pointer group z-20"
                 onClick={() => setSelectedHotspot('Delhi NCR Metro (14,820 threats)')}
               >
                 <div className="w-9 h-9 bg-error/40 rounded-full hotspot-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>

@@ -2,27 +2,42 @@
 // Safe Senior — Flutter test suite
 // Tests cover core providers, model correctness, and screen smoke tests.
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:safe_senior/models/guardian_contact.dart';
+import 'package:safe_senior/models/user_profile.dart';
 import 'package:safe_senior/screens/login_screen.dart';
 import 'package:safe_senior/screens/guardian_contacts_screen.dart';
+import 'package:safe_senior/services/guardian_service.dart';
+import 'package:safe_senior/storage/user_store.dart';
+import 'package:safe_senior/storage/local_preferences.dart';
 import 'package:safe_senior/state/auth_provider.dart';
 import 'package:safe_senior/state/guardian_provider.dart';
 
-// ─── Hive In-Memory Setup ──────────────────────────────────────────────────
+// ─── Hive & Prefs Test Setup ───────────────────────────────────────────────
 
-Future<void> _initHive() async {
-  final dir = 'test/hive_tmp_${DateTime.now().millisecondsSinceEpoch}';
-  Hive.init(dir);
+late Directory _testTempDir;
+
+Future<void> _initTestEnvironment() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
+  await LocalPreferences.init();
+
+  _testTempDir = await Directory.systemTemp.createTemp('safesenior_test_');
+  Hive.init(_testTempDir.path);
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(UserProfileAdapter());
+  }
   if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(GuardianContactAdapter());
   }
-  // Open boxes expected by providers
-  await Hive.openBox<GuardianContact>('guardian');
+  await UserStore.init();
+  await GuardianService.init();
 }
 
 // ─── Helper to wrap a widget with ProviderScope + MaterialApp ─────────────
@@ -37,12 +52,14 @@ Widget _wrap(Widget child) {
 
 void main() {
   setUpAll(() async {
-    await _initHive();
+    await _initTestEnvironment();
   });
 
   tearDownAll(() async {
-    await Hive.deleteFromDisk();
     await Hive.close();
+    if (_testTempDir.existsSync()) {
+      await _testTempDir.delete(recursive: true);
+    }
   });
 
   // ── AuthProvider ────────────────────────────────────────────────────────

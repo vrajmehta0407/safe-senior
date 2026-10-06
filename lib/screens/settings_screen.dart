@@ -18,8 +18,6 @@ import 'weekly_report_screen.dart';
 import 'achievements_screen.dart';
 import 'scam_library_screen.dart';
 import 'profile_checklist_screen.dart';
-import 'app_update_screen.dart';
-import 'forgot_pin_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -440,20 +438,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             title: 'Language / भाषा / ભાષા',
                             subtitle: 'English, हिन्दी & ગુજરાતી',
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguageScreen())),
-                          ),
-                          const Divider(height: 1, indent: 56),
-                          _prefTile(
-                            icon: Icons.pin_outlined,
-                            title: AppTranslations.tr('Reset Security PIN', langCode),
-                            subtitle: AppTranslations.tr('Update your 4-digit master PIN', langCode),
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPinScreen())),
-                          ),
-                          const Divider(height: 1, indent: 56),
-                          _prefTile(
-                            icon: Icons.system_update_alt,
-                            title: AppTranslations.tr('App Updates & Threat Engine', langCode),
-                            subtitle: 'SafeSenior v2.4 (Latest)',
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
                           ),
                           const Divider(height: 1, indent: 56),
                           _prefTile(

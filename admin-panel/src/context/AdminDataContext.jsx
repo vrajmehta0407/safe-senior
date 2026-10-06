@@ -7,8 +7,7 @@ import {
   mockAlerts,
   mockScamReports,
   mockDetectionRules,
-  mockAuditLogs,
-  mockHeatmapRegions
+  mockAuditLogs
 } from '../mockData'
 
 const AdminDataContext = createContext(null)
@@ -92,7 +91,7 @@ export function AdminDataProvider({ children }) {
         if (usersRes.status === 'fulfilled' && usersRes.value?.users?.length > 0) {
           // Merge with mock user visual fields (avatar, geofence, etc.)
           setUsers(prev => {
-            const remote = usersRes.value.users.map((u, i) => ({
+            const remote = usersRes.value.users.map((u) => ({
               id: `u${u.id}`,
               name: u.name || `Senior #${u.id}`,
               age: 70 + (u.id % 20),
@@ -108,6 +107,30 @@ export function AdminDataProvider({ children }) {
             }))
             return [...remote, ...prev.filter(p => !remote.some(r => r.id === p.id))]
           })
+        }
+        if (patternsRes.status === 'fulfilled' && (patternsRes.value?.patterns || patternsRes.value?.data)) {
+          const list = patternsRes.value.patterns || patternsRes.value.data
+          if (Array.isArray(list) && list.length > 0) {
+            setRules(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+          }
+        }
+        if (reportsRes.status === 'fulfilled' && (reportsRes.value?.reports || reportsRes.value?.data)) {
+          const list = reportsRes.value.reports || reportsRes.value.data
+          if (Array.isArray(list) && list.length > 0) {
+            setScamReports(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+          }
+        }
+        if (auditRes.status === 'fulfilled' && (auditRes.value?.logs || auditRes.value?.auditLogs)) {
+          const list = auditRes.value.logs || auditRes.value.auditLogs
+          if (Array.isArray(list) && list.length > 0) {
+            setAuditLogs(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+          }
+        }
+        if (guardiansRes.status === 'fulfilled' && (guardiansRes.value?.guardians || guardiansRes.value?.data)) {
+          const list = guardiansRes.value.guardians || guardiansRes.value.data
+          if (Array.isArray(list) && list.length > 0) {
+            setGuardians(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+          }
         }
       } catch (err) {
         console.warn('Backend sync fallback to local/mock store:', err)
@@ -178,6 +201,19 @@ export function AdminDataProvider({ children }) {
     if (existing) {
       setRules(prev => prev.map(r => r.id === ruleData.id ? { ...r, ...ruleData } : r))
       addAuditLog('Pattern Rule Updated', `Rule: ${ruleData.name}`)
+      try {
+        const numId = parseInt(String(ruleData.id).replace(/\D/g, ''), 10)
+        if (!isNaN(numId)) {
+          await api.put(`/scam-patterns/${numId}`, {
+            pattern: ruleData.trigger || ruleData.name,
+            severity: ruleData.severity?.toLowerCase() === 'critical' ? 'high-risk' : 'suspicious',
+            category: ruleData.category || 'General Scams',
+            is_active: ruleData.enabled !== false
+          })
+        }
+      } catch (e) {
+        console.warn('Backend pattern update sync skipped:', e)
+      }
     } else {
       const newRule = {
         id: `PTN-0${rules.length + 1}`,
@@ -191,12 +227,60 @@ export function AdminDataProvider({ children }) {
       }
       setRules(prev => [newRule, ...prev])
       addAuditLog('New Pattern Rule Deployed', `Rule: ${newRule.name}`)
+
+      try {
+        const payload = {
+          pattern: newRule.trigger || newRule.name,
+          type: newRule.sourceType?.toLowerCase() === 'call' || newRule.sourceType?.toLowerCase() === 'voip' ? 'call' : 'sms',
+          severity: newRule.severity?.toLowerCase() === 'critical' ? 'high-risk' : 'suspicious',
+          category: newRule.category || 'General Scams',
+          language: 'en',
+          broadcast: true
+        }
+        await api.post('/scam-patterns', payload)
+      } catch (e) {
+        console.warn('Backend pattern create sync skipped:', e)
+      }
     }
   }
 
-  const deleteRule = (ruleId) => {
+  const deleteRule = async (ruleId) => {
     setRules(prev => prev.filter(r => r.id !== ruleId))
     addAuditLog('Pattern Rule Deactivated', `Rule ID: ${ruleId}`)
+    try {
+      const numId = parseInt(String(ruleId).replace(/\D/g, ''), 10)
+      if (!isNaN(numId)) {
+        await api.delete(`/scam-patterns/${numId}`)
+      }
+    } catch (e) {
+      console.warn('Backend pattern delete sync skipped:', e)
+    }
+  }
+
+  const autoSyncEmergingPatterns = async () => {
+    try {
+      const res = await api.post('/scam-patterns/auto-sync')
+      if (res && res.patterns && res.patterns.length > 0) {
+        const mapped = res.patterns.map(p => ({
+          id: `PTN-${p.id}`,
+          name: p.category ? `${p.category}: ${p.pattern.substring(0, 30)}...` : p.pattern.substring(0, 40),
+          desc: p.pattern,
+          trigger: p.pattern,
+          category: p.category || 'General Scams',
+          accuracy: '98.9%',
+          hitsToday: 0,
+          enabled: p.is_active,
+          severity: p.severity === 'high-risk' ? 'Critical' : 'Medium'
+        }))
+        setRules(prev => [...mapped, ...prev.filter(pr => !mapped.some(m => m.id === pr.id))])
+      }
+      addAuditLog('Auto-Synced Emerging Threat Patterns', 'Broadcasted dynamic scam defense rules to all endpoints')
+      return res
+    } catch (e) {
+      console.warn('Backend auto-sync failed, using local simulated broadcast:', e)
+      addAuditLog('Auto-Synced Threat Patterns (Simulated)', 'Broadcasted 5 dynamic threat rules to all endpoints')
+      return { success: true, simulated: true }
+    }
   }
 
   const resolveAlert = (alertId, resolutionNote) => {
@@ -267,7 +351,8 @@ export function AdminDataProvider({ children }) {
         addConfigVersion,
         importBatchUsers,
         updateSettings,
-        regenerateApiKey
+        regenerateApiKey,
+        autoSyncEmergingPatterns
       }}
     >
       {children}

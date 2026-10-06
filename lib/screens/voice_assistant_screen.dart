@@ -24,10 +24,10 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     try {
       final langCode = ref.read(languageProvider);
       final testMessage = langCode == 'hi'
-          ? 'नमस्ते! सेफ सीनियर वॉइस अलर्ट सक्रिय हैं।'
+          ? 'नमस्ते! सेफ सीनियर सुरक्षा अलर्ट चालू हैं।'
           : (langCode == 'gu'
-              ? 'નમસ્તે! સેફ સિનિયર વોઇસ એલર્ટ્સ સક્રિય છે.'
-              : 'Hello! SafeSenior voice alerts are active and protecting your device.');
+              ? 'નમસ્તે! સેફ સિનિયર સુરક્ષા એલર્ટ્સ ચાલુ છે.'
+              : 'SafeSenior Voice Alert: Suspicious caller detected. Do not share your OTP or bank details.');
       await VoiceService.speak(testMessage);
     } catch (_) {
       await VoiceService.testVoice();
@@ -95,13 +95,14 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── 1. Master Enable Voice Guidance Card ──
               Container(
-                padding: const EdgeInsets.all(20),
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(22),
@@ -114,19 +115,19 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                       color: voice.enabled
                           ? AppTheme.primaryTeal.withValues(alpha: 0.08)
                           : Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
                       children: [
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: 46,
+                          height: 46,
                           decoration: BoxDecoration(
                             color: voice.enabled
                                 ? const Color(0xFFE0F2F2)
@@ -136,7 +137,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                           child: Icon(
                             voice.enabled ? Icons.volume_up : Icons.volume_off,
                             color: voice.enabled ? AppTheme.primaryTeal : AppTheme.textLight,
-                            size: 26,
+                            size: 24,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -147,7 +148,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                               Text(
                                 AppTranslations.tr('Enable Voice Assistant', langCode),
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 17,
+                                  fontSize: 16.5,
                                   fontWeight: FontWeight.w800,
                                   color: AppTheme.textDark,
                                 ),
@@ -197,7 +198,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -211,7 +212,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'When enabled, SafeSenior reads aloud critical fraud warnings, OTP theft alerts, and scam calls so you never miss an urgent security threat.',
+                              'When enabled, SafeSenior reads aloud critical fraud warnings, OTP theft alerts, and scam calls so you never miss an urgent threat.',
                               style: GoogleFonts.atkinsonHyperlegible(
                                 fontSize: 13,
                                 color: const Color(0xFF004D40),
@@ -225,90 +226,12 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
-              // ── 2. Test Audio Voice Demo Card ──
+              // ── 2. Test Audio Voice Demo Card (Bulletproof Vertical Layout) ──
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE3E2E2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFE088),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          _isPlayingTest ? Icons.graphic_eq : Icons.campaign,
-                          color: const Color(0xFF735C00),
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Test Audio Voice Sample',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textDark,
-                            ),
-                          ),
-                          Text(
-                            'Hear how security warnings sound',
-                            style: GoogleFonts.atkinsonHyperlegible(
-                              fontSize: 12.5,
-                              color: AppTheme.textLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryTeal,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: _playVoiceTest,
-                      icon: Icon(_isPlayingTest ? Icons.stop : Icons.play_arrow, size: 18),
-                      label: Text(
-                        _isPlayingTest ? 'Playing' : 'Listen',
-                        style: GoogleFonts.atkinsonHyperlegible(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // ── 3. Voice Speed & Reading Pace ──
-              Container(
-                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(22),
@@ -322,7 +245,96 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFFE088),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              _isPlayingTest ? Icons.graphic_eq : Icons.campaign,
+                              color: const Color(0xFF735C00),
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Audio Voice Sample',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Hear how urgent fraud warnings will sound',
+                                style: GoogleFonts.atkinsonHyperlegible(
+                                  fontSize: 13,
+                                  color: AppTheme.textLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryTeal,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: _playVoiceTest,
+                        icon: Icon(_isPlayingTest ? Icons.stop : Icons.play_arrow, size: 20),
+                        label: Text(
+                          _isPlayingTest ? 'Playing Sample Voice...' : 'Listen to Voice Sample ▶',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // ── 3. Voice Speed & Reading Pace ──
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE3E2E2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -378,29 +390,73 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                       ),
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '🐢 Slower (Clear)',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryTeal,
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: BorderSide(
+                                color: (voice.speed < 0.9) ? AppTheme.primaryTeal : const Color(0xFFE3E2E2),
+                                width: (voice.speed < 0.9) ? 2 : 1,
+                              ),
+                              backgroundColor: (voice.speed < 0.9) ? const Color(0xFFE0F2F2) : Colors.transparent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () => notifier.setSpeed(0.8),
+                            child: Text(
+                              '🐢 Slower',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryTeal,
+                              ),
+                            ),
                           ),
                         ),
-                        Text(
-                          'Normal (1.0x)',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 12,
-                            color: AppTheme.textLight,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: BorderSide(
+                                color: (voice.speed >= 0.9 && voice.speed <= 1.1) ? AppTheme.primaryTeal : const Color(0xFFE3E2E2),
+                                width: (voice.speed >= 0.9 && voice.speed <= 1.1) ? 2 : 1,
+                              ),
+                              backgroundColor: (voice.speed >= 0.9 && voice.speed <= 1.1) ? const Color(0xFFE0F2F2) : Colors.transparent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () => notifier.setSpeed(1.0),
+                            child: Text(
+                              'Normal 1.0x',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryTeal,
+                              ),
+                            ),
                           ),
                         ),
-                        Text(
-                          'Brisk (Faster) ⚡',
-                          style: GoogleFonts.atkinsonHyperlegible(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryTeal,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: BorderSide(
+                                color: (voice.speed > 1.1) ? AppTheme.primaryTeal : const Color(0xFFE3E2E2),
+                                width: (voice.speed > 1.1) ? 2 : 1,
+                              ),
+                              backgroundColor: (voice.speed > 1.1) ? const Color(0xFFE0F2F2) : Colors.transparent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () => notifier.setSpeed(1.2),
+                            child: Text(
+                              'Faster ⚡',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryTeal,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -408,14 +464,14 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
-              // ── 4. Voice Type Options ──
+              // ── 4. Voice Type Selection ──
               Text(
                 AppTranslations.tr('Voice Type', langCode),
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.textDark,
                 ),
               ),
@@ -485,6 +541,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
         VoiceService.speak('$title selected');
       },
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -516,7 +573,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
                   Text(
                     title,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textDark,
                     ),

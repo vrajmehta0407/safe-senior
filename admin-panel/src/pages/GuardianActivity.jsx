@@ -1,18 +1,9 @@
 import { useState } from 'react'
 import {
-  Activity,
-  Filter,
+  Download,
   Search,
-  CheckCircle,
-  AlertTriangle,
-  ShieldCheck,
-  PhoneCall,
-  MessageSquare,
-  Globe,
-  Clock,
-  Download
+  Clock
 } from 'lucide-react'
-import { mockUsers, mockAlerts } from '../mockData'
 
 export default function GuardianActivity() {
   const [filterChannel, setFilterChannel] = useState('ALL')
