@@ -17,7 +17,6 @@ import 'achievements_screen.dart';
 import 'scam_library_screen.dart';
 import 'weekly_report_screen.dart';
 import 'account_health_screen.dart';
-import 'qr_safety_screen.dart';
 import 'voice_assistant_screen.dart';
 import 'family_circle_board_screen.dart';
 import 'dart:async';
@@ -132,12 +131,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Container(
                         width: 42,
                         height: 42,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE0F2F2),
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryTeal.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        child: const Center(
-                          child: Icon(Icons.security, color: AppTheme.primaryTeal, size: 22),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(21),
+                          child: Image.asset(
+                            'assets/images/app_logo.jpg',
+                            width: 42,
+                            height: 42,
+                            fit: BoxFit.cover,
+                            errorBuilder: (ctx, err, stack) => Container(
+                              color: const Color(0xFFE0F2F2),
+                              child: const Icon(Icons.security, color: AppTheme.primaryTeal, size: 22),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -671,86 +686,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(height: 16),
                     ],
 
-                    // ── Card: Quick Scanners Grid (QR Safety + Message Scanner) ──
+                    // ── Card: Scanned Messages Feed ──
                     if (_selectedFilter == 'All' || _selectedFilter == 'Tips') ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const QrSafetyScreen()),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFE3E2E2)),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFE0F2F2),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryTeal, size: 22),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'QR Safety Check',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppTheme.textDark,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Scan before paying',
-                                      style: GoogleFonts.atkinsonHyperlegible(
-                                        fontSize: 12.5,
-                                        color: AppTheme.textLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ScannedMessagesScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE3E2E2)),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const ScannedMessagesScreen()),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFE3E2E2)),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFDAD6),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(Icons.sms_outlined, color: Color(0xFFAA361F), size: 24),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFFDAD6),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.sms_outlined, color: Color(0xFFAA361F), size: 22),
-                                    ),
-                                    const SizedBox(height: 12),
                                     Text(
                                       'Scanned Messages',
                                       style: GoogleFonts.plusJakartaSans(
@@ -761,7 +727,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'SMS & WhatsApp feed',
+                                      'Live SMS & WhatsApp feed monitoring',
                                       style: GoogleFonts.atkinsonHyperlegible(
                                         fontSize: 12.5,
                                         color: AppTheme.textLight,
@@ -770,9 +736,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   ],
                                 ),
                               ),
-                            ),
+                              const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textLight),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                     ],

@@ -10,7 +10,6 @@ import 'voice_call_history_screen.dart';
 import 'blocked_site_history_screen.dart';
 import 'wearable_status_screen.dart';
 import 'sensor_calibration_screen.dart';
-import 'qr_safety_screen.dart';
 import 'deepfake_warning_screen.dart';
 import 'sim_swap_alert_screen.dart';
 
@@ -426,83 +425,36 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const QrSafetyScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE3E2E2)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFE0F2F2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryTeal, size: 20),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'QR Scanner',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.textDark,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Check URL safety',
-                                    style: GoogleFonts.atkinsonHyperlegible(
-                                      fontSize: 12.5,
-                                      color: AppTheme.textLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                    // AI Voice Shield (Full Width Diagnostic Card)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const DeepfakeWarningScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE3E2E2)),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const DeepfakeWarningScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE3E2E2)),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFFDAD6),
+                                shape: BoxShape.circle,
                               ),
+                              child: const Icon(Icons.record_voice_over, color: Color(0xFFAA361F), size: 24),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFFFDAD6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.record_voice_over, color: Color(0xFFAA361F), size: 20),
-                                  ),
-                                  const SizedBox(height: 10),
                                   Text(
                                     'AI Voice Shield',
                                     style: GoogleFonts.plusJakartaSans(
@@ -511,8 +463,9 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                                       color: AppTheme.textDark,
                                     ),
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
-                                    'Deepfake detector',
+                                    'Real-time deepfake detector & synthetic call defense',
                                     style: GoogleFonts.atkinsonHyperlegible(
                                       fontSize: 12.5,
                                       color: AppTheme.textLight,
@@ -521,9 +474,10 @@ class _SecurityStatusScreenState extends ConsumerState<SecurityStatusScreen> {
                                 ],
                               ),
                             ),
-                          ),
+                            const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textLight),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 12),
 

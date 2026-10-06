@@ -121,9 +121,9 @@ class AppUpdateScreen extends StatelessWidget {
                     ),
                     const Divider(height: 20),
                     _buildFeatureBullet(
-                      icon: Icons.qr_code_scanner,
-                      title: 'QR Code Anti-Fraud Scanner',
-                      description: 'Pre-checks payment destination URLs before opening.',
+                      icon: Icons.sms_outlined,
+                      title: 'Live SMS & Feed Scanner',
+                      description: 'Auto-detects OTP phishing and urgent fraud links in real time.',
                     ),
                     const Divider(height: 20),
                     _buildFeatureBullet(
