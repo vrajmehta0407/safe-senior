@@ -24,7 +24,6 @@ import 'unusual_location_screen.dart';
 import 'safety_milestone_screen.dart';
 import 'safety_quiz_screen.dart';
 import 'blocked_history_screen.dart';
-import 'guardian_assistant_screen.dart';
 import 'family_invite_screen.dart';
 import 'daily_safety_tips_screen.dart';
 import 'security_tips_list_screen.dart';
@@ -1842,7 +1841,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       const SizedBox(height: 16),
 
-      // 4. Guardian AI Assistant & Approval Checks Card
+      // 4. Emergency & Cyber Helplines Card
       Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -1862,11 +1861,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.smart_toy_outlined, color: AppTheme.primaryTeal, size: 22),
+                const Icon(Icons.support_agent_outlined, color: AppTheme.primaryTeal, size: 22),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Guardian AI Assistant',
+                    'Emergency & Cyber Helplines',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16.5,
                       fontWeight: FontWeight.w700,
@@ -1874,39 +1873,159 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2F2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '24/7 Toll-Free',
+                    style: GoogleFonts.atkinsonHyperlegible(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primaryTeal,
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
-              'Unsure about a phone call or SMS? Ask the Guardian AI assistant to verify it or request family approval before sending funds.',
+              'National emergency support for senior citizen safety and instant cyber fraud reporting:',
               style: GoogleFonts.atkinsonHyperlegible(
                 fontSize: 13,
                 color: AppTheme.textLight,
               ),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const GuardianAssistantScreen()),
-                  );
-                },
-                child: Text(
-                  'Ask Guardian AI Assistant →',
-                  style: GoogleFonts.atkinsonHyperlegible(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
+            // Helpline 1: 1930 Cyber Fraud
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF9F6),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFEFEDED)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFDAD6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.security, color: Color(0xFFAA361F), size: 20),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '1930 — National Cyber Crime',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textDark,
+                          ),
+                        ),
+                        Text(
+                          'Instant freeze for scam bank/UPI transfers',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAA361F),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => _makePhoneCall('1930'),
+                    child: Text(
+                      'Call 1930',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Helpline 2: 14567 Elder Line
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF9F6),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFEFEDED)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2F2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.volunteer_activism_outlined, color: AppTheme.primaryTeal, size: 20),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '14567 — Elder Line',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textDark,
+                          ),
+                        ),
+                        Text(
+                          'Senior citizen guidance & support',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryTeal,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => _makePhoneCall('14567'),
+                    child: Text(
+                      'Call 14567',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

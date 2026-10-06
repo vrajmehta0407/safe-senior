@@ -96,6 +96,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Emergency SOS Panic Button'), findsWidgets);
     expect(find.text('Your Safety Circle'), findsWidgets);
+    expect(find.text('Emergency & Cyber Helplines'), findsWidgets);
     expect(find.text('Safe Zones & Geofencing'), findsWidgets);
 
     // 4. Quizzes view

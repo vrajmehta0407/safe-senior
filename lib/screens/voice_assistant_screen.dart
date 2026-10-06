@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../state/voice_settings_provider.dart';
 import '../state/language_provider.dart';
 import '../utils/app_translations.dart';
 import '../services/voice_service.dart';
-import 'settings_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 
 class VoiceAssistantScreen extends ConsumerStatefulWidget {
@@ -16,40 +16,26 @@ class VoiceAssistantScreen extends ConsumerStatefulWidget {
 }
 
 class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
-  // BUG 6 FIX: real STT state
-  bool _isListening = false;
-  String _lastTranscript = '';
-  String _statusMessage = 'Tap the mic to speak';
+  bool _isPlayingTest = false;
 
-  @override
-  void dispose() {
-    // Stop listening when navigating away
-    if (_isListening) VoiceService.stopListening();
-    super.dispose();
-  }
-
-  Future<void> _toggleListening() async {
-    if (_isListening) {
-      await VoiceService.stopListening();
-      if (mounted) setState(() { _isListening = false; _statusMessage = 'Tap the mic to speak'; });
-      return;
+  Future<void> _playVoiceTest() async {
+    if (_isPlayingTest) return;
+    setState(() => _isPlayingTest = true);
+    try {
+      final langCode = ref.read(languageProvider);
+      final testMessage = langCode == 'hi'
+          ? 'नमस्ते! सेफ सीनियर वॉइस अलर्ट सक्रिय हैं।'
+          : (langCode == 'gu'
+              ? 'નમસ્તે! સેફ સિનિયર વોઇસ એલર્ટ્સ સક્રિય છે.'
+              : 'Hello! SafeSenior voice alerts are active and protecting your device.');
+      await VoiceService.speak(testMessage);
+    } catch (_) {
+      await VoiceService.testVoice();
+    } finally {
+      if (mounted) {
+        setState(() => _isPlayingTest = false);
+      }
     }
-
-    if (!VoiceService.canListen) {
-      setState(() => _statusMessage = 'Voice listening not available on this device.');
-      await VoiceService.speak('Voice listening is not available on this device.');
-      return;
-    }
-
-    setState(() { _isListening = true; _statusMessage = 'Listening… Speak now'; _lastTranscript = ''; });
-    await VoiceService.startListening(
-      onResult: (text) {
-        if (mounted) setState(() => _lastTranscript = text);
-      },
-      onDone: () {
-        if (mounted) setState(() { _isListening = false; _statusMessage = 'Tap the mic to speak'; });
-      },
-    );
   }
 
   Future<void> _saveSettings() async {
@@ -58,8 +44,22 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppTranslations.tr('Voice settings saved', langCode)),
-          backgroundColor: Colors.green[700],
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  AppTranslations.tr('Voice settings saved', langCode),
+                  style: GoogleFonts.atkinsonHyperlegible(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF006565),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -74,6 +74,7 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     final langCode = ref.watch(languageProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFAF9F6),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -82,265 +83,381 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          AppTranslations.tr('Voice Assistant', langCode),
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          AppTranslations.tr('Voice Alerts & Reading Pace', langCode),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.textDark,
+          ),
         ),
         centerTitle: false,
         titleSpacing: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, color: AppTheme.textDark),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Info Box
-              Container(
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLightBlue.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.primaryLightBlue.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryLightBlue.withValues(alpha: 0.8),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.shield_outlined, color: Colors.white, size: 24),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'How this keeps you safe',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your assistant will read out loud important security alerts if we detect a suspicious caller or a scam message. It helps you catch risks instantly without needing to look at your screen.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textDark.withValues(alpha: 0.8),
-                                  height: 1.5,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // ── Live Mic Section (BUG 6 FIX) ─────────────────────────────
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _isListening ? AppTheme.primaryDarkBlue : Colors.grey.withValues(alpha: 0.3),
-                    width: _isListening ? 2 : 1,
-                  ),
-                  boxShadow: _isListening ? [
-                    BoxShadow(color: AppTheme.primaryDarkBlue.withValues(alpha: 0.15), blurRadius: 16, spreadRadius: 2),
-                  ] : [],
-                ),
-                child: Column(
-                  children: [
-                    // Mic button
-                    GestureDetector(
-                      onTap: _toggleListening,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.primaryLightBlue.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.primaryLightBlue,
-                            width: 2,
-                          ),
-                        ),
-                        child: Icon(
-                          _isListening ? Icons.mic : Icons.mic_none,
-                          color: _isListening ? Colors.white : AppTheme.primaryDarkBlue,
-                          size: 36,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _statusMessage,
-                      style: TextStyle(
-                        color: _isListening ? AppTheme.primaryDarkBlue : AppTheme.textDark,
-                        fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 14,
-                      ),
-                    ),
-                    if (_lastTranscript.isNotEmpty) ...[  
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryLightBlue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '“$_lastTranscript”',
-                          style: const TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 15,
-                            color: AppTheme.textDark,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Enable Voice Alerts — wired to voiceSettingsProvider
+              // ── 1. Master Enable Voice Guidance Card ──
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: voice.enabled ? AppTheme.primaryTeal : const Color(0xFFE3E2E2),
+                    width: voice.enabled ? 1.8 : 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: voice.enabled
+                          ? AppTheme.primaryTeal.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: voice.enabled
+                                ? const Color(0xFFE0F2F2)
+                                : const Color(0xFFEFEDED),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            voice.enabled ? Icons.volume_up : Icons.volume_off,
+                            color: voice.enabled ? AppTheme.primaryTeal : AppTheme.textLight,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppTranslations.tr('Enable Voice Assistant', langCode),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: BoxDecoration(
+                                      color: voice.enabled
+                                          ? const Color(0xFF2E7D32)
+                                          : Colors.grey,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    voice.enabled ? 'Voice Active ✓' : 'Voice Paused',
+                                    style: GoogleFonts.atkinsonHyperlegible(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: voice.enabled
+                                          ? const Color(0xFF2E7D32)
+                                          : AppTheme.textLight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Transform.scale(
+                          scale: 1.1,
+                          child: Switch(
+                            value: voice.enabled,
+                            onChanged: (val) {
+                              notifier.setEnabled(val);
+                              if (val) {
+                                VoiceService.speak('Voice alerts enabled');
+                              }
+                            },
+                            activeThumbColor: Colors.white,
+                            activeTrackColor: AppTheme.primaryTeal,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2F2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline, color: AppTheme.primaryTeal, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'When enabled, SafeSenior reads aloud critical fraud warnings, OTP theft alerts, and scam calls so you never miss an urgent security threat.',
+                              style: GoogleFonts.atkinsonHyperlegible(
+                                fontSize: 13,
+                                color: const Color(0xFF004D40),
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // ── 2. Test Audio Voice Demo Card ──
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE3E2E2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFE088),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _isPlayingTest ? Icons.graphic_eq : Icons.campaign,
+                          color: const Color(0xFF735C00),
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            AppTranslations.tr('Enable Voice Alerts', langCode),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            'Test Audio Voice Sample',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textDark,
+                            ),
                           ),
-                          const SizedBox(height: 4),
                           Text(
-                            AppTranslations.tr('Speak critical security warnings', langCode),
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.textDark),
+                            'Hear how security warnings sound',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 12.5,
+                              color: AppTheme.textLight,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    // Wired to provider
-                    Switch(
-                      value: voice.enabled,
-                      onChanged: (val) => notifier.setEnabled(val),
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: const Color(0xFF1964B0),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryTeal,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: _playVoiceTest,
+                      icon: Icon(_isPlayingTest ? Icons.stop : Icons.play_arrow, size: 18),
+                      label: Text(
+                        _isPlayingTest ? 'Playing' : 'Listen',
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
 
-              // Voice Type — wired
-              Text(
-                AppTranslations.tr('Voice Type', langCode),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              _buildVoiceTypeOption(context, 'Calm Female', 'Soothing and clear', voice.voiceType, notifier, 'female', langCode),
-              
-              const SizedBox(height: 24),
-
-              // Voice Speed — wired
+              // ── 3. Voice Speed & Reading Pace ──
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE3E2E2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      AppTranslations.tr('Voice Speed (Reading Pace)', langCode),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 24),
-                    SliderTheme(
-                      data: SliderThemeData(
-                        activeTrackColor: AppTheme.primaryDarkBlue,
-                        inactiveTrackColor: AppTheme.primaryLightBlue.withValues(alpha: 0.3),
-                        thumbColor: AppTheme.primaryDarkBlue,
-                        trackHeight: 8,
-                      ),
-                      child: Slider(
-                        value: voice.speed,
-                        onChanged: (val) => notifier.setSpeed(val),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.waves, size: 16, color: AppTheme.primaryDarkBlue),
-                            const SizedBox(width: 4),
-                            Text(AppTranslations.tr('Slower', langCode), style: const TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
-                          ],
+                        Text(
+                          AppTranslations.tr('Voice Speed (Reading Pace)', langCode),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textDark,
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Text(AppTranslations.tr('Faster', langCode), style: const TextStyle(color: AppTheme.primaryDarkBlue, fontWeight: FontWeight.bold)),
-                            const SizedBox(width: 4),
-                            Icon(Icons.fast_forward, size: 16, color: AppTheme.primaryDarkBlue),
-                          ],
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0F2F2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${(voice.speed * 100).toInt()}%',
+                            style: GoogleFonts.atkinsonHyperlegible(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.primaryTeal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Adjust reading pace so every warning is easy to understand without rush.',
+                      style: GoogleFonts.atkinsonHyperlegible(
+                        fontSize: 13,
+                        color: AppTheme.textLight,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SliderTheme(
+                      data: SliderThemeData(
+                        activeTrackColor: AppTheme.primaryTeal,
+                        inactiveTrackColor: const Color(0xFFE0F2F2),
+                        thumbColor: AppTheme.primaryTeal,
+                        trackHeight: 6,
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                      ),
+                      child: Slider(
+                        value: voice.speed.clamp(0.5, 1.5),
+                        min: 0.5,
+                        max: 1.5,
+                        divisions: 10,
+                        onChanged: (val) => notifier.setSpeed(val),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '🐢 Slower (Clear)',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryTeal,
+                          ),
+                        ),
+                        Text(
+                          'Normal (1.0x)',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                        Text(
+                          'Brisk (Faster) ⚡',
+                          style: GoogleFonts.atkinsonHyperlegible(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryTeal,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 18),
 
-              const SizedBox(height: 32),
-              
-              // Save Button — calls saveAll() then pops
+              // ── 4. Voice Type Options ──
+              Text(
+                AppTranslations.tr('Voice Type', langCode),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textDark,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              _buildVoiceOption(
+                title: 'Calm Female Voice',
+                subtitle: 'Gentle, clear tone optimized for senior comprehension',
+                gender: 'female',
+                currentVoiceType: voice.voiceType,
+                notifier: notifier,
+              ),
+              const SizedBox(height: 10),
+              _buildVoiceOption(
+                title: 'Friendly Male Voice',
+                subtitle: 'Warm, steady baritone for crisp alert announcements',
+                gender: 'male',
+                currentVoiceType: voice.voiceType,
+                notifier: notifier,
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── 5. Save Voice Settings Action Button ──
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                height: 52,
+                child: ElevatedButton.icon(
                   onPressed: _saveSettings,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1964B0),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  icon: const Icon(Icons.check_circle_outline, size: 20),
+                  label: Text(
+                    AppTranslations.tr('Save Voice Settings', langCode),
+                    style: GoogleFonts.atkinsonHyperlegible(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.check_circle_outline),
-                      const SizedBox(width: 8),
-                      Text(AppTranslations.tr('Save Voice Settings', langCode), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    ],
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryTeal,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),
@@ -353,60 +470,74 @@ class _VoiceAssistantScreenState extends ConsumerState<VoiceAssistantScreen> {
     );
   }
 
-  Widget _buildVoiceTypeOption(BuildContext context, String title, String subtitle, String currentVoiceType, VoiceSettingsNotifier notifier, String gender, String langCode) {
-    final bool isSelected = currentVoiceType == title;
+  Widget _buildVoiceOption({
+    required String title,
+    required String subtitle,
+    required String gender,
+    required String currentVoiceType,
+    required VoiceSettingsNotifier notifier,
+  }) {
+    final bool isSelected = currentVoiceType.toLowerCase().contains(gender);
+
     return GestureDetector(
       onTap: () {
-        notifier.setVoiceType(title);
-        notifier.setVoiceGender(gender); // apply to TTS engine
+        notifier.setVoiceGender(gender);
+        VoiceService.speak('$title selected');
       },
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryDarkBlue : Colors.grey.withValues(alpha: 0.3),
-            width: isSelected ? 2 : 1,
+            color: isSelected ? AppTheme.primaryTeal : const Color(0xFFE3E2E2),
+            width: isSelected ? 2.0 : 1.0,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: isSelected ? AppTheme.primaryDarkBlue : Colors.grey,
-              size: 28,
+              color: isSelected ? AppTheme.primaryTeal : AppTheme.textLight,
+              size: 24,
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppTranslations.tr(title, langCode),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textDark,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    AppTranslations.tr(subtitle, langCode),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.textDark),
+                    subtitle,
+                    style: GoogleFonts.atkinsonHyperlegible(
+                      fontSize: 12.5,
+                      color: AppTheme.textLight,
+                    ),
                   ),
                 ],
               ),
             ),
-            // Play button — tests TTS with the current settings
-            GestureDetector(
-              onTap: () => VoiceService.testVoice(),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLightBlue.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.play_arrow, color: AppTheme.primaryDarkBlue),
-              ),
+            IconButton(
+              icon: const Icon(Icons.play_circle_fill, color: AppTheme.primaryTeal, size: 28),
+              onPressed: () {
+                notifier.setVoiceGender(gender);
+                VoiceService.speak('$title sample');
+              },
             ),
           ],
         ),
