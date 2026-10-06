@@ -23,7 +23,15 @@ const { sendSmsOtp, normalisePhone } = require('../services/androidSmsGateway');
 const { otpRateLimiter, authRateLimiter, authenticatedRateLimiter } = require('../middleware/rateLimit');
 const authMiddleware    = require('../middleware/auth');
 
-const router = express.Router();
+router.get('/debug-smtp', async (req, res) => {
+  try {
+    const to = req.query.to || 'vrajmehta0407@gmail.com';
+    const testResult = await sendEmailOtp(to, '998877', 'verification');
+    return res.json({ success: true, result: testResult, to });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message, code: err.code });
+  }
+});
 
 // ── Bootstrap temp_otps table (for pre-registration OTPs — no user_id FK) ───
 // This runs once when the module loads. Safe to call on every restart.
