@@ -19,6 +19,7 @@ import 'scam_library_screen.dart';
 import 'weekly_report_screen.dart';
 import 'account_health_screen.dart';
 import 'voice_assistant_screen.dart';
+import 'help_support_screen.dart';
 import 'family_circle_board_screen.dart';
 import 'dart:async';
 import 'unusual_location_screen.dart';
@@ -256,6 +257,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           child: const Center(
                             child: Icon(Icons.mic, color: AppTheme.primaryTeal, size: 20),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // AI Guardian Chatbot Button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+                          );
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFD7EFE6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.smart_toy_outlined, color: AppTheme.primaryTeal, size: 20),
                           ),
                         ),
                       ),
@@ -1773,6 +1796,92 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     fontWeight: FontWeight.w700,
                     color: AppTheme.primaryTeal,
                   ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 16),
+
+      // SafeSenior AI Chatbot Card
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppTheme.primaryTeal.withValues(alpha: 0.35), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryTeal.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD7EFE6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.smart_toy_outlined, color: AppTheme.primaryTeal, size: 22),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SafeSenior AI Chatbot',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
+                      Text(
+                        'Ask questions about suspicious calls, SMS & OTPs',
+                        style: GoogleFonts.atkinsonHyperlegible(
+                          fontSize: 12.5,
+                          color: AppTheme.textLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryTeal,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+                );
+              },
+              icon: const Icon(Icons.chat_bubble_outline, size: 18),
+              label: Text(
+                'Open AI Guardian Chatbot →',
+                style: GoogleFonts.atkinsonHyperlegible(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

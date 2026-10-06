@@ -441,9 +441,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           const Divider(height: 1, indent: 56),
                           _prefTile(
-                            icon: Icons.help_outline,
-                            title: AppTranslations.tr('Help & Emergency Support', langCode),
-                            subtitle: '24/7 Helpline & FAQs',
+                            icon: Icons.smart_toy_outlined,
+                            title: AppTranslations.tr('AI Guardian Chatbot & Support', langCode),
+                            subtitle: AppTranslations.tr('Ask questions, safety guidance & 24/7 help', langCode),
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
                           ),
                         ],

@@ -178,6 +178,15 @@ class AppTranslations {
     'Distance from home': {'hi': 'घर से दूरी', 'gu': 'ઘરથી અંતર'},
     'SafeSenior Location Notice': {'hi': 'SafeSenior लोकेशन सूचना', 'gu': 'SafeSenior લોકેશન નોટિસ'},
     'Simulate / Change Location': {'hi': 'स्थान बदलें / सिमुलेट करें', 'gu': 'સ્થળ બદલો / સિમ્યુલેટ કરો'},
+    'AI Guardian Chatbot & Support': {'hi': 'AI अभिभावक चैटबॉट और सहायता', 'gu': 'AI ગાર્ડિયન ચેટબોટ અને સહાય'},
+    'Ask questions, safety guidance & 24/7 help': {'hi': 'सवाल पूछें, सुरक्षा सलाह और 24/7 सहायता', 'gu': 'પ્રશ્નો પૂછો, સુરક્ષા માર્ગદર્શન અને 24/7 સહાય'},
+    'Ask about suspicious calls, SMS, OTPs, or safety guidance.': {'hi': 'संदिग्ध कॉल, SMS, OTP या सुरक्षा के बारे में पूछें।', 'gu': 'શંકાસ્પદ કૉલ્સ, SMS, OTP કે સુરક્ષા વિશે પૂછો.'},
+    'Is this OTP call real?': {'hi': 'क्या यह OTP कॉल असली है?', 'gu': 'શું આ OTP કૉલ સાચો છે?'},
+    'Bank KYC SMS check': {'hi': 'बैंक KYC SMS की जांच', 'gu': 'બેંક KYC SMS ની ચકાસણી'},
+    'What is Digital Arrest?': {'hi': 'डिजिटल अरेस्ट क्या है?', 'gu': 'ડિજિટલ અરેસ્ટ શું છે?'},
+    'Electricity bill warning': {'hi': 'बिजली बिल चेतावनी', 'gu': 'વીજળી બિલ ચેતવણી'},
+    'How does SOS button work?': {'hi': 'SOS बटन कैसे काम करता है?', 'gu': 'SOS બટન કેવી રીતે કામ કરે છે?'},
+    'Type a question or message...': {'hi': 'सवाल या संदेश लिखें...', 'gu': 'પ્રશ્ન અથવા સંદેશ લખો...'},
   };
 
   /// Translate a string given the language code ('en', 'hi', 'gu')
