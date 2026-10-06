@@ -3,9 +3,11 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db/pool');
 const auth    = require('../middleware/auth');
+const { authenticatedRateLimiter } = require('../middleware/rateLimit');
 
 // All routes require user auth
 router.use(auth);
+router.use(authenticatedRateLimiter);
 
 // GET /trusted-senders — list trusted senders for the current user
 router.get('/', async (req, res, next) => {

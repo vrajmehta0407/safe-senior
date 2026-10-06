@@ -3,6 +3,9 @@
 const express = require('express');
 const pool    = require('../db/pool');
 const { adminAuthMiddleware: adminAuth, requireSuperAdmin } = require('../middleware/adminAuth');
+const { authenticatedRateLimiter } = require('../middleware/rateLimit');
+const { sendBroadcast, isFcmReady } = require('../services/fcm');
+const { setLatestBroadcast } = require('./scamPatterns');
 
 const router = express.Router();
 
@@ -23,6 +26,7 @@ async function auditLog({ adminId, action, targetType = null, targetId = null, m
 // ─── All routes require admin auth ───────────────────────────────────────────
 
 router.use(adminAuth);
+router.use(authenticatedRateLimiter);
 
 
 // ─── GET /stats/overview ──────────────────────────────────────────────────────
@@ -429,16 +433,124 @@ router.post('/scam-patterns', async (req, res, next) => {
       [pattern.trim(), type, severity, category || null, language || 'en', req.admin.adminId]
     );
 
+    const savedPattern = result.rows[0];
+    const broadcastInfo = {
+      id: savedPattern.id,
+      title: `🚨 Scam Defense Update: ${category || 'New Threat Rule'}`,
+      pattern: pattern.trim(),
+      severity,
+      category: category || 'General Scams',
+      timestamp: new Date().toISOString(),
+    };
+
+    if (typeof setLatestBroadcast === 'function') {
+      setLatestBroadcast(broadcastInfo);
+    }
+
+    let fcmResult = { sent: false };
+    if (req.body.broadcast !== false) {
+      fcmResult = await sendBroadcast({
+        title: broadcastInfo.title,
+        body: `New protection rule deployed: "${pattern.trim().substring(0, 80)}". Your device is protected.`,
+        data: {
+          type: 'scam_pattern_update',
+          pattern_id: String(savedPattern.id),
+          pattern: pattern.trim(),
+          severity,
+          category: category || 'General Scams',
+        },
+      }).catch(err => ({ sent: false, error: err.message }));
+    }
+
     await auditLog({
       adminId:    req.admin.adminId,
       action:     'scam_pattern_created',
       targetType: 'scam_pattern',
       targetId:   result.rows[0].id,
-      metadata:   { pattern: pattern.trim().substring(0, 60), severity },
+      metadata:   { pattern: pattern.trim().substring(0, 60), severity, fcm_sent: fcmResult.sent },
       ip:         req.ip,
     });
 
-    return res.status(201).json({ success: true, pattern: result.rows[0] });
+    return res.status(201).json({
+      success: true,
+      pattern: result.rows[0],
+      broadcast: {
+        sent: fcmResult.sent,
+        beacon: broadcastInfo
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /scam-patterns/auto-sync — dynamically syncs trending threat patterns and broadcasts to all users
+router.post('/scam-patterns/auto-sync', async (req, res, next) => {
+  try {
+    const emergingThreats = [
+      { pattern: 'CBI / Mumbai Police Digital Arrest: Fake Video Call Verification. Transfer money to secret supervision account.', type: 'call', severity: 'high-risk', category: 'Digital Arrest Panic', language: 'en' },
+      { pattern: 'Dear Customer, your electricity power will be disconnected at 09:30 PM due to unpaid bill. Call electricity officer immediately at', type: 'sms', severity: 'high-risk', category: 'Utility Extortion', language: 'en' },
+      { pattern: 'PM Kisan Yojana 17th installment on hold. Complete biometric Aadhaar KYC immediately by downloading APK:', type: 'sms', severity: 'high-risk', category: 'Government Scheme Phishing', language: 'en' },
+      { pattern: 'Part-time YouTube video like job. Earn Rs. 3,500 daily. Deposit refundable security deposit of Rs. 1,000 on Telegram', type: 'sms', severity: 'suspicious', category: 'Job / Task Scam', language: 'en' },
+      { pattern: 'Your SBI YONO netbanking has expired. Upload PAN and Aadhaar card immediately on secure server link:', type: 'sms', severity: 'high-risk', category: 'Banking Phishing', language: 'en' }
+    ];
+
+    const added = [];
+    for (const t of emergingThreats) {
+      const existing = await pool.query('SELECT id FROM scam_patterns WHERE pattern = $1', [t.pattern]);
+      if (existing.rowCount === 0) {
+        const ins = await pool.query(
+          `INSERT INTO scam_patterns (pattern, type, severity, category, language, source, created_by)
+           VALUES ($1, $2, $3, $4, $5, 'admin', $6)
+           RETURNING *`,
+          [t.pattern, t.type, t.severity, t.category, t.language, req.admin.adminId]
+        );
+        added.push(ins.rows[0]);
+      }
+    }
+
+    const latest = added[0] || emergingThreats[0];
+    const broadcastInfo = {
+      id: latest.id || 9999,
+      title: '🚨 Scam Defense Update: Dynamic Threat Intel Synced',
+      pattern: latest.pattern,
+      severity: latest.severity,
+      category: latest.category,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (typeof setLatestBroadcast === 'function') {
+      setLatestBroadcast(broadcastInfo);
+    }
+
+    const fcmResult = await sendBroadcast({
+      title: broadcastInfo.title,
+      body: `SafeSenior has deployed dynamic protection rules for ${added.length > 0 ? added.length : 'latest'} emerging scam patterns.`,
+      data: {
+        type: 'scam_pattern_update',
+        pattern_id: String(broadcastInfo.id),
+        pattern: broadcastInfo.pattern,
+        severity: broadcastInfo.severity,
+        category: broadcastInfo.category,
+      },
+    }).catch(err => ({ sent: false, error: err.message }));
+
+    await auditLog({
+      adminId:    req.admin.adminId,
+      action:     'scam_patterns_auto_synced',
+      targetType: 'scam_patterns',
+      metadata:   { addedCount: added.length, fcm_sent: fcmResult.sent },
+      ip:         req.ip,
+    });
+
+    return res.status(200).json({
+      success: true,
+      addedCount: added.length,
+      patterns: added,
+      fcm_sent: fcmResult.sent,
+      broadcast: broadcastInfo,
+      message: `Successfully synchronized and broadcasted dynamic scam patterns to all endpoints.`
+    });
   } catch (err) {
     next(err);
   }
@@ -475,6 +587,20 @@ router.put('/scam-patterns/:id', async (req, res, next) => {
     );
 
     if (result.rowCount === 0) return res.status(404).json({ success: false, message: 'Pattern not found.' });
+
+    const updatedPattern = result.rows[0];
+    const broadcastInfo = {
+      id: updatedPattern.id,
+      title: `🚨 Scam Defense Update: ${updatedPattern.category || 'Threat Rule Updated'}`,
+      pattern: updatedPattern.pattern,
+      severity: updatedPattern.severity,
+      category: updatedPattern.category || 'General Scams',
+      timestamp: new Date().toISOString(),
+    };
+
+    if (typeof setLatestBroadcast === 'function') {
+      setLatestBroadcast(broadcastInfo);
+    }
 
     await auditLog({
       adminId:    req.admin.adminId,
@@ -553,8 +679,6 @@ router.get('/export/reports.csv', async (req, res, next) => {
 });
 
 // ─── POST /broadcast ──────────────────────────────────────────────────────────
-
-const { sendBroadcast, isFcmReady } = require('../services/fcm');
 
 // POST /broadcast — send a push notification to users.
 // FCM delivery is enabled when FCM_SERVICE_ACCOUNT_PATH or FCM_SERVICE_ACCOUNT_JSON

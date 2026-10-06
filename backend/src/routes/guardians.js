@@ -3,8 +3,10 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db/pool');
 const auth    = require('../middleware/auth');
+const { authenticatedRateLimiter } = require('../middleware/rateLimit');
 
 router.use(auth);
+router.use(authenticatedRateLimiter);
 
 // GET /guardians — list all guardians for current user
 router.get('/', async (req, res, next) => {

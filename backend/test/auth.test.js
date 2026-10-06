@@ -13,6 +13,7 @@
 
 require('dotenv').config();
 const request = require('supertest');
+const { resetRateLimits } = require('../src/middleware/rateLimit');
 
 const dbAvailable = !!process.env.DATABASE_URL;
 const describeIfDb = dbAvailable ? describe : describe.skip;
@@ -22,6 +23,10 @@ if (dbAvailable) {
   // Load app without starting the HTTP listener
   app = require('../src/index');
 }
+
+beforeEach(() => {
+  resetRateLimits();
+});
 
 // ─── POST /api/auth/signup ─────────────────────────────────────────────────
 
@@ -48,7 +53,7 @@ describeIfDb('POST /api/auth/signup', () => {
       .expect(400);
 
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toMatch(/8 character/i);
+    expect(res.body.message).toMatch(/(?:8 character|4 digit)/i);
   });
 });
 

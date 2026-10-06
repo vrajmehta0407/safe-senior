@@ -3,11 +3,13 @@
 const express        = require('express');
 const pool           = require('../db/pool');
 const authMiddleware = require('../middleware/auth');
+const { authenticatedRateLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
 // All guardian routes require authentication
 router.use(authMiddleware);
+router.use(authenticatedRateLimiter);
 
 // ─── GET /guardian/sync ───────────────────────────────────────────────────────
 /**

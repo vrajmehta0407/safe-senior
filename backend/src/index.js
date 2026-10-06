@@ -14,6 +14,7 @@ const guardianRoutes  = require('./routes/guardian');
 const scamRoutes      = require('./routes/scamPatterns');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminRoutes     = require('./routes/admin');
+const { publicRateLimiter } = require('./middleware/rateLimit');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -53,7 +54,7 @@ app.set('trust proxy', 1);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => {
+app.get('/health', publicRateLimiter, (_req, res) => {
   res.status(200).json({
     status:    'ok',
     timestamp: new Date().toISOString(),
@@ -194,7 +195,7 @@ async function start() {
   }
 }
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
   start();
 }
 

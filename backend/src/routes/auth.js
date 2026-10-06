@@ -20,7 +20,7 @@ const crypto  = require('crypto');
 const pool              = require('../db/pool');
 const { sendEmailOtp }    = require('../services/emailOtp');
 const { sendSmsOtp, normalisePhone } = require('../services/androidSmsGateway');
-const { otpRateLimiter, authRateLimiter } = require('../middleware/rateLimit');
+const { otpRateLimiter, authRateLimiter, authenticatedRateLimiter } = require('../middleware/rateLimit');
 const authMiddleware    = require('../middleware/auth');
 
 const router = express.Router();
@@ -67,7 +67,7 @@ async function findUser(identifier) {
   if (!id) return null;
   if (id.includes('@')) {
     const result = await pool.query(
-      `SELECT id, name, phone_number, email, password_hash, created_at, guardian_id
+      `SELECT id, name, phone_number, email, password_hash, created_at, guardian_id, is_suspended
        FROM users
        WHERE email = $1
        LIMIT 1`,
@@ -76,19 +76,21 @@ async function findUser(identifier) {
     return result.rows[0] || null;
   }
   const normPhone = normalisePhone(id);
+  const rawDigits = id.replace(/\D/g, '');
   const result = await pool.query(
-    `SELECT id, name, phone_number, email, password_hash, created_at, guardian_id
+    `SELECT id, name, phone_number, email, password_hash, created_at, guardian_id, is_suspended
      FROM users
-     WHERE phone_number = $1 OR phone_number = $2
+     WHERE phone_number = $1 OR phone_number = $2 OR phone_number = $3
+     ORDER BY id ASC
      LIMIT 1`,
-    [id, normPhone]
+    [normPhone, id, rawDigits]
   );
   return result.rows[0] || null;
 }
 
 // ─── POST /auth/email-otp/request ───────────────────────────────────────────
 // Dispatches real Email OTP via Gmail SMTP to registering users
-router.post('/email-otp/request', async (req, res, next) => {
+router.post('/email-otp/request', otpRateLimiter, async (req, res, next) => {
   try {
     const { email } = req.body;
     const cleanEmail = (email || '').trim().toLowerCase();
@@ -132,7 +134,7 @@ router.post('/email-otp/request', async (req, res, next) => {
 });
 
 // ─── POST /auth/email-otp/verify ────────────────────────────────────────────
-router.post('/email-otp/verify', async (req, res, next) => {
+router.post('/email-otp/verify', otpRateLimiter, async (req, res, next) => {
   try {
     const { email, code } = req.body;
     const cleanEmail = (email || '').trim().toLowerCase();
@@ -179,7 +181,7 @@ router.post('/email-otp/verify', async (req, res, next) => {
 
 // ─── POST /auth/phone-otp/request ───────────────────────────────────────────
 // Dispatches real SMS OTP via androidSmsGateway; also emails if email is provided
-router.post('/phone-otp/request', async (req, res, next) => {
+router.post('/phone-otp/request', otpRateLimiter, async (req, res, next) => {
   try {
     const { phone_number, email } = req.body;
     const rawPhone = (phone_number || '').trim();
@@ -238,7 +240,7 @@ router.post('/phone-otp/request', async (req, res, next) => {
 });
 
 // ─── POST /auth/phone-otp/verify ────────────────────────────────────────────
-router.post('/phone-otp/verify', async (req, res, next) => {
+router.post('/phone-otp/verify', otpRateLimiter, async (req, res, next) => {
   try {
     const { phone_number, code } = req.body;
     const rawPhone = (phone_number || '').trim();
@@ -286,14 +288,14 @@ router.post('/phone-otp/verify', async (req, res, next) => {
 
 // ─── POST /auth/signup ────────────────────────────────────────────────────────
 
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', authRateLimiter, async (req, res, next) => {
   try {
     const { name, phone_number, email, password } = req.body;
 
-    if (!name || !phone_number || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'name, phone_number, email, and password are required.',
+        message: 'name, email, and password are required.',
       });
     }
     if (password.length < 4) {
@@ -303,24 +305,38 @@ router.post('/signup', async (req, res, next) => {
       });
     }
 
-    // Duplicate check
+    const cleanEmail = email.toLowerCase().trim();
+    const rawPhone = (phone_number && phone_number.trim().length >= 5)
+      ? phone_number.trim()
+      : `+9198${Date.now().toString().slice(-8)}`;
+    const normPhone = normalisePhone(rawPhone);
+    const rawDigits = rawPhone.replace(/\D/g, '');
+
+    // Duplicate check: Enforce ONE account per mobile number and ONE account per email
     const existing = await pool.query(
-      'SELECT id FROM users WHERE phone_number = $1 OR email = $2 LIMIT 1',
-      [phone_number.trim(), email.toLowerCase().trim()]
+      `SELECT id, phone_number, email FROM users
+       WHERE phone_number = $1 OR phone_number = $2 OR phone_number = $3 OR email = $4
+       LIMIT 1`,
+      [normPhone, rawPhone, rawDigits, cleanEmail]
     );
     if (existing.rowCount > 0) {
+      const match = existing.rows[0];
+      const isPhoneMatch = (match.phone_number === normPhone || match.phone_number === rawPhone || match.phone_number === rawDigits);
       return res.status(409).json({
         success: false,
-        message: 'An account with this phone number or email already exists.',
+        message: isPhoneMatch
+          ? 'An account with this mobile number already exists. Please log in.'
+          : 'An account with this email address already exists. Please log in.',
       });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
+    // Always store normalised E.164 phone number
     const result = await pool.query(
       `INSERT INTO users (name, phone_number, email, password_hash)
        VALUES ($1, $2, $3, $4)
        RETURNING id, name, phone_number, email, created_at`,
-      [name.trim(), phone_number.trim(), email.toLowerCase().trim(), password_hash]
+      [name.trim(), normPhone, cleanEmail, password_hash]
     );
 
     const user  = result.rows[0];
@@ -331,7 +347,7 @@ router.post('/signup', async (req, res, next) => {
     if (err.code === '23505') {
       return res.status(409).json({
         success: false,
-        message: 'An account with this phone number or email already exists.',
+        message: 'An account with this phone number or email already exists. Please log in.',
       });
     }
     next(err);
@@ -342,23 +358,28 @@ router.post('/signup', async (req, res, next) => {
 
 router.post('/login', authRateLimiter, async (req, res, next) => {
   try {
-    const { phone_or_email, password } = req.body;
+    const identifier = req.body.phone_or_email || req.body.identifier || req.body.email || req.body.phone_number;
+    const { password } = req.body;
 
-    if (!phone_or_email || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({
         success: false,
         message: 'phone_or_email and password are required.',
       });
     }
 
-    const user = await findUser(phone_or_email);
+    const user = await findUser(identifier);
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+      return res.status(401).json({ success: false, message: 'No account found with this phone number or email.' });
     }
 
-    const match = await bcrypt.compare(password, user.password_hash);
+    if (user.is_suspended) {
+      return res.status(403).json({ success: false, message: 'This account has been suspended. Please contact support.' });
+    }
+
+    const match = await bcrypt.compare(String(password), user.password_hash);
     if (!match) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+      return res.status(401).json({ success: false, message: 'Incorrect PIN. Please try again.' });
     }
 
     const token = signToken(user.id);
@@ -492,7 +513,7 @@ router.post('/otp/verify', otpRateLimiter, async (req, res, next) => {
 
 // ─── POST /auth/2fa/verify ────────────────────────────────────────────────────
 
-router.post('/2fa/verify', authMiddleware, async (req, res, next) => {
+router.post('/2fa/verify', authMiddleware, authenticatedRateLimiter, async (req, res, next) => {
   try {
     const { code } = req.body;
     const identifier = req.body.identifier || req.body.email || req.body.phone_number;
@@ -546,11 +567,16 @@ router.post('/reset-password', authRateLimiter, async (req, res, next) => {
 
     const password_hash = await bcrypt.hash(new_password, 10);
     const id = identifier.trim();
+    const isEmail = id.includes('@');
+    const cleanEmail = isEmail ? id.toLowerCase() : '';
+    const normPhone = isEmail ? '' : normalisePhone(id);
+    const rawDigits = isEmail ? '' : id.replace(/\D/g, '');
+
     const updateResult = await pool.query(
       `UPDATE users SET password_hash = $1
-       WHERE email = $2 OR phone_number = $3
+       WHERE email = $2 OR phone_number = $3 OR phone_number = $4 OR phone_number = $5
        RETURNING id`,
-      [password_hash, id.toLowerCase(), id]
+      [password_hash, cleanEmail, normPhone, id, rawDigits]
     );
 
     if (updateResult.rowCount === 0) {
@@ -566,7 +592,7 @@ router.post('/reset-password', authRateLimiter, async (req, res, next) => {
 // ─── GET /auth/me ─────────────────────────────────────────────────────────────
 
 // GET /auth/me — returns current user from JWT (used for session restore)
-router.get('/me', authMiddleware, async (req, res, next) => {
+router.get('/me', authMiddleware, authenticatedRateLimiter, async (req, res, next) => {
   try {
     const result = await pool.query(
       'SELECT id, name, email, phone_number, is_suspended, created_at FROM users WHERE id = $1',
