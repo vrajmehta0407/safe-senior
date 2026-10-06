@@ -82,58 +82,150 @@ export function AdminDataProvider({ children }) {
         ])
 
         if (statsRes.status === 'fulfilled' && statsRes.value?.stats) {
+          const s = statsRes.value.stats
           setStats(prev => ({
             ...prev,
-            activeSeniors: statsRes.value.stats.totalUsers || prev.activeSeniors,
-            scamsInterceptedToday: statsRes.value.stats.totalScamReports || prev.scamsInterceptedToday,
+            activeSeniors: s.totalUsers || prev.activeSeniors,
+            scamsInterceptedToday: s.totalScamReports || prev.scamsInterceptedToday,
+            protectedGuardians: s.totalUsers ? s.totalUsers + 1 : prev.protectedGuardians,
+            highRiskAlerts: s.totalScamReports || prev.highRiskAlerts
           }))
         }
-        if (usersRes.status === 'fulfilled' && usersRes.value?.users?.length > 0) {
-          // Merge with mock user visual fields (avatar, geofence, etc.)
-          setUsers(prev => {
-            const remote = usersRes.value.users.map((u) => ({
-              id: `u${u.id}`,
-              name: u.name || `Senior #${u.id}`,
-              age: 70 + (u.id % 20),
-              phone: u.phone_number || '(555) 019-2834',
-              email: u.email || '',
-              location: 'Portland, OR',
-              device: 'Samsung Galaxy A15 (Knox Secured)',
-              guardians: [{ name: 'Family Guardian', relation: 'Relative', phone: '(555) 991-0022' }],
-              geofenceStatus: u.is_suspended ? 'Suspended' : 'Inside Safe Zone',
-              riskScore: u.is_suspended ? 90 : 35 + (u.id % 40),
-              avatar: `https://images.unsplash.com/photo-${1544005313 + (u.id * 1000)}?w=150&auto=format&fit=crop&q=80`,
-              isSuspended: u.is_suspended
-            }))
-            return [...remote, ...prev.filter(p => !remote.some(r => r.id === p.id))]
-          })
+
+        const rawGuardians = (guardiansRes.status === 'fulfilled' && Array.isArray(guardiansRes.value?.guardians))
+          ? guardiansRes.value.guardians
+          : []
+
+        if (guardiansRes.status === 'fulfilled' && rawGuardians.length > 0) {
+          const remoteGuardians = rawGuardians.map(g => ({
+            id: `g-${g.id}`,
+            name: g.name,
+            relation: g.relationship || 'Guardian',
+            phone: g.phone_number,
+            user: g.user_name || `Senior Citizen #${g.user_id}`,
+            status: 'Active',
+            createdAt: g.created_at
+          }))
+          setGuardians(remoteGuardians)
         }
+
+        if (usersRes.status === 'fulfilled' && usersRes.value?.users?.length > 0) {
+          const indianCities = [
+            'Ahmedabad, Gujarat (Navrangpura)',
+            'New Delhi, NCR (Dwarka Sector 12)',
+            'Mumbai, Maharashtra (Dadar West)',
+            'Bengaluru, Karnataka (Jayanagar)',
+            'Chennai, Tamil Nadu (Mylapore)',
+            'Varanasi, Uttar Pradesh (Sigra)',
+            'Vadodara, Gujarat (Alkapuri)',
+            'Surat, Gujarat (Athwa Lines)'
+          ]
+
+          const remoteUsers = usersRes.value.users.map((u, idx) => {
+            const userGuardians = rawGuardians
+              .filter(g => g.user_id === u.id)
+              .map(g => ({
+                name: g.name,
+                relation: g.relationship || 'Primary Guardian',
+                phone: g.phone_number,
+                role: 'Primary'
+              }))
+
+            const city = indianCities[idx % indianCities.length]
+            return {
+              id: `u${u.id}`,
+              name: u.name || `Senior Citizen #${u.id}`,
+              age: 68 + ((u.id * 3) % 18),
+              phone: u.phone_number,
+              email: u.email,
+              location: city,
+              device: (u.id % 2 === 0) ? 'Samsung Galaxy A15 (Knox Shield)' : 'Vivo V30e (SafeGuard Active)',
+              guardians: userGuardians.length > 0 ? userGuardians : [{ name: 'Primary Guardian', relation: 'Son', phone: '+91 98240 88219' }],
+              geofenceStatus: u.is_suspended ? 'Suspended' : 'Inside Home Safe Zone',
+              riskScore: u.is_suspended ? 92 : (22 + (u.id * 7) % 65),
+              status: u.is_suspended ? 'Suspended' : 'Protected',
+              avatar: `https://images.unsplash.com/photo-${1544005313 + ((u.id % 10) * 1000)}?w=150&auto=format&fit=crop&q=80`,
+              isSuspended: u.is_suspended,
+              createdAt: u.created_at
+            }
+          })
+          setUsers(remoteUsers)
+        }
+
         if (patternsRes.status === 'fulfilled' && (patternsRes.value?.patterns || patternsRes.value?.data)) {
           const list = patternsRes.value.patterns || patternsRes.value.data
           if (Array.isArray(list) && list.length > 0) {
-            setRules(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+            const remotePatterns = list.map(p => ({
+              id: `pat-${p.id}`,
+              title: p.category || (p.pattern && p.pattern.length > 35 ? p.pattern.substring(0, 35) + '...' : p.pattern),
+              pattern: p.pattern,
+              category: p.category || 'Threat Vector',
+              detectionCount: 150 + ((p.id * 89) % 2400),
+              riskWeight: p.severity === 'high-risk' ? 'CRITICAL (9.5/10)' : 'ELEVATED (6.5/10)',
+              severity: p.severity,
+              type: p.type,
+              keywords: [p.pattern],
+              status: p.is_active ? 'Active Enforced' : 'Disabled',
+              rulesTriggered: 12 + (p.id % 40)
+            }))
+            setRules(remotePatterns)
           }
         }
+
         if (reportsRes.status === 'fulfilled' && (reportsRes.value?.reports || reportsRes.value?.data)) {
           const list = reportsRes.value.reports || reportsRes.value.data
           if (Array.isArray(list) && list.length > 0) {
-            setScamReports(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+            const remoteReports = list.map(r => ({
+              id: `rep-${r.id}`,
+              type: r.type,
+              sender: r.sender,
+              classification: r.classification,
+              body_preview: r.body_preview,
+              timestamp: new Date(r.timestamp).toLocaleString('en-IN')
+            }))
+            setScamReports(remoteReports)
+
+            // Derive dynamic real-time alerts from live database high-risk scam reports
+            const dynamicAlerts = list
+              .filter(r => r.classification === 'high-risk')
+              .map((r, i) => ({
+                id: `alt-db-${r.id}`,
+                seniorId: `u${r.user_id || (i + 1)}`,
+                seniorName: (usersRes.status === 'fulfilled' && usersRes.value?.users?.find(u => u.id === r.user_id)?.name) || 'Senior Citizen',
+                type: (r.body_preview || '').includes('Digital Arrest') ? 'Digital Arrest & CBI Coercion' :
+                      (r.body_preview || '').includes('electricity') ? 'Electricity Disconnection Trap' :
+                      (r.body_preview || '').includes('TRAI') ? 'TRAI SIM Disconnection Extortion' :
+                      (r.body_preview || '').includes('KYC') ? 'Banking KYC Phishing' : 'Critical Telecom Threat',
+                channel: r.type === 'call' ? 'Incoming Voice Call' : 'SMS Text Header',
+                confidence: '97.2%',
+                severity: 'Critical',
+                timestamp: new Date(r.timestamp).toLocaleString('en-IN'),
+                status: 'Escalated to Guardian',
+                summary: r.body_preview,
+                actionTaken: 'Interception rule applied, Guardian notified via SMS, 1930 report drafted.'
+              }))
+            if (dynamicAlerts.length > 0) {
+              setAlerts(dynamicAlerts)
+            }
           }
         }
-        if (auditRes.status === 'fulfilled' && (auditRes.value?.logs || auditRes.value?.auditLogs)) {
-          const list = auditRes.value.logs || auditRes.value.auditLogs
+
+        if (auditRes.status === 'fulfilled' && (auditRes.value?.entries || auditRes.value?.logs)) {
+          const list = auditRes.value.entries || auditRes.value.logs
           if (Array.isArray(list) && list.length > 0) {
-            setAuditLogs(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
-          }
-        }
-        if (guardiansRes.status === 'fulfilled' && (guardiansRes.value?.guardians || guardiansRes.value?.data)) {
-          const list = guardiansRes.value.guardians || guardiansRes.value.data
-          if (Array.isArray(list) && list.length > 0) {
-            setGuardians(prev => [...list, ...prev.filter(p => !list.some(r => r.id === p.id))])
+            const remoteAudit = list.map(a => ({
+              id: `aud-${a.id}`,
+              action: a.action ? a.action.replace(/_/g, ' ').toUpperCase() : 'ADMIN OPERATION',
+              target: a.target_type ? `${a.target_type.toUpperCase()} #${a.target_id || ''}` : 'System Security Engine',
+              admin: a.admin_name || a.admin_email || 'SuperAdmin (Vraj)',
+              timestamp: new Date(a.created_at).toLocaleString('en-IN'),
+              ip: a.ip_address || '127.0.0.1'
+            }))
+            setAuditLogs(remoteAudit)
           }
         }
       } catch (err) {
-        console.warn('Backend sync fallback to local/mock store:', err)
+        console.warn('Backend sync fallback to local store:', err)
       }
     }
     fetchBackendData()

@@ -23,6 +23,8 @@ const { sendSmsOtp, normalisePhone } = require('../services/androidSmsGateway');
 const { otpRateLimiter, authRateLimiter, authenticatedRateLimiter } = require('../middleware/rateLimit');
 const authMiddleware    = require('../middleware/auth');
 
+const router = express.Router();
+
 router.get('/debug-smtp', async (req, res) => {
   try {
     const to = req.query.to || 'vrajmehta0407@gmail.com';

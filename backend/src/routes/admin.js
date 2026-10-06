@@ -338,7 +338,7 @@ router.get('/guardians', async (req, res, next) => {
 
     params.push(limit, offset);
     const result = await pool.query(
-      `SELECT g.id, g.name, g.phone_number, g.relationship, g.created_at,
+      `SELECT g.id, g.user_id, g.name, g.phone_number, g.relationship, g.created_at,
               u.name AS user_name, u.email AS user_email, u.phone_number AS user_phone
        FROM guardians g
        JOIN users u ON u.id = g.user_id

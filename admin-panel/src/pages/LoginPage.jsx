@@ -55,7 +55,11 @@ export default function LoginPage({ onLogin }) {
             }
           }
         } catch (apiErr) {
-          // Fallback to local session demo mode for instant testing
+          if (apiErr.response?.data?.message) {
+            setError(apiErr.response.data.message)
+            return
+          }
+          // Only if backend is completely down (offline dev)
           console.warn('Backend unavailable, initiating local administrative session:', apiErr)
           onLogin('demo-session-token-2026', {
             id: 'admin-001',
