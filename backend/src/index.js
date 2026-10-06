@@ -147,9 +147,7 @@ app.use((err, req, res, _next) => {
   const statusCode = (res.headersSent || !err.status) ? 200 : (err.status < 500 ? err.status : 200);
   res.status(statusCode).json({
     success: false,
-    message: process.env.NODE_ENV === 'production'
-      ? 'Something went wrong. Please try again.'
-      : err.message,
+    message: err.message || 'Something went wrong. Please try again.',
   });
 });
 

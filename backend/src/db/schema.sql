@@ -50,6 +50,17 @@ CREATE TABLE IF NOT EXISTS otps (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS temp_otps (
+  id         SERIAL PRIMARY KEY,
+  identifier TEXT        NOT NULL,
+  code_hash  TEXT        NOT NULL,
+  purpose    TEXT        NOT NULL DEFAULT 'verification',
+  expires_at TIMESTAMPTZ NOT NULL,
+  attempts   INT         NOT NULL DEFAULT 0,
+  verified   BOOLEAN     NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS scam_reports (
   id             SERIAL PRIMARY KEY,
   user_id        INTEGER REFERENCES users(id) ON DELETE SET NULL,

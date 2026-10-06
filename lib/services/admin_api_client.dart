@@ -12,8 +12,7 @@ import '../state/admin_provider.dart';
 const _kAdminPrefix = '/api/ops-4e9f2c1a';
 
 String get _adminBase {
-  if (Platform.isAndroid) return 'http://192.168.31.53:3000$_kAdminPrefix';
-  return 'http://localhost:3000$_kAdminPrefix';
+  return 'https://safe-senior-backend.onrender.com$_kAdminPrefix';
 }
 
 class AdminApiClient {
@@ -30,6 +29,8 @@ class AdminApiClient {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'bypass-tunnel-reminder': 'true',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       ),
@@ -80,8 +81,8 @@ class AdminApiClient {
   }) => _get('/scam-reports', params: {
         'limit': limit,
         'offset': offset,
-        if (classification != null) 'classification': classification,
-        if (type != null) 'type': type,
+        'classification': ?classification,
+        'type': ?type,
       });
 
   // ── Scam Patterns ────────────────────────────────────────────────────────────
@@ -94,8 +95,8 @@ class AdminApiClient {
   }) => _get('/scam-patterns', params: {
         'limit': limit,
         'offset': offset,
-        if (severity != null) 'severity': severity,
-        if (active != null) 'active': active,
+        'severity': ?severity,
+        'active': ?active,
       });
 
   Future<Map<String, dynamic>?> createPattern(Map<String, dynamic> body) =>
